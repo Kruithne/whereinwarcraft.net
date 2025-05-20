@@ -14,6 +14,7 @@
 	define('BOD_RADIUS', 0.8);
 
 	function getDatabase() {
+		global $db;
 		if ($db !== null)
 			return $db;
 
@@ -129,12 +130,12 @@
 
 			$accuracy = getDatabase()->getRow('SELECT AVG(distPct) AS `accuracy` FROM `guesses` WHERE token = ?', [$request->token])->accuracy;
 
-			if ($session->gameMode === '1') {
+			if (intval($session->gameMode) === 1) {
 				$check = getDatabase()->getRow('SELECT `score` FROM `scoreboard` WHERE `ID` = ?', [$request->uid]);
 				if ($check === false || $playerScore > intval($check->score))
 					getDatabase()->execute('INSERT INTO `scoreboard` (`ID`, `score`, `name`, `accuracy`) VALUES(:id, :score, :name, :accuracy) ON DUPLICATE KEY UPDATE `score` = :score, `name` = :name, `accuracy` = :accuracy', ['id' => $request->uid, 'score' => $playerScore, 'name' => $playerName, 'accuracy' => $accuracy]);
 
-			} else if ($session->gameMode === '2') {
+			} else if (intval($session->gameMode) === 2) {
 				$check = getDatabase()->getRow('SELECT `score` FROM `scoreboard_classic` WHERE `ID` = ?', [$request->uid]);
 				if ($check === false || $playerScore > intval($check->score))
 					getDatabase()->execute('INSERT INTO `scoreboard_classic` (`ID`, `score`, `name`, `accuracy`) VALUES(:id, :score, :name, :accuracy) ON DUPLICATE KEY UPDATE `score` = :score, `name` = :name, `accuracy` = :accuracy', ['id' => $request->uid, 'score' => $playerScore, 'name' => $playerName, 'accuracy' => $accuracy]);
@@ -164,12 +165,12 @@
 				throw new Exception('You get nothing! You lose! Good day, sir!');
 
 			$location = null;
-			if ($session->gameMode === '1')
+			if (intval($session->gameMode) === 1)
 				$location = getDatabase()->getRow('SELECT l.`name`, l.`lat`, l.`lng`, l.`map`, z.`name` as `zoneName` FROM `locations` AS l JOIN `zones` AS z ON (z.`ID` = l.`zone`) WHERE l.`ID` = ?', [$session->currentID]);
-			else if ($session->gameMode === '2')
+			else if (intval($session->gameMode) === 2)
 				$location = getDatabase()->getRow('SELECT l.`name`, l.`lat`, l.`lng`, z.`name` as `zoneName` FROM `locations_classic` AS l JOIN `zones_classic` AS z ON (z.`ID` = l.`zone`) WHERE l.`ID` = ?', [$session->currentID]);
 			else
-				throw new Exception('Unknown game mode.');
+				throw new Exception ('Unknown game mode.');
 
 			if ($location === false)
 				throw new Exception('Invalid location in session.');
@@ -222,7 +223,7 @@
 
 			if ($playerLives > 0) {
 				// Generate a new location and update player score/lives.
-				$newLocation = getRandomLocation($request->token, $session->gameMode === '2')->ID;
+				$newLocation = getRandomLocation($request->token, intval($session->gameMode) === 2)->ID;
 				$response->location = $newLocation;
 				getDatabase()->execute('UPDATE `sessions` SET `score` = ?, `lives` = ?, `currentID` = ? WHERE `token` = ?', [$playerScore, $playerLives, $newLocation, $request->token]);
 			} else {
