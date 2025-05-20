@@ -40,17 +40,12 @@ const pointDistance = (x1, y1, x2, y2) => {
 	return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 };
 
-const onButtonClick = (node, callback, disable = true) => {
-	const wrapper = event => {
+const onButtonClick = (node, callback) => {
+	const wrapper = () => {
 		if (!node.classList.contains('disabled')) {
-			if (disable)
-				node.classList.add('disabled');
-
+			node.classList.add('disabled');
 			callback();
 		}
-
-		event.preventDefault();
-		event.stopPropagation();
 
 		return false;
 	};
@@ -63,62 +58,6 @@ const $ = (id, multi = false) => {
 	return multi ? document.querySelectorAll(id) : document.querySelector(id);
 };
 
-const sendRequest = async (req) => {
-	const res = await fetch('endpoint.php', {
-		method: 'POST',
-		headers: {
-			'Accept': 'application/json',
-			'Content-Type': 'application/json'
-		},
-		body: JSON.stringify(req)
-	});
-
-	const json = await res.json();
-	if (json.error)
-		console.error(json.error);
-
-	return json;
-};
-
-const MAPS = {
-	'cata': {
-		dir: 'tiles',
-		maxZoom: 7,
-		background: 'rgb(0, 29, 40)',
-		mapID: 0
-	},
-	'classic': {
-		dir: 'tiles_classic',
-		maxZoom: 6,
-		background: 'rgb(0, 29, 40)'
-	},
-	'tbc': {
-		dir: 'tiles_tbc',
-		maxZoom: 6,
-		background: 'rgb(0, 0, 0)',
-		mapID: 1
-	},
-	'wod': {
-		dir: 'tiles_wod',
-		maxZoom: 7,
-		background: 'rgb(8, 27, 63)',
-		mapID: 2
-	},
-	'bfa': {
-		dir: 'tiles_bfa',
-		maxZoom: 7,
-		background: 'rgb(0, 29, 40)',
-		mapID: 3
-	}
-};
-
-const MAP_INDEX = new Map();
-for (const mapName in MAPS) {
-	const map = MAPS[mapName];
-	if (map.mapID !== undefined)
-		MAP_INDEX.set(map.mapID, mapName);
-}
-
 const MAX_LIVES = 3;
 const GUESS_THRESHOLD = 2.4;
 const BOD_RADIUS = 0.8;
@@ -127,14 +66,158 @@ class GameState {
 	constructor(ui, panorama) {
 		this.ui = ui;
 		this.panorama = panorama;
-
-		this.token = null;
-		this.isClassic = false;
-		this.gameStarted = false;
+		this.availableLocations = [];
 	}
-	
-	get isAlive() {
-		return this.playerLives > 0;
+
+	addLocation(location) {
+		this.availableLocations.push(location);
+	}
+
+	reset() {
+		this.currentRound = 0;
+		this.currentLocation = null;
+
+		this.playerLives = MAX_LIVES;
+		this.playerGuesses = [];
+		this.playerPoints = 0;
+
+		this.isAlive = true;
+
+		this.locationPool = [];
+		for (let location of this.availableLocations)
+			this.locationPool.push(location);
+
+		this.ui.$scoreLives.textContent = this.playerLives;
+		this.ui.$scoreRounds.textContent = this.currentRound;
+		this.ui.$scoreAccuracy.textContent = this.playerAccuracy;
+	}
+
+	startGame(isClassic) {
+		this.reset();
+		this.ui.enterGame(isClassic).then(() => this.nextRound());
+	}
+
+	restartGame() {
+		// Remove the glowing border from the game frame.
+		this.ui.setGameGlowBorder('transparent');
+
+		// Hide the game over frame.
+		this.ui.$gameOverSpirit.style.opacity = 0;
+		this.ui.$gameOver.style.opacity = 0;
+
+		delay(430).then(() => {
+			this.ui.$gameOver.style.display = 'none';
+
+			this.reset();
+
+			this.ui.$gameMap.style.display = 'block';
+			this.ui.$gameImage.style.display = 'block';
+
+			this.nextRound();
+		});
+	}
+
+	nextRound() {
+		this.ui.$scoreAccuracy.textContent = this.playerAccuracy;
+
+		if (this.isAlive) {
+			if (this.locationPool.length > 0) {
+				// Update the player score information.
+				this.currentRound++;
+				this.ui.$scoreRounds.textContent = this.currentRound;
+
+				// Select the next location from the pool.
+				let locationIndex = Math.floor(Math.random() * this.locationPool.length);
+				this.currentLocation = this.locationPool.splice(locationIndex, 1)[0];
+
+				// Set the panorama to the new location.
+				this.panorama.setLocation(this.currentLocation.id);
+
+				// Remove the glow effect from the game frame.
+				this.ui.setGameGlowBorder('transparent');
+
+				// Hide/clear the guess map.
+				this.ui.hideMap();
+				this.ui.clearMap();
+				this.ui.resetMapZoom();
+
+				// Enable the map, allowing users to place a marker.
+				this.ui.enableMap();
+
+				// Hide the 'Next round' button.
+				this.ui.$buttonNextRound.style.display = 'none';
+
+				// Show the 'View-location' and 'Submit guess' buttons.
+				this.ui.$buttonViewLocation.style.display = 'block';
+				this.ui.$buttonSubmitGuess.style.display = 'block';
+				this.ui.$buttonSubmitGuess.classList.add('disabled');
+
+			} else {
+				this.ui.showGameOver(true, this.playerPoints);
+			}
+		} else {
+			this.ui.showGameOver(false, this.playerPoints);
+		}
+	}
+
+	processGuess() {
+		// Disable the map, preventing further input.
+		this.ui.disableMap();
+
+		// Calculate the player's accuracy.
+		let choice = this.ui.mapMarker.getLatLng();
+		let dist = pointDistance(this.currentLocation.lat, this.currentLocation.lng, choice.lat, choice.lng);
+
+		let circleColour = 'blue';
+		let circleRadius = GUESS_THRESHOLD;
+
+		let distFactor = 1 - (dist / GUESS_THRESHOLD);
+		if (distFactor > 0) {
+			if (distFactor < BOD_RADIUS) {
+				circleColour = 'yellow';
+			} else {
+				circleColour = 'green';
+				circleRadius = BOD_RADIUS;
+				distFactor = 1;
+
+				this.ui.setGameGlowBorder('green');
+			}
+
+			// Increment the players score.
+			this.playerPoints++;
+		} else {
+			distFactor = 0;
+			this.removeLife();
+
+			circleColour = 'red';
+			this.ui.showMapPath(this.currentLocation, choice, circleColour);
+			this.ui.setGameGlowBorder('red');
+		}
+
+		// Set the zone information on the map.
+		this.ui.setMapInfo(this.currentLocation.zone, this.currentLocation.name);
+
+		// Convert the factor into a 0-100 percentage and store it.
+		let distPct = distFactor * 100;
+		this.playerGuesses.push(distPct);
+
+		// Show a circle where the actual answer was and pan to it.
+		this.ui.showMapCircle(this.currentLocation, circleColour, circleRadius);
+		this.ui.panMap(this.currentLocation);
+
+		// Hide the 'Submit guess' and 'View Location' buttons.
+		this.ui.$buttonSubmitGuess.style.display = 'none';
+		this.ui.$buttonViewLocation.style.display = 'none';
+
+		// Show the 'Next Round' button and enable it.
+		this.ui.$buttonNextRound.classList.remove('disabled');
+		this.ui.$buttonNextRound.style.display = 'block';
+	}
+
+	removeLife() {
+		this.playerLives--;
+		this.isAlive = this.playerLives > 0;
+		this.ui.$scoreLives.textContent = this.playerLives;
 	}
 
 	get playerAccuracy() {
@@ -147,208 +230,12 @@ class GameState {
 
 		return Math.ceil(sum / this.playerGuesses.length);
 	}
-
-	async startGame(isClassic, resumeToken = null, isRestart = false) {
-		this.isClassic = isClassic;
-		this.reset();
-
-		const initReq = { action: 'init', mode: isClassic ? 2 : 1 };
-
-		if (resumeToken !== null)
-			initReq.resumeToken = resumeToken;
-
-		if (this.token !== null)
-			initReq.clearToken = this.token;
-
-		if (!isRestart)
-			await this.ui.enterGame(isClassic);
-
-		const res = await sendRequest(initReq);
-
-		localStorage.setItem('wiw-session', res.token);
-
-		if (res.resumeLives !== undefined && res.resumeScore !== undefined) {
-			this.playerLives = res.resumeLives;
-			this.playerPoints = res.resumeScore;
-
-			this.currentRound =this.playerPoints + (MAX_LIVES - this.playerLives);
-
-			this.playerGuesses = JSON.parse(localStorage.getItem('wiw-local-guesses'));
-			if (!Array.isArray(this.playerGuesses))
-				this.playerGuesses = [];
-
-			this.updateDisplay();
-		}
-
-		this.token = res.token;
-		this.currentLocation = res.location;
-
-		this.nextRound();
-		this.gameStarted = true;
-	}
-
-	updateDisplay() {
-		this.ui.$scoreLives.textContent = this.playerLives;
-		this.ui.$scoreRounds.textContent = this.currentRound;
-		this.ui.$scoreAccuracy.textContent = this.playerAccuracy;
-	}
-
-	reset() {
-		this.currentRound = 0;
-		this.playerPoints = 0;
-		this.currentLocation = null;
-
-		this.playerLives = MAX_LIVES;
-		this.playerGuesses = [];
-
-		this.updateDisplay();
-	}
-
-	async restartGame() {
-		// Remove the glowing border from the game frame.
-		this.ui.setGameGlowBorder('transparent');
-
-		// Hide the game over frame.
-		this.ui.$gameOverSpirit.style.opacity = 0;
-		this.ui.$gameOver.style.opacity = 0;
-
-		await delay(430);
-
-		this.ui.$gameOver.style.display = 'none';
-
-		this.startGame(this.isClassic, null, true);
-	}
-
-	async nextRound() {
-		if (this.currentLocation !== null) {
-			this.currentRound++;
-			this.ui.$scoreRounds.textContent = this.currentRound;
-
-			await this.panorama.setLocation(this.currentLocation);
-
-			this.ui.setGameGlowBorder('transparent');
-
-			this.ui.hideMap();
-			this.ui.clearMap();
-			this.ui.resetMapZoom();
-
-			this.ui.enableMap();
-
-			// Hide the 'Next round' button.
-			this.ui.$buttonNextRound.style.display = 'none';
-
-			// Show the 'View-location' and 'Submit guess' buttons.
-			this.ui.$buttonViewLocation.style.display = 'block';
-			this.ui.$buttonSubmitGuess.style.display = 'block';
-			this.ui.$buttonSubmitGuess.classList.add('disabled');
-		} else {
-			localStorage.removeItem('wiw-session');
-			this.ui.showGameOver(this.isAlive, this.playerPoints);
-		}
-	}
-
-	async processGuess() {
-		// Disable the map, preventing further input.
-		this.ui.disableMap();
-
-		const choice = this.ui.mapMarker.getLatLng();
-		const selectedMap = this.ui.selectedMap;
-
-		let circleColour = 'blue';
-		let circleRadius = GUESS_THRESHOLD;
-
-		const req = { action: 'guess', token: this.token, lat: choice.lat, lng: choice.lng };
-		if (selectedMap !== 'classic')
-			req.mapID = MAPS[selectedMap].mapID;
-
-		const res = await sendRequest(req);
-		const currentLocation = { lat: res.lat, lng: res.lng };
-
-		switch (res.result) {
-			case 0:
-				circleColour = 'red';
-				this.ui.showMapPath(currentLocation, choice, circleColour);
-				this.ui.setGameGlowBorder('red');
-				break;
-			
-			case 1:
-				circleColour = 'yellow';
-				break;
-			
-			case 2:
-				circleColour = 'green';
-				circleRadius = BOD_RADIUS;
-
-				this.ui.setGameGlowBorder('green');
-				break;
-		}
-
-		// Set the next location if the server has provided it.
-		if (res.location)
-			this.currentLocation = res.location;
-		else
-			this.currentLocation = null;
-
-		this.playerPoints = res.score;
-		this.playerLives = res.lives;
-		this.ui.$scoreLives.textContent = res.lives;
-
-		// Load the correct map for our given answer.
-		if (res.mapID !== undefined)
-			this.ui.setSelectedMap(MAP_INDEX.get(res.mapID));
-
-		// Set the zone information on the map.
-		this.ui.setMapInfo(res.zoneName, res.locName);
-
-		// Store the new distance for client-side accuracy.
-		this.playerGuesses.push(res.distPct);
-		localStorage.setItem('wiw-local-guesses', JSON.stringify(this.playerGuesses));
-		this.ui.$scoreAccuracy.textContent = this.playerAccuracy;
-
-		// Show a circle where the actual answer was and pan to it.
-		this.ui.showMapCircle(currentLocation, circleColour, circleRadius);
-		this.ui.panMap(currentLocation);
-
-		// Hide the 'Submit guess' and 'View Location' buttons.
-		this.ui.$buttonSubmitGuess.style.display = 'none';
-		this.ui.$buttonViewLocation.style.display = 'none';
-
-		// Show the 'Next Round' button and enable it.
-		this.ui.$buttonNextRound.classList.remove('disabled');
-		this.ui.$buttonNextRound.style.display = 'block';
-	}
-
-	async sendScore() {
-		let name = this.ui.$fieldSendScore.value.trim();
-		if (name.length > 0 && this.token !== null && this.playerPoints > 0) {
-			name = name.substring(0, 20);
-
-			let uid = localStorage.getItem('wiw-score-token');
-			if (uid === null) {
-				uid = ([1e7]+1e3+4e3+8e3+1e11).replace(/[018]/g, c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
-				localStorage.setItem('wiw-score-token', uid);
-			}
-
-			await sendRequest({ action: 'submit', token: this.token, name, uid });
-			this.ui.$buttonSubmitScore.textContent = 'Score Sent';
-			this.ui.$buttonSubmitScore.classList.add('disabled');
-			this.ui.hideSendScore();
-		} else {
-			this.ui.$buttonSendScore.classList.remove('disabled');
-		}
-	}
 }
 
 class UI {
 	constructor() {
 		this._isMapEnabled = false;
 		this._init();
-
-		this.throttleLeaderboard = false;
-		this.isLeaderboardShown = false;
-
-		this.selectedMap = null;
-		this.isMapShown = false;
 	}
 
 	_init() {
@@ -368,12 +255,6 @@ class UI {
 		this.$gameOverRounds = $('#game-over-rounds-value');
 		this.$gameOverAccuracy = $('#game-over-accuracy-value');
 
-		// Send Score frame elements.
-		this.$sendScore = $('#send-score');
-		this.$buttonSendScore = $('#btn-send-score');
-		this.$fieldSendScore = $('#field-send-score');
-		this.$buttonCancelScore = $('#btn-cancel-score');
-
 		// Score components for top header.
 		this.$scoreRounds = $('#game-score-round-value');
 		this.$scoreAccuracy = $('#game-score-accuracy-value');
@@ -381,25 +262,6 @@ class UI {
 
 		// Game map info.
 		this.$infoZone = $('#game-map-info');
-
-		// Map Selection.
-		this.$mapSelector = $('#map-selector');
-		this.$mapSelectorButtons = $('.map-selector-icon', true);
-
-		for (const mapID in MAPS) {
-			const $selector = $('#map-selector-' + mapID);
-			MAPS[mapID].$selector = $selector;
-
-			if ($selector !== null)
-				$selector.addEventListener('click', (e) => {
-					this.setSelectedMap(mapID);
-					e.stopPropagation();
-				});
-		}
-
-		// Leaderboard
-		this.$buttonLeaderboard = $('#game-button-leaderboard');
-		this.$leaderboard = $('#leaderboard');
 
 		// Button elements.
 		this.$buttonViewMap = $('#game-button-map');
@@ -409,82 +271,30 @@ class UI {
 		this.$buttonReplay = $('#game-button-replay');
 		this.$buttonPlay = $('#btn-play');
 		this.$buttonPlayClassic = $('#btn-play-classic');
-		this.$buttonSubmitScore = $('#game-button-submit');
 
 		// Asynchronously load smooth background images.
 		for (const $node of $('.smooth', true))
 			loadBackgroundSmooth($node);
 	}
 
-	setSelectedMap(mapID) {
-		if (this.selectedMap === mapID)
-			return;
-
-		this.selectedMap = mapID;
-
-		const selectedMap = MAPS[mapID];
-		if (mapID === 'classic') {
-			this.$mapSelector.style.display = 'none';
-		} else {
-			this.$mapSelector.style.display = 'flex';
-
-			for (const $selector of this.$mapSelectorButtons)
-				$selector.classList.remove('selected');
-
-			if (selectedMap.$selector !== null)
-				selectedMap.$selector.classList.add('selected');
-		}
-
-		this.$gameMap.style.background = selectedMap.background;
-
-		if (this.map)
-			this.map.remove();
-
+	_initializeMap(isClassic) {
 		this.map = L.map('game-map', {
 			attributionControl: false,
 			crs: L.CRS.Simple
 		});
 
 		this.resetMapZoom();
+		this.isClassic = isClassic;
 
-		L.tileLayer('images/' + selectedMap.dir + '/{z}/{x}/{y}.png', { maxZoom: selectedMap.maxZoom, }).addTo(this.map);
+		const dir = isClassic ? 'tiles_classic' : 'tiles';
+		L.tileLayer('images/' + dir + '/{z}/{x}/{y}.png', { maxZoom: isClassic ? 6 : 7, }).addTo(this.map);
 		this.map.on('click', (e) => this._onMapClick(e));
 	}
 
-	async toggleLeaderboard() {
-		if (!this.isLeaderboardShown) {
-			this.isLeaderboardShown = true;
-			this.$leaderboard.style.display = 'block';
-
-			if (!this.throttleLeaderboard) {
-				this.throttleLeaderboard = true;
-				this.$leaderboard.innerHTML = '<p>Loading...</p>';
-
-				const res = await sendRequest({ action: 'leaderboard', mode: this.isClassic ? 2 : 1 });
-				this.$leaderboard.innerHTML = '';
-				let index = 1;
-				for (const player of res.players) {
-					const node = document.createElement('div');
-					node.textContent = (index++) + '. ' + player.name;
-
-					const span = document.createElement('span');
-					span.textContent = player.score + ' (' + Math.round(player.accuracy) + '%)';
-					node.appendChild(span);
-
-					this.$leaderboard.appendChild(node);
-				}
-
-				setTimeout(() => {
-					this.throttleLeaderboard = false;
-				}, 60 * 1000);
-			}
-		} else {
-			this.isLeaderboardShown = false;
-			this.$leaderboard.style.display = 'none';
-		}
-	}
-
 	_onMapClick(e) {
+		const dbg = JSON.stringify(e.latlng);
+		console.log(dbg);
+
 		if (this._isMapEnabled) {
 			// Remove existing marker.
 			if (this.mapMarker)
@@ -493,26 +303,6 @@ class UI {
 			this.mapMarker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(this.map);
 			this.$buttonSubmitGuess.classList.remove('disabled');
 		}
-	}
-
-	async showSendScore() {
-		this.$gameOver.style.opacity = 0;
-		await delay(430);
-		this.$gameOver.style.display = 'none';
-
-		this.$sendScore.style.opacity = 0;
-		this.$sendScore.style.display = 'block';
-		this.$sendScore.style.opacity = 1;
-	}
-
-	async hideSendScore() {
-		this.$sendScore.style.opacity = 0;
-		await delay(430);
-		this.$sendScore.style.display = 'none';
-
-		this.$gameOver.style.opacity = 0;
-		this.$gameOver.style.display = 'block';
-		this.$gameOver.style.opacity = 1;
 	}
 
 	resetMapZoom() {
@@ -578,8 +368,6 @@ class UI {
 	}
 
 	showMap() {
-		this.isMapShown = true;
-
 		// Ensure the 'Re-view' location button is enabled.
 		this.$buttonViewLocation.classList.remove('disabled');
 
@@ -596,8 +384,6 @@ class UI {
 	}
 
 	hideMap() {
-		this.isMapShown = false;
-
 		// Ensure the 'Make guess' button is enabled.
 		this.$buttonViewMap.classList.remove('disabled');
 
@@ -632,9 +418,14 @@ class UI {
 				// Fade in the game content container.
 				this.$gameContent.style.opacity = 1;
 
+				// Append HTML to the gameContent element.
+				this.$gameContent.innerHTML += `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5929887485300214" crossorigin="anonymous"></script>
+				<!-- Horizontal Ad Unit -->
+				<ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-5929887485300214" data-ad-slot="6553480617" data-ad-format="auto" data-full-width-responsive="true"></ins>
+				<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>`
+
 				// Initialize the guess map.
-				this.isClassic = isClassic;
-				this.setSelectedMap(isClassic ? 'classic' : 'cata');
+				this._initializeMap(isClassic);
 
 				resolve();
 			});
@@ -662,14 +453,8 @@ class UI {
 			this.$gameOverRounds.textContent = score;
 			this.$gameOverAccuracy.textContent = this.$scoreAccuracy.textContent;
 
+			// Enable the replay button.
 			this.$buttonReplay.classList.remove('disabled');
-
-			this.$buttonSendScore.classList.remove('disabled');
-			this.$buttonSubmitScore.textContent = 'Submit Score';
-			if (score > 0)
-				this.$buttonSubmitScore.classList.remove('disabled');
-			else
-				this.$buttonSubmitScore.classList.add('disabled');
 
 			// Show the spirit healer graphic.
 			loadBackgroundSmooth(this.$gameOverSpirit);
@@ -678,187 +463,6 @@ class UI {
 			this.$gameOver.style.display = 'flex';
 			this.$gameOver.style.opacity = 1;
 		});
-	}
-}
-
-class GamepadHandler {
-	constructor(ui, state, panorama) {
-		this.ui = ui;
-		this.state = state;
-		this.panorama = panorama;
-
-		this.gamepads = new Set();
-
-		addEventListener('gamepadconnected', e => this.onGamepadConnected(e));
-		addEventListener('gamepaddisconnected', e => this.onGamepadDisconnected(e));
-
-		this.isPolling = false;
-		this.updateCallback = (ts) => this.onUpdate(ts);
-
-		this.lastClickTime = 0;
-
-		this.isPanning = false;
-		this.panClientX = 0;
-		this.panClientY = 0;
-
-		this.crosshairEnabled = false;
-	}
-
-	get hasGamepads() {
-		return this.gamepads.size > 0;
-	}
-
-	initCrosshair() {
-		if (this.crosshairEnabled)
-			return;
-
-		this.crosshairEnabled = true;
-		const crosshair = this.crosshair = document.createElement('div');
-		crosshair.setAttribute('id', 'game-map-crosshair');
-		this.ui.map._container.appendChild(crosshair);
-	}
-
-	constructEvent(eventType) {
-		const event = new MouseEvent(eventType, {
-			clientX: this.panClientX,
-			clientY: this.panClientY
-		});
-
-		Object.defineProperty(event, 'target', { value: this.ui.map._container });
-		return event;
-	}
-
-	onUpdate(ts) {
-		if (!this.hasGamepads) {
-			this.isPolling = false;
-			return;
-		}
-
-		const gamepads = navigator.getGamepads();
-		for (const gamepadIndex of this.gamepads) {
-			const gamepad = gamepads[gamepadIndex];
-
-			if (!this.state.gameStarted)
-				continue;
-
-			const rightStickHor = gamepad.axes[0];
-			if (Math.abs(rightStickHor) >= 0.3) {
-				this.panorama.offset += 12 * -rightStickHor;
-				this.ui.$gameCanvas.style.backgroundPosition = this.panorama.offset + 'px 0';
-			}
-
-			const leftStickHor = gamepad.axes[2]; // -left, +right
-			const leftStickVer = gamepad.axes[3]; // -up, +down
-
-			if (this.ui.isMapShown && (Math.abs(leftStickHor) >= 0.15 || Math.abs(leftStickVer) >= 0.15)) {
-				if (this.isPanning) {
-					this.panClientX += -leftStickHor * 12;
-					this.panClientY += -leftStickVer * 12;
-					document.dispatchEvent(this.constructEvent('mousemove'));
-				} else {
-					this.panClientX = 0;
-					this.panClientY = 0;
-					this.isPanning = true;
-					this.initCrosshair();
-					this.ui.map._container.dispatchEvent(this.constructEvent('mousedown'));
-				}
-			} else if (this.isPanning) {
-				this.isPanning = false;
-				document.dispatchEvent(this.constructEvent('mouseup'));
-			}
-
-			if (ts - this.lastClickTime > 300) {
-				const rightStickVer = gamepad.axes[1];
-				if (Math.abs(rightStickVer) >= 0.3) {
-					if (rightStickVer > 0)
-						document.querySelector('.leaflet-control-zoom-out').click();
-					else
-						document.querySelector('.leaflet-control-zoom-in').click();
-
-					this.lastClickTime = ts;
-				}
-
-				if (gamepad.buttons[1].pressed) { // B
-					if (this.ui.isMapShown && !this.isPanning && this.crosshair) {
-						const map = this.ui.map._container;
-						const bounds = this.crosshair.getBoundingClientRect();
-						this.panClientX = bounds.left + (bounds.width / 2);
-						this.panClientY = bounds.top + (bounds.height / 2);
-
-						this.ui.map.dragging._draggable._moved = false;
-
-						map.dispatchEvent(this.constructEvent('click'));
-						this.lastClickTime = ts;
-					}
-				}
-
-				if (gamepad.buttons[9].pressed) { // Start/Menu button.
-					this.ui.toggleLeaderboard();
-					this.lastClickTime = ts;
-				}
-
-				if (gamepad.buttons[5].pressed) {
-					const selected = document.querySelector('.map-selector-icon.selected');
-					if (selected) {
-						const next = selected.nextElementSibling;
-						if (next)
-							next.click();
-						else
-							selected.parentNode.firstElementChild.click();
-					}
-
-					this.lastClickTime = ts;
-				} else if (gamepad.buttons[4].pressed) {
-					const selected = document.querySelector('.map-selector-icon.selected');
-					if (selected) {
-						const prev = selected.previousElementSibling;
-						if (prev)
-							prev.click();
-						else
-							selected.parentNode.lastElementChild.click();
-
-						this.lastClickTime = ts;
-					}
-				}
-	
-				if (gamepad.buttons[0].pressed) {
-					if (this.ui.$buttonNextRound.style.display !== 'none') {
-						this.state.nextRound();
-						this.lastClickTime = ts;
-					} else if (this.ui.mapMarker) {
-						this.ui.$buttonSubmitGuess.classList.add('disabled');
-						this.state.processGuess();
-						this.lastClickTime = ts;
-					}
-				}
-
-				if (gamepad.buttons[2].pressed) {
-					if (this.ui.isMapShown)
-						this.ui.hideMap();
-					else
-						this.ui.showMap();
-
-					this.lastClickTime = ts;
-				}
-			}
-		}
-
-		requestAnimationFrame(this.updateCallback);
-	}
-
-	onGamepadConnected(event) {
-		const gamepad = event.gamepad;
-		console.log(gamepad);
-		if (gamepad.mapping === 'standard') {
-			this.gamepads.add(gamepad.index);
-
-			if (!this.isPolling)
-				requestAnimationFrame(this.updateCallback);
-		}
-	}
-
-	onGamepadDisconnected(event) {
-		this.gamepads.delete(event.gamepad.index);
 	}
 }
 
@@ -878,11 +482,10 @@ class Panorama {
 		this.isClassic = isClassic;
 	}
 
-	async setLocation(id) {
+	setLocation(id) {
 		// Load the panorama for this location.
 		const dir = this.isClassic ? 'locations_classic' : 'locations';
 		this.ui.$gameCanvas.style.opacity = 0;
-		await delay(430);
 		loadBackgroundSmooth(this.ui.$gameCanvas, 'images/' + dir + '/' + id + '.jpg');
 	}
 
@@ -938,40 +541,39 @@ class Panorama {
 	});
 
 	// Asynchronously load location data from server.
-	const loadGame = (isClassic, resumeToken = null) => {
-		panorama.setMode(isClassic);
-		state.startGame(isClassic, resumeToken);
+	const loadGame = (isClassic) => {
+		fetch(isClassic ? 'locations_classic.json' : 'locations.json').then(async (response) => {
+			const content = await response.json();
+
+			for (const zone of content.zones) {
+				for (const location of zone.locations) {
+					location.zone = zone.name;
+					state.addLocation(location);
+				}
+			}
+
+			panorama.setMode(isClassic);
+			state.startGame(isClassic);
+		});
 	}
 
 	const ui = new UI();
 	const panorama = new Panorama(ui);
 	const state = new GameState(ui, panorama);
-	new GamepadHandler(ui, state, panorama);
 
-	const lastSession = localStorage.getItem('wiw-session');
-	if (lastSession !== null) {
-		sendRequest({ action: 'resume', token: lastSession }).then(res => {
-			if (res.resume === true) {
-				const $continue = $('#front-text-continue');
-				$continue.style.display = 'block';
-				$continue.addEventListener('click', () => loadGame(res.mode === 2, lastSession));
-			}
-		});
-	}
+		// Add button handlers.
+		onButtonClick(ui.$buttonViewMap, () => ui.showMap());
+		onButtonClick(ui.$buttonPlay, () => loadGame(false));
+		onButtonClick(ui.$buttonPlayClassic, () => loadGame(true));
+		onButtonClick(ui.$buttonViewLocation, () => ui.hideMap());
+		onButtonClick(ui.$buttonNextRound, () => state.nextRound());
+		onButtonClick(ui.$buttonReplay, () => state.restartGame());
+		onButtonClick(ui.$buttonSubmitGuess, () => state.processGuess());
 
-	// Add button handlers.
-	onButtonClick(ui.$buttonViewMap, () => ui.showMap());
-	onButtonClick(ui.$buttonPlay, () => loadGame(false));
-	onButtonClick(ui.$buttonPlayClassic, () => loadGame(true));
-	onButtonClick(ui.$buttonViewLocation, () => ui.hideMap());
-	onButtonClick(ui.$buttonNextRound, () => state.nextRound());
-	onButtonClick(ui.$buttonReplay, () => state.restartGame());
-	onButtonClick(ui.$buttonSubmitGuess, () => state.processGuess());
-	onButtonClick(ui.$buttonSubmitScore, () => ui.showSendScore(), false);
-	onButtonClick(ui.$buttonCancelScore, () => ui.hideSendScore(), false);
-	onButtonClick(ui.$buttonSendScore, () => state.sendScore());
-	onButtonClick(ui.$buttonLeaderboard, () => ui.toggleLeaderboard(), false);
+		// Remember, the secret word is BANANA!
+		//if (window.location.hash === '#banana')
+			//ui.$buttonPlayClassic.enable();
 
-	// Preload loading graphic.
-	preloadImage('images/zeppy.png');
+		// Preload loading graphic.
+		preloadImage('images/zeppy.png');
 })();

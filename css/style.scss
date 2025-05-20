@@ -104,14 +104,6 @@ body {
 		}
 
 		#front-text {
-			&-continue {
-				font-size: 0.5em;
-				margin-top: 10px;
-				display: none;
-				text-decoration: underline;
-				cursor: pointer;
-			}
-
 			position: absolute;
 			top: 278px;
 			left: 28px;
@@ -120,22 +112,8 @@ body {
 			text-shadow: black 0 0 20px;
 			font-size: 2em;
 
-			#btn-play, #btn-play-classic {
-				margin-top: 5px;
-			}
-
 			#btn-play {
-				border-top-right-radius: 0;
-				border-bottom-right-radius: 0;
-				font-size: 0.6em;
-				margin-right: 0;
-			}
-
-			#btn-play-classic {
-				border-top-left-radius: 0;
-				border-bottom-left-radius: 0;
-				font-size: 0.6em;
-				margin-left: 0;
+				margin-top: 5px;
 			}
 
 			p {
@@ -219,67 +197,10 @@ body {
 	#game-frame {
 		display: none;
 		position: absolute;
-		transition: opacity 400ms linear;
-		opacity: 0;
 		top: 0;
 		left: 0;
 		right: 0;
 		bottom: 0;
-
-		#map-selector {
-			position: absolute;
-			top: 10px;
-			left: 10px;
-			display: flex;
-			z-index: 999;
-
-			.map-selector-icon {
-				width: 95px;
-				height: 95px;
-				background-repeat: no-repeat;
-				background-position: center center;
-				position: relative;
-				margin-right: -15px;
-
-				&-border {
-					background: url(../images/map-selector/map-icon-border.png);
-					background-repeat: no-repeat;
-					cursor: pointer;
-					position: absolute;
-					top: 0;
-					left: 0;
-					right: 0;
-					bottom: 0;
-				}
-
-				&.selected {
-					.map-selector-icon-border {
-						background-position-x: -95px;
-					}
-				}
-			}
-
-			&-cata {
-				background-image: url(../images/map-selector/achievment_boss_madnessofdeathwing.png);
-			}
-	
-			&-tbc {
-				background-image: url(../images/map-selector/achievement_boss_illidan.png);
-			}
-	
-			&-wod {
-				background-image: url(../images/map-selector/achievement_thenighthold_guldan.png);
-			}
-	
-			&-bfa {
-				background-image: url(../images/map-selector/achievement_boss_zuldazar_jaina.png);
-			}
-		}
-
-		.leaflet-control-container {
-			position: absolute;
-			right: 55px;
-		}
 
 		.game-banner {
 			position: absolute;
@@ -336,11 +257,9 @@ body {
 				height: 70%;
 				border: 1px solid white;
 				box-shadow: black 0 0 20px;
-				transition: opacity 400ms linear;
 				cursor: grab;
 
 				.game-buttons {
-					display: flex;
 					position: absolute;
 					bottom: 20px;
 					left: 10px;
@@ -353,17 +272,7 @@ body {
 				opacity: 0;
 				transition: opacity 400ms;
 				position: absolute;
-
-				&-crosshair {
-					width: 182px;
-					height: 182px;
-					position: absolute;
-					top: 50%;
-					left: 50%;
-					transform: translate(-50%, -50%);
-					z-index: 999;
-					background: url(../images/gamepad-crosshair.png) no-repeat center;
-				}
+				background: rgb(0, 29, 40);
 
 				#game-button-next {
 					display: none;
@@ -401,7 +310,7 @@ body {
 				animation-direction: alternate;
 			}
 
-			#game-over, #send-score {
+			#game-over {
 				color: white;
 				z-index: 10;
 				opacity: 0;
@@ -414,7 +323,6 @@ body {
 				justify-content: center;
 				align-items: center;
 				padding: 35px 60px;
-				transition: opacity 400ms linear;
 
 				h1 {
 					font-size: 3rem;
@@ -425,25 +333,8 @@ body {
 					margin-bottom: 20px;
 				}
 
-				&-buttons {
+				#game-over-buttons {
 					margin-top: 25px;
-				}
-
-				input[type=text] {
-					padding: 6px;
-					font-size: 1.3em;
-					border-radius: 10px;
-					border: 1px solid white;
-				}
-				
-				&-info {
-					margin-top: 15px;
-
-					a {
-						text-decoration: none;
-						color: #55a3f4;
-						cursor: pointer;
-					}
 				}
 			}
 
@@ -455,36 +346,6 @@ body {
 				position: absolute;
 				cursor: grab;
 				z-index: 2;
-
-				#game-button-leaderboard {
-					position: absolute;
-					bottom: 20px;
-					right: 10px;
-					z-index: 5;
-				}
-
-				#leaderboard {
-					display: none;
-					position: absolute;
-					top: 0;
-					bottom: 0;
-					right: 0;
-					width: 240px;
-					background: rgba(0, 0, 0, 0.808);
-					color: white;
-					padding: 15px;
-
-					div {
-						word-break: break-all;
-						overflow: hidden;
-						text-overflow: ellipsis;
-						text-align: left;
-
-						span {
-							float: right;
-						}
-					}
-				}
 
 				#game-drag-inner {
 					width: 100%;
