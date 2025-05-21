@@ -200,7 +200,8 @@ async function document_load() {
 			reset_game_state() {
 				this.current_round = 0;
 				this.remaining_lives = MAX_LIVES;
-
+				
+				this.guess_result_state = 'playing';
 				this.player_guesses.length = 0;
 				this.viewing_map = false;
 			},
