@@ -207,7 +207,7 @@ body {
 	background-repeat: repeat-x;
 }
 
-#game-panorama-buttons, #game-map-buttons {
+#game-panorama-buttons, #game-map-buttons, #next-round-button {
 	position: absolute;
     bottom: 10px;
     left: 10px;
