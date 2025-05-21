@@ -25,3 +25,9 @@ body {
 	position: fixed;
 	inset: 0;
 }
+
+/* main menu */
+#main-menu {
+	display: grid;
+	grid-template-columns: 40% 60%;
+}

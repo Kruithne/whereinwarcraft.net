@@ -11,7 +11,7 @@ async function document_load() {
 	const state = createApp({
 		data() {
 			return {
-				test: 'Foo!'
+				in_game: false,
 			}
 		}
 	}).mount('#container');

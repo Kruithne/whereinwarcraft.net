@@ -14,7 +14,27 @@
 	<body>
 		<div id="container" v-cloak>
 			<div id="backdrop"></div>
-			Hello world! {{ test }}
+			<div id="main-menu" v-if="!in_game">
+				<div>
+					<img id="logo" src="static/images/logo.png" alt="Where in Warcraft?">
+					<div id="menu">
+						<h1>How well do you know the world of Azeroth?</h1>
+						<h2>Can you accurately place all the locations on the map?</h2>
+						<div>
+							<input type="button" value="Play Retail">
+							<input type="button" value="Play Classic">
+						</div>
+						<a>Continue last session</a>
+					</div>
+				</div>
+				<div>
+					<div id="main-menu-images">
+						<img src="static/images/front-graphic-A.jpg">
+						<img src="static/images/front-graphic-B.jpg">
+						<img src="static/images/front-graphic-C.jpg">
+					</div>
+				</div>
+			</div>
 		</div>
 	</body>
 </html>
