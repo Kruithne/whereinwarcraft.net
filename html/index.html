@@ -21,8 +21,8 @@
 						<h1>How well do you know the world of Azeroth?</h1>
 						<h2>Can you accurately place all the locations on the map?</h2>
 						<div id="main-menu-button-tray">
-							<input class="btn" type="button" value="Play Retail">
-							<input class="btn" type="button" value="Play Classic">
+							<input class="btn" type="button" value="Play Retail" @click="play">
+							<input class="btn" type="button" value="Play Classic" @click="play_classic">
 						</div>
 						<a id="main-menu-last-session">Continue last session</a>
 					</div>
@@ -34,6 +34,21 @@
 						<img src="static/images/front-graphic-C.jpg" class="image" id="main-menu-image-c">
 						<img id="main-menu-ruffles" src="static/images/ruffles.png">
 					</div>
+				</div>
+			</div>
+			<div id="game" v-else>
+				<div id="game-header">
+					<span>Round: {{ current_round }}</span>
+					<span>Accuracy: {{ player_accuracy }}</span>
+					<span>Lives Remaining: {{ remaining_lives }}</span>
+				</div>
+				<div id="game-content">
+					<div id="game-map"></div>
+					<span>{{ locations.length }} locations loaded!</span>
+				</div>
+				<div id="game-footer">
+					<p>Enjoyed playing? Consider <a href="https://www.paypal.me/kruithne">donating</a> or <a href="https://www.patreon.com/kruithne">supporting on Patreon</a>!</a></p>
+					<p>Created by <a href="http://kruithne.net/">Kruithne</a> and <a href="https://twitter.com/BookwormElf">Falerian</a>. Inspired by <a href="https://geoguessr.com/">geoguessr</a>.</p>
 				</div>
 			</div>
 		</div>

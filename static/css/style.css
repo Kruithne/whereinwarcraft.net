@@ -123,3 +123,18 @@ body {
 #main-menu-ruffles:hover {
 	transform: rotate(4deg) translate(33px, -168px);
 }
+
+/* game */
+#game {
+	position: fixed;
+	inset: 0;
+	display: grid;
+	grid-template-rows: 80px 1fr 80px;
+}
+
+#game-header {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 15px;
+}
