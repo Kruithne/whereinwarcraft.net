@@ -202,6 +202,7 @@ body {
     bottom: 10px;
     left: 10px;
     display: flex;
+	z-index: 500;
 }
 
 #game-panorama-buttons {
