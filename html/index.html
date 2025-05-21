@@ -50,7 +50,9 @@
 							<span>Loading, hold tight!</span>
 						</div>
 						<div id="game-view-map" v-else-if="viewing_map">
-							<div id="game-map"></div>
+							<keep-alive>
+								<div id="game-map"></div>
+							</keep-alive>
 							<div id="game-map-buttons">
 								<input class="btn" type="button" value="Re-view Location" @click="viewing_map = false">
 								<input class="btn" type="button" value="Confirm Guess" :class="{ disabled: !map_marker }" @click="confirm_guess">
