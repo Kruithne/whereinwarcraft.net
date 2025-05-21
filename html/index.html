@@ -51,14 +51,14 @@
 						<div id="game-view-map" v-else-if="viewing_map">
 							<div id="game-map"></div>
 							<div id="game-map-buttons">
-								<input class="btn" type="button" value="Re-view Location">
+								<input class="btn" type="button" value="Re-view Location" @click="viewing_map = false">
 								<input class="btn" type="button" value="Confirm Guess">
 							</div>
 						</div>
 						<div id="game-view-panorama" v-else>
 							<div id="game-panorama" :style="{ backgroundImage: 'url(' + current_location_background + ')' }"></div>
 							<div id="game-panorama-buttons">
-								<input class="btn" type="button" value="Make Guess">
+								<input class="btn" type="button" value="Make Guess" @click="viewing_map = true">
 								<input class="btn" type="button" value="Leaderboard">
 							</div>
 						</div>
