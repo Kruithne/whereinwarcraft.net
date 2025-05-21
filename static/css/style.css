@@ -29,8 +29,35 @@ body {
 	z-index: -1;
 }
 
+.btn {
+	padding: 20px;
+	font-size: 1.3em;
+	background: blue;
+}
+
 /* main menu */
 #main-menu {
 	display: grid;
 	grid-template-columns: 40% 60%;
+	position: fixed;
+    inset: 0;
+    align-items: center;
+    width: 1080px;
+    margin: 0 auto;
+}
+
+#main-menu-images img {
+	position: absolute;
+	border: 5px solid white;
+	box-shadow: black 0 0 20px;
+	background: white no-repeat;
+}
+
+#main-menu-logo {
+	transform: rotate(-8deg);
+    margin-bottom: 40px;
+}
+
+#main-menu-content {
+	text-align: center;
 }
