@@ -238,83 +238,84 @@ async function document_load() {
 					}
 					
 					const data = await response.json();
-			
-					// Store map switch needed flag and data for later use
-					let map_switch_needed = false;
 					
+					// Update game state
+					this.remaining_lives = data.lives;
+					this.player_guesses.push(data.distPct);
+					
+					// Check if we need to change the map
+					let map_changed = false;
 					if (data.mapID !== undefined) {
 						const new_map = Object.keys(this.maps).find(
 							key => this.maps[key].mapID === data.mapID
 						);
 						
 						if (new_map && new_map !== this.selected_map) {
-							map_switch_needed = true;
+							// Clear existing map elements
 							this.clear_map();
-							this.selected_map = new_map;
 							
-							// Wait for map change to be applied in the DOM
-							await this.$nextTick();
-							await this.change_map();
+							// Change selected map
+							this.selected_map = new_map;
+							map_changed = true;
+							
+							// Update the map tiles without reinitializing the map object
+							if (this.map) {
+								document.getElementById('game-map').style.background = this.map_background;
+								
+								// Remove existing tile layer
+								this.map.eachLayer(layer => {
+									if (layer instanceof L.TileLayer)
+										this.map.removeLayer(layer);
+								});
+								
+								// Add new tile layer
+								L.tileLayer('static/images/' + this.tiles_dir + '/{z}/{x}/{y}.png', {
+									maxZoom: this.map_max_zoom
+								}).addTo(this.map);
+								
+								await this.$nextTick();
+							}
 						}
 					}
 					
-					// Update game state
-					this.remaining_lives = data.lives;
-					this.player_guesses.push(data.distPct);
-					
 					// Create circle at correct location
-					this.map_circle_data = {
-						lat: data.lat,
-						lng: data.lng,
+					const circle_options = {
 						color: 'red',
+						fillColor: 'red',
+						fillOpacity: 0.5,
 						radius: GUESS_THRESHOLD
 					};
 					
 					// Set result color and radius based on result code
 					if (data.result === 1) {
-						this.map_circle_data.color = 'yellow';
+						circle_options.color = 'yellow';
+						circle_options.fillColor = 'yellow';
 					} else if (data.result === 2) {
-						this.map_circle_data.color = 'green';
-						this.map_circle_data.radius = BENEFIT_OF_DOUBT_RADIUS;
+						circle_options.color = 'green';
+						circle_options.fillColor = 'green';
+						circle_options.radius = BENEFIT_OF_DOUBT_RADIUS;
 					}
 					
-					// Create path between guess and correct location if on same map
-					if (data.result !== 0) {
-						this.map_path_data = {
-							points: [
-								[data.lat, data.lng],
-								[latlng.lat, latlng.lng]
-							],
-							color: this.map_circle_data.color
-						};
+					// Remove existing circle and path
+					if (this.map_circle)
+						this.map_circle.remove();
+						
+					if (this.map_path)
+						this.map_path.remove();
+					
+					// Add new circle
+					this.map_circle = L.circle([data.lat, data.lng], circle_options).addTo(this.map);
+					
+					// Add path between points if on the same map (result > 0)
+					if (data.result > 0) {
+						this.map_path = L.polyline([
+							[data.lat, data.lng],
+							[latlng.lat, latlng.lng]
+						], { color: circle_options.color }).addTo(this.map);
 					}
 					
-					// Update the map elements
-					this.$nextTick(() => {
-						// Remove previous elements
-						if (this.map_circle) 
-							this.map_circle.remove();
-						
-						if (this.map_path)
-							this.map_path.remove();
-						
-						// Add new elements
-						this.map_circle = L.circle([this.map_circle_data.lat, this.map_circle_data.lng], {
-							color: this.map_circle_data.color,
-							fillColor: this.map_circle_data.color,
-							fillOpacity: 0.5,
-							radius: this.map_circle_data.radius
-						}).addTo(this.map);
-						
-						if (this.map_path_data) {
-							this.map_path = L.polyline(this.map_path_data.points, { 
-								color: this.map_path_data.color 
-							}).addTo(this.map);
-						}
-						
-						// Pan to correct location
-						this.map.panTo([data.lat, data.lng]);
-					});
+					// Pan to the correct location
+					this.map.panTo([data.lat, data.lng]);
 					
 					// Set map info
 					this.map_info = {
@@ -439,21 +440,23 @@ async function document_load() {
 				this.selected_map = map_id;
 			},
 			
-			async change_map() {
-				return new Promise(resolve => {
-					if (this.map) {
-						this.clear_map();
-						this.map.remove();
-						this.map = null;
-					}
+			change_map() {
+				document.getElementById('game-map').style.background = this.map_background;
+				
+				if (this.map) {
+					this.clear_map();
 					
-					this.$nextTick(() => {
-						document.getElementById('game-map').style.background = this.map_background;
-						this.initialize_map().then(() => {
-							resolve();
-						});
+					this.map.eachLayer(layer => {
+						if (layer instanceof L.TileLayer)
+							this.map.removeLayer(layer);
 					});
-				});
+					
+					L.tileLayer('static/images/' + this.tiles_dir + '/{z}/{x}/{y}.png', {
+						maxZoom: this.map_max_zoom
+					}).addTo(this.map);
+				} else {
+					this.initialize_map();
+				}
 			},
 			// #endregion
 			
