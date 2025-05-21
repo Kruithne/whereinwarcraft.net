@@ -205,7 +205,7 @@ async function document_load() {
 				this.viewing_map = false;
 			},
 			
-			javascriptasync confirm_guess() {
+			async confirm_guess() {
 				if (!this.map_marker || !this.can_place_marker)
 					return;
 				
