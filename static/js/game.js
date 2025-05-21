@@ -75,6 +75,8 @@ async function document_load() {
 				this.in_game = true;
 
 				await this.load_location_data();
+				this.next_round();
+				this.is_loading = false;
 			},
 
 			async load_location_data() {
