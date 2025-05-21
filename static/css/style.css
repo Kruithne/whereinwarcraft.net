@@ -2,6 +2,7 @@
 	margin: 0;
 	padding: 0;
 	font-weight: normal;
+	font-family: 'Lato', sans-serif;
 }
 
 *:focus {
@@ -15,7 +16,6 @@
 body {
 	background: black;
 	overflow: hidden;
-	font-family: 'Lato', sans-serif;
 	user-select: none;
 	color: white;
 	text-shadow: 0 0 10px black;
