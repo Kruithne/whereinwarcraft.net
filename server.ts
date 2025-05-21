@@ -39,7 +39,7 @@ server.route('/api/init/:mode', (req, url) => {
 	// todo: handle this properly
 	return {
 		token: Bun.randomUUIDv7(),
-		location: 30,
+		location: '759a1477cefd77e25fb090e576021dc1',
 	};
 }, 'POST');
 
