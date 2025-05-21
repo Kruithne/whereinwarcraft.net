@@ -19,6 +19,8 @@ async function document_load() {
 				is_loading: true,
 				is_classic: false,
 
+				initialized_map: false,
+
 				locations: [],
 				location_pool: [],
 
@@ -56,6 +58,13 @@ async function document_load() {
 			}
 		},
 
+		watch: {
+			viewing_map(state) {
+				if (state && !this.initialized_map)
+					this.initialize_map();
+			}
+		},
+
 		methods: {
 			play_classic() {
 				this.is_classic = true;
@@ -66,7 +75,6 @@ async function document_load() {
 				this.in_game = true;
 
 				await this.load_location_data();
-				await this.initialize_map();
 			},
 
 			async load_location_data() {
