@@ -64,6 +64,10 @@ async function document_load() {
 				return 'static/images/' + this.location_dir + '/' + this.current_location + '.jpg';
 			},
 
+			location_dir() {
+				return this.is_classic ? 'locations_classic' : 'locations';
+			},
+
 			tiles_dir() {
 				return this.is_classic ? 'tiles_classic' : 'tiles';
 			},
