@@ -47,11 +47,31 @@ body {
     margin: 0 auto;
 }
 
+#main-menu-images {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
 #main-menu-images img {
 	position: absolute;
 	border: 5px solid white;
 	box-shadow: black 0 0 20px;
 	background: white no-repeat;
+}
+
+#main-menu-image-a {
+	transform: rotate(-8deg) translate(58px, 79px);
+}
+
+#main-menu-image-b {
+	transform: rotate(-5deg) translate(-92px, -1px);
+}
+
+#main-menu-image-c {
+	transform: rotate(7deg) translate(16px, -19px);
 }
 
 #main-menu-logo {
@@ -65,4 +85,9 @@ body {
 
 #main-menu-content h1, #main-menu-content h2 {
 	margin-bottom: 20px;
+}
+
+#main-menu-right {
+	width: 100%;
+	height: 100%;
 }
