@@ -238,6 +238,15 @@ async function document_load() {
 					}
 					
 					const data = await response.json();
+
+					if (data.mapID !== undefined) {
+						const new_map = Object.keys(this.maps).find(
+							key => this.maps[key].mapID === data.mapID
+						);
+						
+						if (new_map && new_map !== this.selected_map)
+							this.selected_map = new_map;
+					}
 					
 					// Update game state
 					this.remaining_lives = data.lives;
