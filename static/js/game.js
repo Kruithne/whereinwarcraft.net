@@ -311,11 +311,12 @@ async function document_load() {
 					// Add new circle
 					this.map_circle = L.circle([data.lat, data.lng], circle_options).addTo(this.map);
 					
-					// Add path between points if on the same map (result > 0)
-					if (data.result > 0) {
+					if (this.map_marker) {
+						const markerLatLng = this.map_marker.getLatLng();
+						
 						this.map_path = L.polyline([
 							[data.lat, data.lng],
-							[latlng.lat, latlng.lng]
+							[markerLatLng.lat, markerLatLng.lng]
 						], { color: circle_options.color }).addTo(this.map);
 					}
 					
