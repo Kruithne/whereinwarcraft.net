@@ -290,7 +290,7 @@ body {
 #map-selector {
 	position: absolute;
 	top: 10px;
-	left: 10px;
+	left: 55px;
 	display: flex;
 	gap: 5px;
 	z-index: 500;
