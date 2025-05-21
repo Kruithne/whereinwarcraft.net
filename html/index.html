@@ -13,6 +13,7 @@
 	</head>
 	<body>
 		<div id="container" v-cloak>
+			<div id="error-toast" v-if="error_toast_text">{{ error_toast_text }}</div>
 			<div id="backdrop"></div>
 			<div id="main-menu" v-if="!in_game">
 				<div>
@@ -24,7 +25,7 @@
 							<input class="btn" type="button" value="Play Retail" @click="play">
 							<input class="btn" type="button" value="Play Classic" @click="play_classic">
 						</div>
-						<a id="main-menu-last-session">Continue last session</a>
+						<a id="main-menu-last-session" v-if="token" @click="continue_session">Continue last session</a>
 					</div>
 				</div>
 				<div id="main-menu-right">

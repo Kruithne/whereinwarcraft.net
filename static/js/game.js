@@ -43,6 +43,11 @@ async function document_load() {
 
 				map_marker: null,
 				can_place_marker: true,
+
+				token: null,
+
+				error_toast_text: null,
+        		error_toast_timeout: null,
 			}
 		},
 
@@ -72,6 +77,10 @@ async function document_load() {
 			
 			panorama_background_position() {
 				return `${this.panorama_offset}px 0`;
+			},
+
+			mode_tag() {
+				return this.is_classic ? 'classic' : 'retail';
 			}
 		},
 
@@ -83,29 +92,46 @@ async function document_load() {
 		},
 
 		methods: {
+			show_error_toast(text) {
+				if (this.error_toast_timeout) 
+					clearTimeout(this.error_toast_timeout);
+				
+				this.error_toast_text = text;
+				this.error_toast_timeout = setTimeout(() => {
+					this.error_toast_text = null;
+				}, 3000);
+			},
+
+			// #region game logic
 			play_classic() {
 				this.is_classic = true;
 				this.play();
 			},
 
-			async play() {
+			async play(continue_session = false) {
 				this.in_game = true;
+				this.is_loading = true;
 				
 				this.setup_panorama_events();
 				
 				await this.load_location_data();
-				this.reset_game_state();
-				this.next_round();
-				this.is_loading = false;
-			},
-			
-			setup_panorama_events() {
-				document.addEventListener('mousemove', this.panorama_mouse_move);
-				document.addEventListener('touchmove', this.panorama_mouse_move);
 				
-				document.addEventListener('mouseup', this.panorama_mouse_up);
-				document.addEventListener('touchend', this.panorama_mouse_up);
-				document.addEventListener('touchcancel', this.panorama_mouse_up);
+				if (!continue_session) {
+					this.reset_game_state();
+				}
+				
+				const success = await this.initialize_session();
+				
+				if (success) {
+					if (!continue_session) {
+						this.current_round = 0;
+						this.next_round();
+					}
+					this.is_loading = false;
+				} else {
+					this.show_error_toast('Sorry, there\'s a murloc in the engine right now. Please try again later!');
+					this.in_game = false;
+				}
 			},
 
 			async load_location_data() {
@@ -123,6 +149,48 @@ async function document_load() {
 				this.locations = locations;
 			},
 
+			reset_game_state() {
+				const new_pool = Array(this.locations.length);
+				for (let i = 0, n = this.locations.length; i < n; i++)
+					new_pool[i] = this.locations[i];
+
+				this.location_pool = new_pool;
+
+				this.current_round = 0;
+				this.remaining_lives = MAX_LIVES;
+
+				this.player_guesses.length = 0;
+				this.viewing_map = false;
+			},
+			
+			confirm_guess() {
+				// todo: implement this logic, for now just ensure map marker exists
+				if (!this.map_marker)
+					return;
+			},
+			
+			next_round() {
+				if (!this.is_alive)
+					return; // todo: show gameover screen
+
+				if (this.location_pool.length === 0)
+					return; // todo: show game complete screen
+
+				this.current_round++;
+
+				this.clear_map();
+				
+				if (this.initialized_map)
+					this.reset_map_view();
+			
+				const new_location_idx = Math.floor(Math.random() * this.location_pool.length);
+				this.current_location = this.location_pool.splice(new_location_idx, 1)[0];
+
+				this.viewing_map = false;
+			},
+			// #endregion
+
+			// #region map
 			initialize_map() {
 				return new Promise(resolve => {
 					this.$nextTick(() => {
@@ -156,20 +224,6 @@ async function document_load() {
 				this.map.setView([-120.90349875311426, 124.75], 2);
 			},
 
-			reset_game_state() {
-				const new_pool = Array(this.locations.length);
-				for (let i = 0, n = this.locations.length; i < n; i++)
-					new_pool[i] = this.locations[i];
-
-				this.location_pool = new_pool;
-
-				this.current_round = 0;
-				this.remaining_lives = MAX_LIVES;
-
-				this.player_guesses.length = 0;
-				this.viewing_map = false;
-			},
-
 			clear_map() {
 				if (this.map_marker) {
 					this.map_marker.remove();
@@ -178,33 +232,18 @@ async function document_load() {
 				
 				// todo: additional cleanup logic
 			},
+			// #endregion
 			
-			confirm_guess() {
-				// todo: implement this logic, for now just ensure map marker exists
-				if (!this.map_marker)
-					return;
-			},
-			
-			next_round() {
-				if (!this.is_alive)
-					return; // todo: show gameover screen
-
-				if (this.location_pool.length === 0)
-					return; // todo: show game complete screen
-
-				this.current_round++;
-
-				this.clear_map();
+			// #region panorama
+			setup_panorama_events() {
+				document.addEventListener('mousemove', this.panorama_mouse_move);
+				document.addEventListener('touchmove', this.panorama_mouse_move);
 				
-				if (this.initialized_map)
-					this.reset_map_view();
-			
-				const new_location_idx = Math.floor(Math.random() * this.location_pool.length);
-				this.current_location = this.location_pool.splice(new_location_idx, 1)[0];
-
-				this.viewing_map = false;
+				document.addEventListener('mouseup', this.panorama_mouse_up);
+				document.addEventListener('touchend', this.panorama_mouse_up);
+				document.addEventListener('touchcancel', this.panorama_mouse_up);
 			},
-			
+
 			panorama_mouse_down(e) {
 				this.panorama_anchor = e.clientX || (e.touches && e.touches[0].clientX);
 				this.panorama_is_dragging = true;
@@ -226,7 +265,9 @@ async function document_load() {
 				this.panorama_is_dragging = false;
 				e.preventDefault();
 			},
+			// #endregion
 
+			// #region leaderboard
 			async toggle_leaderboard() {
 				this.is_leaderboard_shown = !this.is_leaderboard_shown;
 				if (this.is_leaderboard_shown && (this.leaderboard_data.length === 0 || Date.now() - this.leaderboard_last_fetch > 60000))
@@ -237,7 +278,7 @@ async function document_load() {
 				this.leaderboard_loading = true;
 				
 				try {
-					const endpoint = `/api/leaderboard/${this.is_classic ? 'classic' : 'retail'}`;
+					const endpoint = `/api/leaderboard/${this.mode_tag}`;
 						
 					const response = await fetch(endpoint);
 					const data = await response.json();
@@ -250,6 +291,58 @@ async function document_load() {
 					this.leaderboard_loading = false;
 				}
 			},
+			// #endregion
+
+			// #region session
+			async initialize_session() {
+				try {
+					const endpoint = `/api/init/${this.mode_tag}`;
+					const payload = { 
+						...(this.token && { clear_token: this.token })
+					};
+					
+					const response = await fetch(endpoint, {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify(payload)
+					});
+					
+					const data = await response.json();
+					
+					this.token = data.token;
+					localStorage.setItem('wiw-token', data.token);
+					
+					this.set_location_from_id(data.location);
+					
+					return true;
+				} catch (error) {
+					console.error('Failed to initialize session:', error);
+					return false;
+				}
+			},
+			
+			set_location_from_id(location_id) {
+				for (const location of this.locations) {
+					if (location.id === location_id) {
+						this.current_location = location;
+						return;
+					}
+				}
+
+				this.show_error_toast('Sorry, an ogre has stolen that location.');
+			},
+			
+			async continue_session() {
+				this.is_classic = this.token.includes('classic');
+				this.play(true);
+			}
+			// #endregion
 		}
 	}).mount('#container');
+
+	const stored_token = localStorage.getItem('wiw-token');
+	if (stored_token)
+		state.token = stored_token;
 })();
