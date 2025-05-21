@@ -62,3 +62,7 @@ body {
 #main-menu-content {
 	text-align: center;
 }
+
+#main-menu-content h1, #main-menu-content h2 {
+	margin-bottom: 20px;
+}
