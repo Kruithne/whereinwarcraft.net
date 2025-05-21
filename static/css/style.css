@@ -16,7 +16,12 @@ body {
 	overflow: hidden;
 	font-family: 'Lato', sans-serif;
 	user-select: none;
-	background-image: url(./static/images/background.jpg);
-	background-size: cover;
 }
 
+#backdrop {
+	background-image: url(/static/images/background.jpg);
+	background-size: cover;
+	filter: blur(8px);
+	position: fixed;
+	inset: 0;
+}
