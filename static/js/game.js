@@ -84,13 +84,10 @@ async function document_load() {
 		watch: {
 			viewing_map(state) {
 				if (state) {
-					this.initialize_map().then(() => {
-						this.$nextTick(() => {
-							this.map.invalidateSize();
-							if (this.map_marker)
-								this.map_marker.addTo(this.map);
-						});
-					});
+					if (!this.initialized_map)
+						this.initialize_map();
+					else
+						this.$nextTick(() => this.map.invalidateSize());
 				}
 			}
 		},
@@ -167,7 +164,7 @@ async function document_load() {
 
 			// #region map
 			initialize_map() {
-				if (this.map)
+				if (this.initialized_map)
 					return Promise.resolve();
 					
 				return new Promise(resolve => {

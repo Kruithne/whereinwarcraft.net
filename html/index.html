@@ -49,37 +49,35 @@
 							<img src="static/images/zeppy.png">
 							<span>Loading, hold tight!</span>
 						</div>
-						<div id="game-view-map" v-else-if="viewing_map">
-							<keep-alive>
-								<div id="game-map"></div>
-							</keep-alive>
-							<div id="game-map-buttons">
+						<div v-else>
+							<div id="game-map" :style="{ display: viewing_map ? 'block' : 'none' }"></div>
+							<div id="game-map-buttons" v-show="viewing_map">
 								<input class="btn" type="button" value="Re-view Location" @click="viewing_map = false">
 								<input class="btn" type="button" value="Confirm Guess" :class="{ disabled: !map_marker }" @click="confirm_guess">
 							</div>
-						</div>
-						<div id="game-view-panorama" v-else>
-							<div id="game-panorama" 
-								:style="{ 
-									backgroundImage: 'url(' + current_location_background + ')', 
-									backgroundPosition: panorama_background_position 
-								}"
-								@mousedown="panorama_mouse_down"
-								@touchstart="panorama_mouse_down">
-							</div>
-							<div id="leaderboard" v-show="is_leaderboard_shown">
-								<div v-if="leaderboard_loading">Loading...</div>
-								<div v-else-if="leaderboard_data.length === 0">No scores yet!</div>
-								<template v-else>
-									<div v-for="(player, index) in leaderboard_data" :key="index">
-										{{ index + 1 }}. {{ player.name }}
-										<span>{{ player.score }} ({{ Math.round(player.accuracy) }}%)</span>
-									</div>
-								</template>
-							</div>
-							<div id="game-panorama-buttons">
-								<input class="btn" type="button" value="Make Guess" @click="viewing_map = true">
-								<input class="btn" type="button" value="Leaderboard" @click="toggle_leaderboard">
+							<div id="game-view-panorama" :style="{ display: !viewing_map ? 'block' : 'none' }">
+								<div id="game-panorama" 
+									:style="{ 
+										backgroundImage: 'url(' + current_location_background + ')', 
+										backgroundPosition: panorama_background_position 
+									}"
+									@mousedown="panorama_mouse_down"
+									@touchstart="panorama_mouse_down">
+								</div>
+								<div id="leaderboard" v-show="is_leaderboard_shown">
+									<div v-if="leaderboard_loading">Loading...</div>
+									<div v-else-if="leaderboard_data.length === 0">No scores yet!</div>
+									<template v-else>
+										<div v-for="(player, index) in leaderboard_data" :key="index">
+											{{ index + 1 }}. {{ player.name }}
+											<span>{{ player.score }} ({{ Math.round(player.accuracy) }}%)</span>
+										</div>
+									</template>
+								</div>
+								<div id="game-panorama-buttons">
+									<input class="btn" type="button" value="Make Guess" @click="viewing_map = true">
+									<input class="btn" type="button" value="Leaderboard" @click="toggle_leaderboard">
+								</div>
 							</div>
 						</div>
 					</div>
