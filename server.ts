@@ -1,7 +1,8 @@
-import { serve, caution, HTTP_STATUS_CODE } from 'spooder';
+import { serve, caution, HTTP_STATUS_CODE, validate_req_json } from 'spooder';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { format } from 'node:util';
+import db from './db';
 
 const server = serve(Number(process.env.SERVER_PORT), process.env.SERVER_LISTEN_HOST);
 
@@ -12,6 +13,22 @@ export function log(message: string, ...args: unknown[]): void {
 	formatted_message = formatted_message.replace(/\{([^}]+)\}/g, '\x1b[38;5;13m$1\x1b[0m');
 	
 	console.log(formatted_message);
+}
+
+async function get_random_location_retail() {
+	return await db.get_single('SELECT `ID` FROM `locations_classic` WHERE `enabled` = 1 ORDER BY RAND() LIMIT 1');
+}
+
+async function get_random_start_location_classic() {
+	return await db.get_single('SELECT `ID` FROM `locations` WHERE `enabled` = 1 ORDER BY RAND() LIMIT 1');
+}
+
+async function clear_token(clear_token: any) {
+	if (typeof clear_token === 'string' && clear_token.length === 36) {
+		log(`cleared game session {${clear_token}}`);
+		await db.execute('DELETE FROM `sessions` WHERE `token` = ?', [clear_token]);
+		await db.execute('DELETE FROM `guesses` WHERE `token` = ?', [clear_token]);
+	}
 }
 
 let index: string|null = null;
@@ -35,13 +52,45 @@ server.route('/', async (req, url) => {
 	return new Response(index, { status: 200, headers });
 });
 
-server.route('/api/init/:mode', (req, url) => {
-	// todo: handle this properly
+server.route('/api/init/retail', validate_req_json(async (req, url, json) => {
+	const token = Bun.randomUUIDv7();
+	const location = await get_random_location_retail();
+
+	if (location === null) {
+		caution('get_random_location_retail(): failed to get start location');
+		return 500;
+	}
+
+	await db.execute('INSERT INTO `sessions` (`token`, `currentID`, `gameMode`) VALUES(?, ?, ?)', [token, location.ID, 1]);
+	log(`started new {retail} game session {${token}} with location {${location.ID}}`);
+
+	await clear_token(json.clear_token);
+
 	return {
-		token: Bun.randomUUIDv7(),
-		location: '759a1477cefd77e25fb090e576021dc1',
+		token: token,
+		location: location.ID
 	};
-}, 'POST');
+}), 'POST');
+
+server.route('/api/init/classic', validate_req_json(async (req, url, json) => {
+	const token = Bun.randomUUIDv7();
+	const location = await get_random_start_location_classic();
+
+	if (location === null) {
+		caution('get_random_start_location_classic(): failed to get start location');
+		return 500;
+	}
+
+	await db.execute('INSERT INTO `sessions` (`token`, `currentID`, `gameMode`) VALUES(?, ?, ?)', [token, location.ID, 2]);
+	log(`started new {classic} game session {${token}} with location {${location.ID}}`);
+
+	await clear_token(json.clear_token);
+
+	return {
+		token: token,
+		location: location.ID
+	};
+}), 'POST');
 
 server.route('/api/leaderboard/:mode', (req, url) => {
 	// todo: handle mode
