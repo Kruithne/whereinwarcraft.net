@@ -379,7 +379,7 @@ body {
 }
 
 #container #game-frame #game-content #game-image #game-loading #game-loading-zeppy {
-	background: url(../images/zeppy.png) no-repeat;
+	background: url(../static/images/zeppy.png) no-repeat;
 	width: 149px;
 	height: 140px;
 	margin-bottom: 30px;

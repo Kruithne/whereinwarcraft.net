@@ -287,7 +287,7 @@ class UI {
 		this.isClassic = isClassic;
 
 		const dir = isClassic ? 'tiles_classic' : 'tiles';
-		L.tileLayer('images/' + dir + '/{z}/{x}/{y}.png', { maxZoom: isClassic ? 6 : 7, }).addTo(this.map);
+		L.tileLayer('static/images/' + dir + '/{z}/{x}/{y}.png', { maxZoom: isClassic ? 6 : 7, }).addTo(this.map);
 		this.map.on('click', (e) => this._onMapClick(e));
 	}
 
@@ -486,7 +486,7 @@ class Panorama {
 		// Load the panorama for this location.
 		const dir = this.isClassic ? 'locations_classic' : 'locations';
 		this.ui.$gameCanvas.style.opacity = 0;
-		loadBackgroundSmooth(this.ui.$gameCanvas, 'images/' + dir + '/' + id + '.jpg');
+		loadBackgroundSmooth(this.ui.$gameCanvas, 'static/images/' + dir + '/' + id + '.jpg');
 	}
 
 	_init() {
@@ -575,5 +575,5 @@ class Panorama {
 			//ui.$buttonPlayClassic.enable();
 
 		// Preload loading graphic.
-		preloadImage('images/zeppy.png');
+		preloadImage('static/images/zeppy.png');
 })();
