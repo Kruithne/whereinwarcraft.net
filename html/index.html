@@ -56,10 +56,14 @@
 							</div>
 						</div>
 						<div id="game-view-panorama" v-else>
-							<div id="game-panorama" :style="{ 
-								backgroundImage: 'url(' + current_location_background + ')', 
-								backgroundPosition: panorama_background_position 
-							}"></div>
+							<div id="game-panorama" 
+								:style="{ 
+									backgroundImage: 'url(' + current_location_background + ')', 
+									backgroundPosition: panorama_background_position 
+								}"
+								@mousedown="panorama_mouse_down"
+								@touchstart="panorama_mouse_down">
+							</div>
 							<div id="game-panorama-buttons">
 								<input class="btn" type="button" value="Make Guess" @click="viewing_map = true">
 								<input class="btn" type="button" value="Leaderboard">
