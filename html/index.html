@@ -57,6 +57,8 @@
 						</div>
 						<div id="game-view-panorama" v-else>
 							<div id="game-panorama" :style="{ backgroundImage: current_location_background }"></div>
+							<div>{{ current_location }}</div>
+							<div>{{ current_location_background }}</div>
 							<div id="game-panorama-buttons">
 								<input class="btn" type="button" value="Make Guess">
 								<input class="btn" type="button" value="Leaderboard">
