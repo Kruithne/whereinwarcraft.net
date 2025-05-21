@@ -1,3 +1,4 @@
+// Changes to game.js
 import { createApp } from './vue.esm.prod.js';
 
 const MAX_LIVES = 3;
@@ -30,6 +31,10 @@ async function document_load() {
 				current_location: null,
 
 				viewing_map: false,
+				
+				panorama_offset: 0,
+				panorama_anchor: 0,
+				panorama_is_dragging: false,
 			}
 		},
 
@@ -55,6 +60,10 @@ async function document_load() {
 
 			tiles_dir() {
 				return this.is_classic ? 'tiles_classic' : 'tiles';
+			},
+			
+			panorama_background_position() {
+				return `${this.panorama_offset}px 0`;
 			}
 		},
 
@@ -63,6 +72,10 @@ async function document_load() {
 				if (state && !this.initialized_map)
 					this.initialize_map();
 			}
+		},
+		
+		mounted() {
+			this.setup_panorama_events();
 		},
 
 		methods: {
@@ -142,6 +155,50 @@ async function document_load() {
 
 				const new_location_idx = Math.floor(Math.random() * this.location_pool.length);
 				this.current_location = this.location_pool.splice(new_location_idx, 1)[0];
+			},
+			
+			setup_panorama_events() {
+				const panorama_element = document.getElementById('game-panorama');
+				
+				panorama_element.addEventListener('mousedown', this.panorama_mouse_down);
+				panorama_element.addEventListener('touchstart', this.panorama_mouse_down);
+				
+				document.addEventListener('mousemove', this.panorama_mouse_move);
+				document.addEventListener('touchmove', this.panorama_mouse_move);
+				
+				document.addEventListener('mouseup', this.panorama_mouse_up);
+				document.addEventListener('touchend', this.panorama_mouse_up);
+				document.addEventListener('touchcancel', this.panorama_mouse_up);
+			},
+			
+			panorama_mouse_down(e) {
+				this.panorama_anchor = e.clientX || e.touches[0].clientX;
+				this.panorama_is_dragging = true;
+				e.preventDefault();
+			},
+			
+			panorama_mouse_move(e) {
+				if (this.panorama_is_dragging) {
+					const touch_x = e.clientX || (e.touches && e.touches[0].clientX);
+					if (touch_x) {
+						const panorama_element = document.getElementById('game-panorama');
+						const offset = this.panorama_offset + (touch_x - this.panorama_anchor);
+						panorama_element.style.backgroundPosition = `${offset}px 0`;
+					}
+					
+					e.preventDefault();
+				}
+			},
+			
+			panorama_mouse_up(e) {
+				if (this.panorama_is_dragging) {
+					const touch_x = e.clientX || (e.changedTouches && e.changedTouches[0].clientX);
+					if (touch_x)
+						this.panorama_offset = this.panorama_offset + (touch_x - this.panorama_anchor);
+
+					this.panorama_is_dragging = false;
+					e.preventDefault();
+				}
 			}
 		}
 	}).mount('#container');
