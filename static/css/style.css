@@ -182,3 +182,9 @@ body {
 	0% { transform: translateY(-5px); }
 	100% { transform: translateY(5px); }
 }
+
+#game-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
