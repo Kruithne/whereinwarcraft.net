@@ -66,7 +66,7 @@ async function document_load() {
 				this.in_game = true;
 
 				await this.load_location_data();
-				this.initialize_map();
+				await this.initialize_map();
 			},
 
 			async load_location_data() {
@@ -84,14 +84,20 @@ async function document_load() {
 				this.locations = locations;
 			},
 
-			initialize_map() {
-				this.map = L.map('game-map', {
-					attributionControl: false,
-					crs: L.CRS.Simple
+			async initialize_map() {
+				return new Promise(resolve => {
+					this.$nextTick(() => {
+						this.map = L.map('game-map', {
+							attributionControl: false,
+							crs: L.CRS.Simple
+						});
+					
+						this.map.setView([-120.90349875311426, 124.75], 2);
+						L.tileLayer('static/images/' + this.tiles_dir + '/{z}/{x}/{y}.png', { maxZoom: this.is_classic ? 6 : 7 }).addTo(this.map);
+
+						resolve();
+					});
 				});
-			
-				this.map.setView([-120.90349875311426, 124.75], 2);
-				L.tileLayer('static/images/' + this.tiles_dir + '/{z}/{x}/{y}.png', { maxZoom: this.is_classic ? 6 : 7 }).addTo(this.map);
 			},
 
 			reset_game_state() {
