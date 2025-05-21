@@ -13,3 +13,12 @@ engine/db.conf
 
 # https://github.com/Kruithne/KrameWork7
 KrameWork
+
+# third party dependencies
+node_modules
+
+# bun lock file
+bun.lockb
+
+# .env.local file
+.env.local

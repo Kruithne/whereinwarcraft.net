@@ -1,0 +1,28 @@
+{
+	"name": "whereinwarcraft.net",
+	"type": "module",
+	"module": "server.ts",
+	"devDependencies": {
+		"bun-types": "^1.2.9"
+	},
+	"dependencies": {
+		"spooder": "^4.6.0"
+	},
+	"spooder": {
+		"auto_restart": 0,
+		"run": "bun run server.ts",
+		"update": [
+			"git fetch --depth=1 origin main",
+			"git reset --hard origin/main",
+			"git clean -fd",
+			"bun install"
+		],
+		"canary": {
+			"account": "kruithne",
+			"repository": "kruithne/whereinwarcraft.net",
+			"crash_console_history": 64,
+			"labels": ["⚠️ canary-report"],
+			"throttle": 86400
+		}
+	}
+}
