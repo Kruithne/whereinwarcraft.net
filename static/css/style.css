@@ -110,13 +110,13 @@ body {
 	margin-top: 5px;
 }
 
-.intro-text .btn-play {
+#btn-play {
 	border-top-right-radius: 0;
 	border-bottom-right-radius: 0;
 	margin-right: 0;
 }
 
-.intro-text .btn-ply-classic {
+#btn-play-classic {
 	border-top-left-radius: 0;
 	border-bottom-left-radius: 0;
 	margin-left: 0;
