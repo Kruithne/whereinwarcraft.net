@@ -285,3 +285,67 @@ body {
     font-size: 1.2em;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 }
+
+/* map selection styles */
+#map-selector {
+	position: absolute;
+	top: 10px;
+	left: 10px;
+	display: flex;
+	gap: 5px;
+	z-index: 500;
+}
+
+.map-selector-icon {
+	width: 48px;
+	height: 48px;
+	background-image: url(/static/images/map-selector.png);
+	background-size: auto;
+	background-repeat: no-repeat;
+	cursor: pointer;
+	position: relative;
+}
+
+#map-selector-cata {
+	background-position: 0 0;
+}
+
+#map-selector-cata:hover, #map-selector-cata.selected {
+	background-position: 0 -48px;
+}
+
+#map-selector-tbc {
+	background-position: -48px 0;
+}
+
+#map-selector-tbc:hover, #map-selector-tbc.selected {
+	background-position: -48px -48px;
+}
+
+#map-selector-wod {
+	background-position: -96px 0;
+}
+
+#map-selector-wod:hover, #map-selector-wod.selected {
+	background-position: -96px -48px;
+}
+
+#map-selector-bfa {
+	background-position: -144px 0;
+}
+
+#map-selector-bfa:hover, #map-selector-bfa.selected {
+	background-position: -144px -48px;
+}
+
+.map-selector-icon-border {
+	position: absolute;
+	inset: 0;
+	border: 2px solid transparent;
+	transition: border-color 0.2s;
+}
+
+.map-selector-icon:hover .map-selector-icon-border,
+.map-selector-icon.selected .map-selector-icon-border {
+	border-color: white;
+}

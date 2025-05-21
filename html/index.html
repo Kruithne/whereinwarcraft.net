@@ -51,6 +51,20 @@
 						</div>
 						<div v-else>
 							<div id="game-map" :style="{ display: viewing_map ? 'block' : 'none' }"></div>
+							<div id="map-selector" v-if="!is_classic && viewing_map">
+								<div id="map-selector-cata" title="Azeroth" class="map-selector-icon" :class="{ selected: selected_map === 'cata' }" @click="set_selected_map('cata')">
+									<div class="map-selector-icon-border"></div>
+								</div>
+								<div id="map-selector-tbc" title="Outland" class="map-selector-icon" :class="{ selected: selected_map === 'tbc' }" @click="set_selected_map('tbc')">
+									<div class="map-selector-icon-border"></div>
+								</div>
+								<div id="map-selector-wod" title="Draenor" class="map-selector-icon" :class="{ selected: selected_map === 'wod' }" @click="set_selected_map('wod')">
+									<div class="map-selector-icon-border"></div>
+								</div>
+								<div id="map-selector-bfa" title="Battle for Azeroth" class="map-selector-icon" :class="{ selected: selected_map === 'bfa' }" @click="set_selected_map('bfa')">
+									<div class="map-selector-icon-border"></div>
+								</div>
+							</div>
 							<div id="game-map-buttons" v-show="viewing_map">
 								<input class="btn" type="button" value="Re-view Location" @click="viewing_map = false">
 								<input class="btn" type="button" value="Confirm Guess" :class="{ disabled: !map_marker }" @click="confirm_guess">

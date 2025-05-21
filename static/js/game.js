@@ -45,6 +45,34 @@ async function document_load() {
 
 				error_toast_text: null,
         		error_toast_timeout: null,
+
+				selected_map: 'cata',
+				maps: {
+					'cata': {
+						dir: 'tiles',
+						maxZoom: 7,
+						background: 'rgb(0, 29, 40)',
+						mapID: 0
+					},
+					'tbc': {
+						dir: 'tiles_tbc',
+						maxZoom: 6,
+						background: 'rgb(0, 0, 0)',
+						mapID: 1
+					},
+					'wod': {
+						dir: 'tiles_wod',
+						maxZoom: 7,
+						background: 'rgb(8, 27, 63)',
+						mapID: 2
+					},
+					'bfa': {
+						dir: 'tiles_bfa',
+						maxZoom: 7,
+						background: 'rgb(0, 29, 40)',
+						mapID: 3
+					}
+				}
 			}
 		},
 
@@ -69,7 +97,24 @@ async function document_load() {
 			},
 
 			tiles_dir() {
-				return this.is_classic ? 'tiles_classic' : 'tiles';
+				if (this.is_classic)
+					return 'tiles_classic';
+				
+				return this.maps[this.selected_map].dir;
+			},
+			
+			map_max_zoom() {
+				if (this.is_classic)
+					return 6;
+				
+				return this.maps[this.selected_map].maxZoom;
+			},
+			
+			map_background() {
+				if (this.is_classic)
+					return 'rgb(0, 29, 40)';
+				
+				return this.maps[this.selected_map].background;
 			},
 			
 			panorama_background_position() {
@@ -89,6 +134,11 @@ async function document_load() {
 					else
 						this.$nextTick(() => this.map.invalidateSize());
 				}
+			},
+
+			selected_map(new_map, old_map) {
+				if (this.initialized_map && new_map !== old_map)
+					this.change_map();
 			}
 		},
 
@@ -115,8 +165,10 @@ async function document_load() {
 				
 				this.setup_panorama_events();
 				
-				if (!continue_session)
+				if (!continue_session) {
 					this.reset_game_state();
+					this.selected_map = this.is_classic ? 'classic' : 'cata';
+				}
 				
 				if (await this.initialize_session()) {
 					if (!continue_session) {
@@ -164,21 +216,26 @@ async function document_load() {
 
 			// #region map
 			initialize_map() {
-				if (this.initialized_map)
+				if (this.initialized_map && this.map)
 					return Promise.resolve();
-					
+				
 				return new Promise(resolve => {
 					this.$nextTick(() => {
+						const map_element = document.getElementById('game-map');
+						map_element.style.background = this.map_background;
+						
 						this.map = L.map('game-map', {
 							attributionControl: false,
 							crs: L.CRS.Simple
 						});
-					
+						
 						this.reset_map_view();
-						L.tileLayer('static/images/' + this.tiles_dir + '/{z}/{x}/{y}.png', { maxZoom: this.is_classic ? 6 : 7 }).addTo(this.map);
+						L.tileLayer('static/images/' + this.tiles_dir + '/{z}/{x}/{y}.png', { 
+							maxZoom: this.map_max_zoom
+						}).addTo(this.map);
 						
 						this.map.on('click', this.map_click);
-			
+						
 						window.dispatchEvent(new Event('resize'));
 						this.initialized_map = true;
 						
@@ -206,6 +263,26 @@ async function document_load() {
 				}
 				
 				// todo: additional cleanup logic
+			},
+
+			set_selected_map(map_id) {
+				if (this.selected_map === map_id)
+					return;
+				
+				this.selected_map = map_id;
+			},
+			
+			change_map() {
+				if (this.map) {
+					this.clear_map();
+					this.map.remove();
+					this.map = null;
+				}
+				
+				this.$nextTick(() => {
+					document.getElementById('game-map').style.background = this.map_background;
+					this.initialize_map();
+				});
 			},
 			// #endregion
 			
