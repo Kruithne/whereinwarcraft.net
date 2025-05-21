@@ -35,6 +35,11 @@ async function document_load() {
 				panorama_offset: 0,
 				panorama_anchor: 0,
 				panorama_is_dragging: false,
+
+				is_leaderboard_shown: false,
+				leaderboard_data: [],
+				leaderboard_loading: false,
+				leaderboard_last_fetch: 0,
 			}
 		},
 
@@ -184,7 +189,31 @@ async function document_load() {
 			panorama_mouse_up(e) {
 				this.panorama_is_dragging = false;
 				e.preventDefault();
-			}
+			},
+
+			async toggle_leaderboard() {
+				this.is_leaderboard_shown = !this.is_leaderboard_shown;
+				if (this.is_leaderboard_shown && (this.leaderboard_data.length === 0 || Date.now() - this.leaderboard_last_fetch > 60000))
+					this.fetch_leaderboard();
+			},
+			
+			async fetch_leaderboard() {
+				this.leaderboard_loading = true;
+				
+				try {
+					const endpoint = `/api/leaderboard/${this.is_classic ? 'classic' : 'retail'}`;
+						
+					const response = await fetch(endpoint);
+					const data = await response.json();
+					
+					this.leaderboard_data = data.players || [];
+					this.leaderboard_last_fetch = Date.now();
+				} catch (error) {
+					console.error('Failed to fetch leaderboard data:', error);
+				} finally {
+					this.leaderboard_loading = false;
+				}
+			},
 		}
 	}).mount('#container');
 })();

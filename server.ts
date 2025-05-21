@@ -10,7 +10,7 @@ export function log(message: string, ...args: unknown[]): void {
 	
 	// Replace all {...} with text wrapped in ANSI color code 13.
 	formatted_message = formatted_message.replace(/\{([^}]+)\}/g, '\x1b[38;5;13m$1\x1b[0m');
-
+	
 	console.log(formatted_message);
 }
 
@@ -22,28 +22,88 @@ server.route('/', async (req, url) => {
 		index = await Bun.file('./html/index.html').text();
 		index_hash = crypto.createHash('sha256').update(index).digest('hex');
 	}
-
+	
 	const headers = {
 		'Content-Type': 'text/html',
 		'Access-Control-Allow-Origin':  '*',
 		'ETag': index_hash as string
 	} as Record<string, string>;
-
+	
 	if (req.headers.get('If-None-Match') === index_hash)
 		return new Response(null, { status: 304, headers }); // Not Modified
-
+	
 	return new Response(index, { status: 200, headers });
+});
+
+server.route('/api/leaderboard/:mode', (req, url) => {
+	// todo: handle mode
+	// todo: return real data
+	
+	return {
+		"players": [
+			{
+				"name": "Thrall",
+				"score": 42,
+				"accuracy": 94.5
+			},
+			{
+				"name": "Jaina",
+				"score": 38,
+				"accuracy": 89.2
+			},
+			{
+				"name": "Sylvanas",
+				"score": 35,
+				"accuracy": 82.7
+			},
+			{
+				"name": "Anduin",
+				"score": 31,
+				"accuracy": 78.3
+			},
+			{
+				"name": "Illidan",
+				"score": 29,
+				"accuracy": 75.6
+			},
+			{
+				"name": "Arthas",
+				"score": 25,
+				"accuracy": 71.9
+			},
+			{
+				"name": "Tyrande",
+				"score": 22,
+				"accuracy": 68.4
+			},
+			{
+				"name": "Vol'jin",
+				"score": 19,
+				"accuracy": 65.2
+			},
+			{
+				"name": "Garrosh",
+				"score": 15,
+				"accuracy": 59.8
+			},
+			{
+				"name": "Varian",
+				"score": 12,
+				"accuracy": 51.3
+			}
+		]
+	};
 });
 
 server.dir('/static', './static', async (file_path, file, stat, request) => {
 	// ignore hidden files
 	if (path.basename(file_path).startsWith('.'))
 		return 404; // Not Found
-
+	
 	// ignore directories
 	if (stat.isDirectory())
 		return 401; // Unauthorized
-
+	
 	return file;
 });
 
