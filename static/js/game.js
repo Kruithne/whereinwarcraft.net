@@ -106,6 +106,8 @@ async function document_load() {
 						this.reset_map_view();
 						L.tileLayer('static/images/' + this.tiles_dir + '/{z}/{x}/{y}.png', { maxZoom: this.is_classic ? 6 : 7 }).addTo(this.map);
 
+						window.dispatchEvent(new Event('resize'));
+
 						resolve();
 					});
 				});
