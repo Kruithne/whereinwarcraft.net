@@ -156,8 +156,8 @@ body {
 #game-window {
 	border: 1px solid white;
 	box-shadow: black 0 0 20px;
-	max-height: 400px;
-	max-width: 1230px;
+	width: 80%;
+	height: 60%;
 	background: #00000057;
 }
 
