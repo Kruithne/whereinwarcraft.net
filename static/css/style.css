@@ -299,53 +299,38 @@ body {
 .map-selector-icon {
 	width: 48px;
 	height: 48px;
-	background-image: url(/static/images/map-selector.png);
-	background-size: auto;
+	background-size: contain;
 	background-repeat: no-repeat;
 	cursor: pointer;
 	position: relative;
 }
 
 #map-selector-cata {
-	background-position: 0 0;
-}
-
-#map-selector-cata:hover, #map-selector-cata.selected {
-	background-position: 0 -48px;
+	background-image: url(/static/images/achievement_boss_madnessofdeathwing.png);
 }
 
 #map-selector-tbc {
-	background-position: -48px 0;
-}
-
-#map-selector-tbc:hover, #map-selector-tbc.selected {
-	background-position: -48px -48px;
+	background-image: url(/static/images/achievement_boss_illidan.png);
 }
 
 #map-selector-wod {
-	background-position: -96px 0;
-}
-
-#map-selector-wod:hover, #map-selector-wod.selected {
-	background-position: -96px -48px;
+	background-image: url(/static/images/achievement_thenighthold_guldan.png);
 }
 
 #map-selector-bfa {
-	background-position: -144px 0;
-}
-
-#map-selector-bfa:hover, #map-selector-bfa.selected {
-	background-position: -144px -48px;
+	background-image: url(/static/images/achievement_boss_zuldazar_jaina.png);
 }
 
 .map-selector-icon-border {
 	position: absolute;
 	inset: 0;
-	border: 2px solid transparent;
-	transition: border-color 0.2s;
+	background-image: url(/static/images/map-icon-border.png);
+	background-size: 200% 100%;
+	background-position: 0 0;
+	background-repeat: no-repeat;
 }
 
 .map-selector-icon:hover .map-selector-icon-border,
 .map-selector-icon.selected .map-selector-icon-border {
-	border-color: white;
+	background-position: -48px 0;
 }
