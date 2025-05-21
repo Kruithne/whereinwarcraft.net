@@ -105,8 +105,29 @@ body {
 	font-size: 0.8em;
 }
 
-.intro-text .btn-play {
+.intro-text .btn {
+	font-size: 0.6em;
 	margin-top: 5px;
+}
+
+.intro-text .btn-play {
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
+	margin-right: 0;
+}
+
+.intro-text .btn-ply-classic {
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
+	margin-left: 0;
+}
+
+#front-text-continue {
+	font-size: 0.5em;
+	margin-top: 10px;
+	display: none;
+	text-decoration: underline;
+	cursor: pointer
 }
 
 /* Zone previews */
