@@ -22,9 +22,6 @@ async function document_load() {
 
 				initialized_map: false,
 
-				locations: [],
-				location_pool: [],
-
 				current_round: 0,
 				remaining_lives: MAX_LIVES,
 				player_guesses: [],
@@ -64,11 +61,7 @@ async function document_load() {
 				if (this.current_location === null)
 					return '';
 
-				return 'static/images/' + this.location_dir + '/' + this.current_location.id + '.jpg';
-			},
-
-			location_dir() {
-				return this.is_classic ? 'locations_classic' : 'locations';
+				return 'static/images/' + this.location_dir + '/' + this.current_location + '.jpg';
 			},
 
 			tiles_dir() {
@@ -114,15 +107,10 @@ async function document_load() {
 				
 				this.setup_panorama_events();
 				
-				await this.load_location_data();
-				
-				if (!continue_session) {
+				if (!continue_session)
 					this.reset_game_state();
-				}
 				
-				const success = await this.initialize_session();
-				
-				if (success) {
+				if (await this.initialize_session()) {
 					if (!continue_session) {
 						this.current_round = 0;
 						this.next_round();
@@ -134,28 +122,7 @@ async function document_load() {
 				}
 			},
 
-			async load_location_data() {
-				const response = await fetch(`static/data/${this.location_dir}.json`);
-				const content = await response.json();
-
-				const locations = [];
-				for (const zone of content.zones) {
-					for (const location of zone.locations) {
-						location.zone = zone.name;
-						locations.push(location);
-					}
-				}
-
-				this.locations = locations;
-			},
-
 			reset_game_state() {
-				const new_pool = Array(this.locations.length);
-				for (let i = 0, n = this.locations.length; i < n; i++)
-					new_pool[i] = this.locations[i];
-
-				this.location_pool = new_pool;
-
 				this.current_round = 0;
 				this.remaining_lives = MAX_LIVES;
 
@@ -173,8 +140,8 @@ async function document_load() {
 				if (!this.is_alive)
 					return; // todo: show gameover screen
 
-				if (this.location_pool.length === 0)
-					return; // todo: show game complete screen
+				if (!this.current_location)
+					return; // If we don't have a location, we can't proceed
 
 				this.current_round++;
 
@@ -182,9 +149,6 @@ async function document_load() {
 				
 				if (this.initialized_map)
 					this.reset_map_view();
-			
-				const new_location_idx = Math.floor(Math.random() * this.location_pool.length);
-				this.current_location = this.location_pool.splice(new_location_idx, 1)[0];
 
 				this.viewing_map = false;
 			},
@@ -314,24 +278,13 @@ async function document_load() {
 					this.token = data.token;
 					localStorage.setItem('wiw-token', data.token);
 					
-					this.set_location_from_id(data.location);
+					this.current_location = data.location;
 					
 					return true;
 				} catch (error) {
 					console.error('Failed to initialize session:', error);
 					return false;
 				}
-			},
-			
-			set_location_from_id(location_id) {
-				for (const location of this.locations) {
-					if (location.id === location_id) {
-						this.current_location = location;
-						return;
-					}
-				}
-
-				this.show_error_toast('Sorry, an ogre has stolen that location.');
 			},
 			
 			async continue_session() {
