@@ -41,7 +41,7 @@ server.route('/api/init/:mode', (req, url) => {
 		token: Bun.randomUUIDv7(),
 		location: 30,
 	};
-});
+}, 'POST');
 
 server.route('/api/leaderboard/:mode', (req, url) => {
 	// todo: handle mode
