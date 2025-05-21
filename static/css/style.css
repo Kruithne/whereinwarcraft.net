@@ -381,3 +381,22 @@ body {
 #game-over-ui .btn {
     margin-top: 15px;
 }
+
+#game-over-spirit {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-image: url(/static/images/spirit-healer.png);
+    background-repeat: no-repeat;
+    background-size: contain;
+    width: 808px;
+    height: 366px;
+    z-index: 5;
+    animation: floating 3s ease-in-out infinite alternate;
+}
+
+@keyframes floating {
+    0% { transform: translate(-50%, -60%); }
+    100% { transform: translate(-50%, -50%); }
+}

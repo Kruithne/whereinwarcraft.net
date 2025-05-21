@@ -75,6 +75,7 @@
 							<div id="next-round-button" v-show="guess_result_state === 'next_round'">
 								<input class="btn" type="button" value="Next Round" @click="next_round">
 							</div>
+							<div id="game-over-spirit" v-if="guess_result_state === 'game_over'"></div>
 							<div id="game-over-ui" v-if="guess_result_state === 'game_over'">
 								<h2>Game Over!</h2>
 								<p v-if="is_alive">You completed every location!</p>
