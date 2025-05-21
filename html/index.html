@@ -44,7 +44,12 @@
 				</div>
 				<div id="game-content">
 					<div id="game-map"></div>
-					<span>{{ locations.length }} locations loaded!</span>
+					<div id="game-window">
+						<div id="game-loading" v-if="is_loading">
+							<img src="static/images/zeppy.png">
+							<span>Loading, hold tight!</span>
+						</div>
+					</div>
 				</div>
 				<div id="game-footer">
 					<p>Enjoyed playing? Consider <a href="https://www.paypal.me/kruithne">donating</a> or <a href="https://www.patreon.com/kruithne">supporting on Patreon</a>!</a></p>
