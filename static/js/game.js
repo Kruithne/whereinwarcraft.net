@@ -83,8 +83,15 @@ async function document_load() {
 
 		watch: {
 			viewing_map(state) {
-				if (state && !this.initialized_map)
-					this.initialize_map();
+				if (state) {
+					this.initialize_map().then(() => {
+						this.$nextTick(() => {
+							this.map.invalidateSize();
+							if (this.map_marker)
+								this.map_marker.addTo(this.map);
+						});
+					});
+				}
 			}
 		},
 
@@ -143,23 +150,26 @@ async function document_load() {
 			next_round() {
 				if (!this.is_alive)
 					return; // todo: show gameover screen
-
+			
 				if (!this.current_location)
 					return; // If we don't have a location, we can't proceed
-
+			
 				this.current_round++;
-
+			
 				this.clear_map();
 				
 				if (this.initialized_map)
 					this.reset_map_view();
-
+			
 				this.viewing_map = false;
 			},
 			// #endregion
 
 			// #region map
 			initialize_map() {
+				if (this.map)
+					return Promise.resolve();
+					
 				return new Promise(resolve => {
 					this.$nextTick(() => {
 						this.map = L.map('game-map', {
