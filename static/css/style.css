@@ -238,6 +238,11 @@ body {
     z-index: 10;
 }
 
+#game-view-panorama {
+	width: 100%;
+	height: 100%;
+}
+
 /* leaderboard */
 #leaderboard {
     position: absolute;
