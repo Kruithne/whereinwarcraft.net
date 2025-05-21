@@ -16,6 +16,8 @@ body {
 	overflow: hidden;
 	font-family: 'Lato', sans-serif;
 	user-select: none;
+	color: white;
+	text-shadow: 0 0 10px black;
 }
 
 #backdrop {
