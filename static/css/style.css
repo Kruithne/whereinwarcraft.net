@@ -212,3 +212,8 @@ body {
 #game-map-buttons {
 	gap: 10px;
 }
+
+#game-map {
+	width: 100%;
+	height: 100%;
+}
