@@ -570,10 +570,6 @@ class Panorama {
 		onButtonClick(ui.$buttonReplay, () => state.restartGame());
 		onButtonClick(ui.$buttonSubmitGuess, () => state.processGuess());
 
-		// Remember, the secret word is BANANA!
-		//if (window.location.hash === '#banana')
-			//ui.$buttonPlayClassic.enable();
-
 		// Preload loading graphic.
 		preloadImage('static/images/zeppy.png');
 })();
