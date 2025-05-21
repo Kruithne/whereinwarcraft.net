@@ -289,10 +289,10 @@ body {
 /* map selection styles */
 #map-selector {
 	position: absolute;
-	top: 10px;
-	left: 55px;
+	top: 15px;
+	left: 65px;
 	display: flex;
-	gap: 5px;
+	gap: 15px;
 	z-index: 500;
 }
 
@@ -328,6 +328,7 @@ body {
 	background-size: 200% 100%;
 	background-position: 0 0;
 	background-repeat: no-repeat;
+	transform: scale(1.5);
 }
 
 .map-selector-icon:hover .map-selector-icon-border,
