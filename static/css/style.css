@@ -352,3 +352,32 @@ body {
     border-radius: 10px;
     font-size: 1.2em;
 }
+
+/* game over */
+#game-over-ui {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid white;
+    color: white;
+    padding: 25px;
+    border-radius: 10px;
+    text-align: center;
+    z-index: 600;
+    min-width: 300px;
+}
+
+#game-over-ui h2 {
+    font-size: 2em;
+    margin-bottom: 15px;
+}
+
+#game-over-ui p {
+    margin-bottom: 10px;
+}
+
+#game-over-ui .btn {
+    margin-top: 15px;
+}

@@ -341,8 +341,10 @@ async function document_load() {
 			},
 			
 			next_round() {
-				if (!this.is_alive || !this.current_location)
+				if (!this.is_alive || !this.current_location) {
+					this.show_game_over();
 					return;
+				}
 				
 				this.current_round++;
 				
@@ -368,6 +370,15 @@ async function document_load() {
 				
 				// Re-enable marker placement
 				this.can_place_marker = true;
+			},
+
+			show_game_over() {
+				this.guess_result_state = 'game_over';
+				
+				if (this.map_marker) {
+					this.map_marker.remove();
+					this.map_marker = null;
+				}
 			},
 			// #endregion
 

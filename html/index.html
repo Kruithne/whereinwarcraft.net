@@ -77,6 +77,8 @@
 							</div>
 							<div id="game-over-ui" v-if="guess_result_state === 'game_over'">
 								<h2>Game Over!</h2>
+								<p v-if="is_alive">You completed every location!</p>
+								<p v-else>You ran out of lives!</p>
 								<p>Your final score: {{ current_round }}</p>
 								<p>Your accuracy: {{ player_accuracy }}%</p>
 								<input class="btn" type="button" value="Play Again" @click="play(false)">
