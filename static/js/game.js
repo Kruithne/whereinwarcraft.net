@@ -1,568 +1,556 @@
-const documentReady = () => {
-	return new Promise(resolve => {
-		if (document.readyState !== 'loading')
-			resolve();
-		else
-			document.addEventListener('DOMContentLoaded', resolve, { once: true });
-	});
-};
-
-const preloadImage = (url) => {
-	return new Promise(resolve => {
-		const $temp = document.createElement('img');
-		$temp.setAttribute('src', url);
-
-		if ($temp.complete)
-			resolve();
-		else
-			$temp.addEventListener('load', resolve, { once: true });
-	})
-};
-
-const loadBackgroundSmooth = async (node, url) => {
-	url = url || node.getAttribute('data-bg');
-	await preloadImage(url);
-	node.style.display = 'block';
-	node.style.backgroundImage = 'url(' + url + ')';
-	node.style.opacity = 1;
-};
-
-const delay = (ms) => {
-	return new Promise(resolve => {
-		setTimeout(resolve, ms);
-	});
-};
-
-const pointDistance = (x1, y1, x2, y2) => {
-	let deltaX = x1 - x2;
-	let deltaY = y1 - y2;
-
-	return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-};
-
-const onButtonClick = (node, callback) => {
-	const wrapper = () => {
-		if (!node.classList.contains('disabled')) {
-			node.classList.add('disabled');
-			callback();
-		}
-
-		return false;
-	};
-
-	node.addEventListener('mousedown', wrapper);
-	node.addEventListener('touchstart', wrapper);
-};
-
-const $ = (id, multi = false) => {
-	return multi ? document.querySelectorAll(id) : document.querySelector(id);
-};
-
 const MAX_LIVES = 3;
 const GUESS_THRESHOLD = 2.4;
-const BOD_RADIUS = 0.8;
+const BENEFIT_OF_DOUBT_RADIUS = 0.8;
 
-class GameState {
-	constructor(ui, panorama) {
-		this.ui = ui;
-		this.panorama = panorama;
-		this.availableLocations = [];
-	}
-
-	addLocation(location) {
-		this.availableLocations.push(location);
-	}
-
-	reset() {
-		this.currentRound = 0;
-		this.currentLocation = null;
-
-		this.playerLives = MAX_LIVES;
-		this.playerGuesses = [];
-		this.playerPoints = 0;
-
-		this.isAlive = true;
-
-		this.locationPool = [];
-		for (let location of this.availableLocations)
-			this.locationPool.push(location);
-
-		this.ui.$scoreLives.textContent = this.playerLives;
-		this.ui.$scoreRounds.textContent = this.currentRound;
-		this.ui.$scoreAccuracy.textContent = this.playerAccuracy;
-	}
-
-	startGame(isClassic) {
-		this.reset();
-		this.ui.enterGame(isClassic).then(() => this.nextRound());
-	}
-
-	restartGame() {
-		// Remove the glowing border from the game frame.
-		this.ui.setGameGlowBorder('transparent');
-
-		// Hide the game over frame.
-		this.ui.$gameOverSpirit.style.opacity = 0;
-		this.ui.$gameOver.style.opacity = 0;
-
-		delay(430).then(() => {
-			this.ui.$gameOver.style.display = 'none';
-
-			this.reset();
-
-			this.ui.$gameMap.style.display = 'block';
-			this.ui.$gameImage.style.display = 'block';
-
-			this.nextRound();
-		});
-	}
-
-	nextRound() {
-		this.ui.$scoreAccuracy.textContent = this.playerAccuracy;
-
-		if (this.isAlive) {
-			if (this.locationPool.length > 0) {
-				// Update the player score information.
-				this.currentRound++;
-				this.ui.$scoreRounds.textContent = this.currentRound;
-
-				// Select the next location from the pool.
-				let locationIndex = Math.floor(Math.random() * this.locationPool.length);
-				this.currentLocation = this.locationPool.splice(locationIndex, 1)[0];
-
-				// Set the panorama to the new location.
-				this.panorama.setLocation(this.currentLocation.id);
-
-				// Remove the glow effect from the game frame.
-				this.ui.setGameGlowBorder('transparent');
-
-				// Hide/clear the guess map.
-				this.ui.hideMap();
-				this.ui.clearMap();
-				this.ui.resetMapZoom();
-
-				// Enable the map, allowing users to place a marker.
-				this.ui.enableMap();
-
-				// Hide the 'Next round' button.
-				this.ui.$buttonNextRound.style.display = 'none';
-
-				// Show the 'View-location' and 'Submit guess' buttons.
-				this.ui.$buttonViewLocation.style.display = 'block';
-				this.ui.$buttonSubmitGuess.style.display = 'block';
-				this.ui.$buttonSubmitGuess.classList.add('disabled');
-
-			} else {
-				this.ui.showGameOver(true, this.playerPoints);
-			}
-		} else {
-			this.ui.showGameOver(false, this.playerPoints);
-		}
-	}
-
-	processGuess() {
-		// Disable the map, preventing further input.
-		this.ui.disableMap();
-
-		// Calculate the player's accuracy.
-		let choice = this.ui.mapMarker.getLatLng();
-		let dist = pointDistance(this.currentLocation.lat, this.currentLocation.lng, choice.lat, choice.lng);
-
-		let circleColour = 'blue';
-		let circleRadius = GUESS_THRESHOLD;
-
-		let distFactor = 1 - (dist / GUESS_THRESHOLD);
-		if (distFactor > 0) {
-			if (distFactor < BOD_RADIUS) {
-				circleColour = 'yellow';
-			} else {
-				circleColour = 'green';
-				circleRadius = BOD_RADIUS;
-				distFactor = 1;
-
-				this.ui.setGameGlowBorder('green');
-			}
-
-			// Increment the players score.
-			this.playerPoints++;
-		} else {
-			distFactor = 0;
-			this.removeLife();
-
-			circleColour = 'red';
-			this.ui.showMapPath(this.currentLocation, choice, circleColour);
-			this.ui.setGameGlowBorder('red');
-		}
-
-		// Set the zone information on the map.
-		this.ui.setMapInfo(this.currentLocation.zone, this.currentLocation.name);
-
-		// Convert the factor into a 0-100 percentage and store it.
-		let distPct = distFactor * 100;
-		this.playerGuesses.push(distPct);
-
-		// Show a circle where the actual answer was and pan to it.
-		this.ui.showMapCircle(this.currentLocation, circleColour, circleRadius);
-		this.ui.panMap(this.currentLocation);
-
-		// Hide the 'Submit guess' and 'View Location' buttons.
-		this.ui.$buttonSubmitGuess.style.display = 'none';
-		this.ui.$buttonViewLocation.style.display = 'none';
-
-		// Show the 'Next Round' button and enable it.
-		this.ui.$buttonNextRound.classList.remove('disabled');
-		this.ui.$buttonNextRound.style.display = 'block';
-	}
-
-	removeLife() {
-		this.playerLives--;
-		this.isAlive = this.playerLives > 0;
-		this.ui.$scoreLives.textContent = this.playerLives;
-	}
-
-	get playerAccuracy() {
-		if (this.playerGuesses.length === 0)
-			return 0;
-
-		let sum = 0;
-		for (let guess of this.playerGuesses)
-			sum += guess;
-
-		return Math.ceil(sum / this.playerGuesses.length);
-	}
+function $(id) {
+    return document.querySelector(id);
 }
 
-class UI {
-	constructor() {
-		this._isMapEnabled = false;
-		this._init();
-	}
-
-	_init() {
-		// Containers and structure elements
-		this.$gameIntro = document.querySelector('.intro');
-		this.$gameBanners = document.querySelectorAll('.game-banner');
-		this.$gameFrame = document.querySelector('.game-frame');
-		this.$gameContent = document.querySelector('.game-content');
-		this.$gameImage = document.querySelector('.game-image');
-		this.$gameMap = document.querySelector('.game-map');
-		this.$gameCanvas = document.querySelector('.panorama-inner');
-	
-		// Game-over frame elements
-		this.$gameOver = document.querySelector('.game-over');
-		this.$gameOverSpirit = document.querySelector('.game-over-spirit');
-		this.$gameOverTitle = document.getElementById('game-over-title');
-		this.$gameOverRounds = document.getElementById('game-over-rounds-value');
-		this.$gameOverAccuracy = document.getElementById('game-over-accuracy-value');
-	
-		// Score components for top header
-		this.$scoreRounds = document.getElementById('game-score-round-value');
-		this.$scoreAccuracy = document.getElementById('game-score-accuracy-value');
-		this.$scoreLives = document.getElementById('game-score-lives-value');
-	
-		// Game map info
-		this.$infoZone = document.querySelector('.map-info');
-	
-		// Button elements
-		this.$buttonViewMap = document.getElementById('game-button-map');
-		this.$buttonViewLocation = document.getElementById('game-button-location');
-		this.$buttonSubmitGuess = document.getElementById('game-button-confirm');
-		this.$buttonNextRound = document.getElementById('game-button-next');
-		this.$buttonReplay = document.getElementById('game-button-replay');
-		this.$buttonPlay = document.getElementById('btn-play');
-		this.$buttonPlayClassic = document.getElementById('btn-play-classic');
-	
-		// Asynchronously load smooth background images
-		document.querySelectorAll('.smooth').forEach($node => loadBackgroundSmooth($node));
-	}
-
-	_initializeMap(isClassic) {
-		this.map = L.map('game-map', {
-			attributionControl: false,
-			crs: L.CRS.Simple
-		});
-
-		this.resetMapZoom();
-		this.isClassic = isClassic;
-
-		const dir = isClassic ? 'tiles_classic' : 'tiles';
-		L.tileLayer('static/images/' + dir + '/{z}/{x}/{y}.png', { maxZoom: isClassic ? 6 : 7, }).addTo(this.map);
-		this.map.on('click', (e) => this._onMapClick(e));
-	}
-
-	_onMapClick(e) {
-		const dbg = JSON.stringify(e.latlng);
-		console.log(dbg);
-
-		if (this._isMapEnabled) {
-			// Remove existing marker.
-			if (this.mapMarker)
-				this.mapMarker.remove();
-
-			this.mapMarker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(this.map);
-			this.$buttonSubmitGuess.classList.remove('disabled');
-		}
-	}
-
-	resetMapZoom() {
-		this.map.setView([-120.90349875311426, 124.75], 2);
-	}
-
-	panMap(location) {
-		this.map.panTo([
-			location.lat, location.lng
-		], {
-			duration: 1,
-			easeLinearity: 0.1
-		});
-	}
-
-	showMapPath(pointA, pointB, colour) {
-		if (this.mapPath)
-			this.mapPath.remove();
-
-		this.mapPath = L.polyline([
-			[pointA.lat, pointA.lng],
-			[pointB.lat, pointB.lng]
-		], { color: colour || 'red' }).addTo(this.map);
-	}
-	
-	showMapCircle(location, colour, radius) {
-		if (this.mapCircle)
-			this.mapCircle.remove();
-
-		this.mapCircle = L.circle([location.lat, location.lng], {
-			color: colour,
-			fillColor: colour,
-			fillOpacity: 0.5,
-			radius: radius
-		}).addTo(this.map);
-	}
-
-	clearMap() {
-		if (this.mapMarker) {
-			this.mapMarker.remove();
-			this.mapMarker = null;
-		}
-
-		if (this.mapPath) {
-			this.mapPath.remove();
-			this.mapPath = null;
-		}
-
-		if (this.mapCircle) {
-			this.mapCircle.remove();
-			this.mapCircle = null;
-		}
-
-		this.$infoZone.style.display = 'none';
-	}
-
-	enableMap() {
-		this._isMapEnabled = true;
-	}
-
-	disableMap() {
-		this._isMapEnabled = false;
-	}
-
-	showMap() {
-		// Ensure the 'Re-view' location button is enabled.
-		this.$buttonViewLocation.classList.remove('disabled');
-
-		// Enable the 'Submit Guess' button if we have a location.
-		if (this.mapMarker)
-			this.$buttonSubmitGuess.classList.remove('disabled');
-
-		// Bring the map to the front and fade it in.
-		this.$gameMap.style.opacity = 1;
-		this.$gameMap.style.zIndex = 4;
-		
-		// Fade out the panorama frame.
-		this.$gameImage.style.opacity = 0;
-	}
-
-	hideMap() {
-		// Ensure the 'Make guess' button is enabled.
-		this.$buttonViewMap.classList.remove('disabled');
-
-		// Send the map to the back and fade it out.
-		this.$gameMap.style.opacity = 0;
-		this.$gameMap.style.zIndex = 1;
-
-		// Fade in the panorama frame.
-		this.$gameImage.style.opacity = 1;
-	}
-
-	setMapInfo(zone, name) {
-		this.$infoZone.textContent = zone + ' - ' + name;
-		this.$infoZone.style.display = 'block'; // fadeIn?
-	}
-
-	async enterGame(isClassic) {
-		return new Promise(resolve => {
-			this.$gameIntro.style.opacity = 0;
-
-			delay(430).then(() => {
-				this.$gameIntro.style.display = 'none';
-
-				// Show the containing frame
-				this.$gameFrame.style.display = 'block';
-				this.$gameFrame.style.opacity = 1;
-
-				// Extend the top/bottom banners into view.
-				for (const $banner of this.$gameBanners)
-					$banner.classList.add('extended');
-
-				// Fade in the game content container.
-				this.$gameContent.style.opacity = 1;
-
-				// Initialize the guess map.
-				this._initializeMap(isClassic);
-
-				resolve();
-			});
-		});
-	}
-
-	setGameGlowBorder(colour) {
-		this.$gameContent.style.boxShadow = 'insert ' + colour + ' 0 0 80px';
-	}
-
-	showGameOver(victory, score) {
-		// Fade the exterior border to white.
-		this.setGameGlowBorder('white');
-
-		this.$gameMap.style.opacity = 0;
-		this.$gameImage.style.opacity = 0;
-
-		delay(430).then(() => {
-			if (victory)
-				this.$gameOverTitle.textContent = 'You completed every location.';
-			else
-				this.$gameOverTitle.textContent = 'You ran out of lives.';
-
-			// Show score information from the header bar.
-			this.$gameOverRounds.textContent = score;
-			this.$gameOverAccuracy.textContent = this.$scoreAccuracy.textContent;
-
-			// Enable the replay button.
-			this.$buttonReplay.classList.remove('disabled');
-
-			// Show the spirit healer graphic.
-			loadBackgroundSmooth(this.$gameOverSpirit);
-
-			// Show the game over screen.
-			this.$gameOver.style.display = 'flex';
-			this.$gameOver.style.opacity = 1;
-		});
-	}
+function $$(id) {
+    return document.querySelectorAll(id);
 }
 
-class Panorama {
-	constructor(ui) {
-		this.ui = ui;
-		this.isClassic = false;
-
-		this.offset = 0;
-		this.anchor = 0;
-		this.isDragging = false;
-
-		this._init();
-	}
-
-	setMode(isClassic) {
-		this.isClassic = isClassic;
-	}
-
-	setLocation(id) {
-		// Load the panorama for this location.
-		const dir = this.isClassic ? 'locations_classic' : 'locations';
-		this.ui.$gameCanvas.style.opacity = 0;
-		loadBackgroundSmooth(this.ui.$gameCanvas, 'static/images/' + dir + '/' + id + '.jpg');
-	}
-
-	_init() {
-		this.ui.$gameImage.addEventListener('mousedown', e => this._onMouseDown(e));
-		this.ui.$gameImage.addEventListener('touchstart', e => this._onMouseDown(e));
-
-		document.addEventListener('mousemove', e => this._onMouseMove(e));
-		document.addEventListener('touchmove', e => this._onMouseMove(e));
-
-		document.addEventListener('mouseup', e => this._onMouseUp(e));
-		document.addEventListener('touchend', e => this._onMouseUp(e));
-		document.addEventListener('touchcancel', e => this._onMouseUp(e));
-	}
-
-	_onMouseMove(e) {
-		if (this.isDragging) {
-			let touchX = e.clientX || e.touches[0].clientX;
-			let offset = this.offset + (touchX - this.anchor);
-			this.ui.$gameCanvas.style.backgroundPosition = offset + 'px 0';
-			e.preventDefault();
-		}
-	}
-
-	_onMouseDown(e) {
-		this.anchor = e.clientX || e.touches[0].clientX;
-		this.isDragging = true;
-		e.preventDefault();
-	}
-
-	_onMouseUp(e) {
-		if (this.isDragging) {
-			let touchX = e.clientX || e.changedTouches[0].clientX;
-
-			this.isDragging = false;
-			this.offset = this.offset + (touchX - this.anchor);
-			e.preventDefault();
-		}
-	}
+async function document_ready() {
+    if (document.readyState !== 'loading')
+        return;
+    
+    return new Promise(resolve => {
+        document.addEventListener('DOMContentLoaded', resolve, { once: true });
+    });
 }
 
+async function preload_image(url) {
+    const $temp = document.createElement('img');
+    $temp.setAttribute('src', url);
+
+    if ($temp.complete)
+        return;
+    
+    return new Promise(resolve => {
+        $temp.addEventListener('load', resolve, { once: true });
+    });
+}
+
+async function load_background_smooth(node, url) {
+    url = url || node.getAttribute('data-bg');
+    await preload_image(url);
+    node.style.display = 'block';
+    node.style.backgroundImage = 'url(' + url + ')';
+    node.style.opacity = 1;
+}
+
+async function sleep(ms) {
+    return new Promise(resolve => {
+        setTimeout(resolve, ms);
+    });
+}
+
+function point_distance(x1, y1, x2, y2) {
+    let delta_x = x1 - x2;
+    let delta_y = y1 - y2;
+
+    return Math.sqrt(delta_x * delta_x + delta_y * delta_y);
+}
+
+function on_click(node, callback) {
+    const wrapper = () => {
+        if (!node.classList.contains('disabled')) {
+            node.classList.add('disabled');
+            callback();
+        }
+        return false;
+    };
+
+    node.addEventListener('mousedown', wrapper);
+    node.addEventListener('touchstart', wrapper);
+}
+
+function init_ui() {
+    const ui = {
+        $game_intro: $('.intro'),
+        $game_banners: $$('.game-banner'),
+        $game_frame: $('.game-frame'),
+        $game_content: $('.game-content'),
+        $game_image: $('.game-image'),
+        $game_map: $('.game-map'),
+        $game_canvas: $('.panorama-inner'),
+    
+        // Game-over frame elements
+        $game_over: $('.game-over'),
+        $game_over_spirit: $('.game-over-spirit'),
+        $game_over_title: $('#game-over-title'),
+        $game_over_rounds: $('#game-over-rounds-value'),
+        $game_over_accuracy: $('#game-over-accuracy-value'),
+    
+        // Score components for top header
+        $score_rounds: $('#game-score-round-value'),
+        $score_accuracy: $('#game-score-accuracy-value'),
+        $score_lives: $('#game-score-lives-value'),
+    
+        // Game map info
+        $info_zone: $('.map-info'),
+    
+        // Button elements
+        $button_view_map: $('#game-button-map'),
+        $button_view_location: $('#game-button-location'),
+        $button_submit_guess: $('#game-button-confirm'),
+        $button_next_round: $('#game-button-next'),
+        $button_replay: $('#game-button-replay'),
+        $button_play: $('#btn-play'),
+        $button_play_classic: $('#btn-play-classic')
+    };
+
+    // Asynchronously load smooth background images
+    $$('.smooth').forEach($node => load_background_smooth($node));
+    
+    return ui;
+}
+
+function initialize_map(game_map_element, is_classic) {
+    const map = L.map('game-map', {
+        attributionControl: false,
+        crs: L.CRS.Simple
+    });
+
+    map.setView([-120.90349875311426, 124.75], 2);
+
+    const dir = is_classic ? 'tiles_classic' : 'tiles';
+    L.tileLayer('static/images/' + dir + '/{z}/{x}/{y}.png', { maxZoom: is_classic ? 6 : 7 }).addTo(map);
+    
+    return map;
+}
+
+function on_map_click(e, state) {
+    const dbg = JSON.stringify(e.latlng);
+    console.log(dbg);
+
+    if (state.is_map_enabled) {
+        // Remove existing marker
+        if (state.map_marker)
+            state.map_marker.remove();
+
+        state.map_marker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(state.map);
+        state.ui.$button_submit_guess.classList.remove('disabled');
+    }
+}
+
+function reset_map_zoom(map) {
+    map.setView([-120.90349875311426, 124.75], 2);
+}
+
+function pan_map(map, location) {
+    map.panTo([
+        location.lat, location.lng
+    ], {
+        duration: 1,
+        easeLinearity: 0.1
+    });
+}
+
+function show_map_path(state, point_a, point_b, colour) {
+    if (state.map_path)
+        state.map_path.remove();
+
+    state.map_path = L.polyline([
+        [point_a.lat, point_a.lng],
+        [point_b.lat, point_b.lng]
+    ], { color: colour || 'red' }).addTo(state.map);
+}
+
+function show_map_circle(state, location, colour, radius) {
+    if (state.map_circle)
+        state.map_circle.remove();
+
+    state.map_circle = L.circle([location.lat, location.lng], {
+        color: colour,
+        fillColor: colour,
+        fillOpacity: 0.5,
+        radius: radius
+    }).addTo(state.map);
+}
+
+function clear_map(state) {
+    if (state.map_marker) {
+        state.map_marker.remove();
+        state.map_marker = null;
+    }
+
+    if (state.map_path) {
+        state.map_path.remove();
+        state.map_path = null;
+    }
+
+    if (state.map_circle) {
+        state.map_circle.remove();
+        state.map_circle = null;
+    }
+
+    state.ui.$info_zone.style.display = 'none';
+}
+
+function enable_map(state) {
+    state.is_map_enabled = true;
+}
+
+function disable_map(state) {
+    state.is_map_enabled = false;
+}
+
+function show_map(state) {
+    // Ensure the 'Re-view' location button is enabled
+    state.ui.$button_view_location.classList.remove('disabled');
+
+    // Enable the 'Submit Guess' button if we have a location
+    if (state.map_marker)
+        state.ui.$button_submit_guess.classList.remove('disabled');
+
+    // Bring the map to the front and fade it in
+    state.ui.$game_map.style.opacity = 1;
+    state.ui.$game_map.style.zIndex = 4;
+    
+    // Fade out the panorama frame
+    state.ui.$game_image.style.opacity = 0;
+}
+
+function hide_map(state) {
+    // Ensure the 'Make guess' button is enabled
+    state.ui.$button_view_map.classList.remove('disabled');
+
+    // Send the map to the back and fade it out
+    state.ui.$game_map.style.opacity = 0;
+    state.ui.$game_map.style.zIndex = 1;
+
+    // Fade in the panorama frame
+    state.ui.$game_image.style.opacity = 1;
+}
+
+function set_map_info(state, zone, name) {
+    state.ui.$info_zone.textContent = zone + ' - ' + name;
+    state.ui.$info_zone.style.display = 'block';
+}
+
+async function enter_game(state, is_classic) {
+    state.ui.$game_intro.style.opacity = 0;
+
+    await sleep(430);
+    
+    state.ui.$game_intro.style.display = 'none';
+
+    // Show the containing frame
+    state.ui.$game_frame.style.display = 'block';
+    state.ui.$game_frame.style.opacity = 1;
+
+    // Extend the top/bottom banners into view
+    for (const $banner of state.ui.$game_banners)
+        $banner.classList.add('extended');
+
+    // Fade in the game content container
+    state.ui.$game_content.style.opacity = 1;
+
+    // Initialize the guess map
+    state.map = initialize_map(state.ui.$game_map, is_classic);
+    state.map.on('click', (e) => on_map_click(e, state));
+    state.is_classic = is_classic;
+}
+
+function set_game_glow_border(state, colour) {
+    state.ui.$game_content.style.boxShadow = 'insert ' + colour + ' 0 0 80px';
+}
+
+async function show_game_over(state, victory, score) {
+    // Fade the exterior border to white
+    set_game_glow_border(state, 'white');
+
+    state.ui.$game_map.style.opacity = 0;
+    state.ui.$game_image.style.opacity = 0;
+
+    await sleep(430);
+    
+    if (victory)
+        state.ui.$game_over_title.textContent = 'You completed every location.';
+    else
+        state.ui.$game_over_title.textContent = 'You ran out of lives.';
+
+    // Show score information from the header bar
+    state.ui.$game_over_rounds.textContent = score;
+    state.ui.$game_over_accuracy.textContent = state.ui.$score_accuracy.textContent;
+
+    // Enable the replay button
+    state.ui.$button_replay.classList.remove('disabled');
+
+    // Show the spirit healer graphic
+    await load_background_smooth(state.ui.$game_over_spirit);
+
+    // Show the game over screen
+    state.ui.$game_over.style.display = 'flex';
+    state.ui.$game_over.style.opacity = 1;
+}
+
+// Panorama functions
+function set_panorama_mode(state, is_classic) {
+    state.is_classic = is_classic;
+}
+
+function set_panorama_location(state, id) {
+    // Load the panorama for this location
+    const dir = state.is_classic ? 'locations_classic' : 'locations';
+    state.ui.$game_canvas.style.opacity = 0;
+    load_background_smooth(state.ui.$game_canvas, 'static/images/' + dir + '/' + id + '.jpg');
+}
+
+function init_panorama(state) {
+    state.panorama_offset = 0;
+    state.panorama_anchor = 0;
+    state.is_dragging = false;
+
+    state.ui.$game_image.addEventListener('mousedown', e => on_panorama_mouse_down(e, state));
+    state.ui.$game_image.addEventListener('touchstart', e => on_panorama_mouse_down(e, state));
+
+    document.addEventListener('mousemove', e => on_panorama_mouse_move(e, state));
+    document.addEventListener('touchmove', e => on_panorama_mouse_move(e, state));
+
+    document.addEventListener('mouseup', e => on_panorama_mouse_up(e, state));
+    document.addEventListener('touchend', e => on_panorama_mouse_up(e, state));
+    document.addEventListener('touchcancel', e => on_panorama_mouse_up(e, state));
+}
+
+function on_panorama_mouse_move(e, state) {
+    if (state.is_dragging) {
+        let touch_x = e.clientX || e.touches[0].clientX;
+        let offset = state.panorama_offset + (touch_x - state.panorama_anchor);
+        state.ui.$game_canvas.style.backgroundPosition = offset + 'px 0';
+        e.preventDefault();
+    }
+}
+
+function on_panorama_mouse_down(e, state) {
+    state.panorama_anchor = e.clientX || e.touches[0].clientX;
+    state.is_dragging = true;
+    e.preventDefault();
+}
+
+function on_panorama_mouse_up(e, state) {
+    if (state.is_dragging) {
+        let touch_x = e.clientX || e.changedTouches[0].clientX;
+
+        state.is_dragging = false;
+        state.panorama_offset = state.panorama_offset + (touch_x - state.panorama_anchor);
+        e.preventDefault();
+    }
+}
+
+function reset_game_state(state) {
+    state.current_round = 0;
+    state.current_location = null;
+
+    state.player_lives = MAX_LIVES;
+    state.player_guesses = [];
+    state.player_points = 0;
+
+    state.is_alive = true;
+
+    state.location_pool = [];
+    for (let location of state.available_locations)
+        state.location_pool.push(location);
+
+    state.ui.$score_lives.textContent = state.player_lives;
+    state.ui.$score_rounds.textContent = state.current_round;
+    state.ui.$score_accuracy.textContent = get_player_accuracy(state);
+}
+
+function add_location(state, location) {
+    state.available_locations.push(location);
+}
+
+async function start_game(state, is_classic) {
+    reset_game_state(state);
+    await enter_game(state, is_classic);
+    next_round(state);
+}
+
+async function restart_game(state) {
+    // Remove the glowing border from the game frame
+    set_game_glow_border(state, 'transparent');
+
+    // Hide the game over frame
+    state.ui.$game_over_spirit.style.opacity = 0;
+    state.ui.$game_over.style.opacity = 0;
+
+    await sleep(430);
+    
+    state.ui.$game_over.style.display = 'none';
+
+    reset_game_state(state);
+
+    state.ui.$game_map.style.display = 'block';
+    state.ui.$game_image.style.display = 'block';
+
+    next_round(state);
+}
+
+function next_round(state) {
+    state.ui.$score_accuracy.textContent = get_player_accuracy(state);
+
+    if (state.is_alive) {
+        if (state.location_pool.length > 0) {
+            // Update the player score information
+            state.current_round++;
+            state.ui.$score_rounds.textContent = state.current_round;
+
+            // Select the next location from the pool
+            let location_index = Math.floor(Math.random() * state.location_pool.length);
+            state.current_location = state.location_pool.splice(location_index, 1)[0];
+
+            // Set the panorama to the new location
+            set_panorama_location(state, state.current_location.id);
+
+            // Remove the glow effect from the game frame
+            set_game_glow_border(state, 'transparent');
+
+            // Hide/clear the guess map
+            hide_map(state);
+            clear_map(state);
+            reset_map_zoom(state.map);
+
+            // Enable the map, allowing users to place a marker
+            enable_map(state);
+
+            // Hide the 'Next round' button
+            state.ui.$button_next_round.style.display = 'none';
+
+            // Show the 'View-location' and 'Submit guess' buttons
+            state.ui.$button_view_location.style.display = 'block';
+            state.ui.$button_submit_guess.style.display = 'block';
+            state.ui.$button_submit_guess.classList.add('disabled');
+
+        } else {
+            show_game_over(state, true, state.player_points);
+        }
+    } else {
+        show_game_over(state, false, state.player_points);
+    }
+}
+
+function process_guess(state) {
+    // Disable the map, preventing further input
+    disable_map(state);
+
+    // Calculate the player's accuracy
+    let choice = state.map_marker.getLatLng();
+    let dist = point_distance(state.current_location.lat, state.current_location.lng, choice.lat, choice.lng);
+
+    let circle_colour = 'blue';
+    let circle_radius = GUESS_THRESHOLD;
+
+    let dist_factor = 1 - (dist / GUESS_THRESHOLD);
+    if (dist_factor > 0) {
+        if (dist_factor < BENEFIT_OF_DOUBT_RADIUS) {
+            circle_colour = 'yellow';
+        } else {
+            circle_colour = 'green';
+            circle_radius = BENEFIT_OF_DOUBT_RADIUS;
+            dist_factor = 1;
+
+            set_game_glow_border(state, 'green');
+        }
+
+        // Increment the players score
+        state.player_points++;
+    } else {
+        dist_factor = 0;
+        remove_life(state);
+
+        circle_colour = 'red';
+        show_map_path(state, state.current_location, choice, circle_colour);
+        set_game_glow_border(state, 'red');
+    }
+
+    // Set the zone information on the map
+    set_map_info(state, state.current_location.zone, state.current_location.name);
+
+    // Convert the factor into a 0-100 percentage and store it
+    let dist_pct = dist_factor * 100;
+    state.player_guesses.push(dist_pct);
+
+    // Show a circle where the actual answer was and pan to it
+    show_map_circle(state, state.current_location, circle_colour, circle_radius);
+    pan_map(state.map, state.current_location);
+
+    // Hide the 'Submit guess' and 'View Location' buttons
+    state.ui.$button_submit_guess.style.display = 'none';
+    state.ui.$button_view_location.style.display = 'none';
+
+    // Show the 'Next Round' button and enable it
+    state.ui.$button_next_round.classList.remove('disabled');
+    state.ui.$button_next_round.style.display = 'block';
+}
+
+function remove_life(state) {
+    state.player_lives--;
+    state.is_alive = state.player_lives > 0;
+    state.ui.$score_lives.textContent = state.player_lives;
+}
+
+function get_player_accuracy(state) {
+    if (state.player_guesses.length === 0)
+        return 0;
+
+    let sum = 0;
+    for (let guess of state.player_guesses)
+        sum += guess;
+
+    return Math.ceil(sum / state.player_guesses.length);
+}
+
+async function load_game(state, is_classic) {
+	const response = await fetch(is_classic ? 'locations_classic.json' : 'locations.json');
+	const content = await response.json();
+
+	for (const zone of content.zones) {
+		for (const location of zone.locations) {
+			location.zone = zone.name;
+			add_location(state, location);
+		}
+	}
+
+	set_panorama_mode(state, is_classic);
+	await start_game(state, is_classic);
+}
+
+// Main execution
 (async () => {
-	await documentReady();
+    await document_ready();
 
-	// Ruffles
-	delay(5000).then(() => {
-		const ruffles = $('#front-ruffles');
-		ruffles.style.display = 'block';
+    // Initialize game state
+    const state = {
+        ui: init_ui(),
+        is_map_enabled: false,
+        available_locations: [],
+        is_classic: false
+    };
 
-		delay(1).then(() => {
-			ruffles.classList.add('arf');
-		});
-	});
+    // Initialize panorama controls
+    init_panorama(state);
 
-	// Asynchronously load location data from server.
-	const loadGame = (isClassic) => {
-		fetch(isClassic ? 'locations_classic.json' : 'locations.json').then(async (response) => {
-			const content = await response.json();
+    // Ruffles
+    sleep(5000).then(() => {
+        const ruffles = $('#front-ruffles');
+        ruffles.style.display = 'block';
 
-			for (const zone of content.zones) {
-				for (const location of zone.locations) {
-					location.zone = zone.name;
-					state.addLocation(location);
-				}
-			}
+        sleep(1).then(() => {
+            ruffles.classList.add('arf');
+        });
+    });
 
-			panorama.setMode(isClassic);
-			state.startGame(isClassic);
-		});
-	}
+    // Add button handlers
+    on_click(state.ui.$button_view_map, () => show_map(state));
+    on_click(state.ui.$button_play, () => load_game(state, false));
+    on_click(state.ui.$button_play_classic, () => load_game(state, true));
+    on_click(state.ui.$button_view_location, () => hide_map(state));
+    on_click(state.ui.$button_next_round, () => next_round(state));
+    on_click(state.ui.$button_replay, () => restart_game(state));
+    on_click(state.ui.$button_submit_guess, () => process_guess(state));
 
-	const ui = new UI();
-	const panorama = new Panorama(ui);
-	const state = new GameState(ui, panorama);
-
-		// Add button handlers.
-		onButtonClick(ui.$buttonViewMap, () => ui.showMap());
-		onButtonClick(ui.$buttonPlay, () => loadGame(false));
-		onButtonClick(ui.$buttonPlayClassic, () => loadGame(true));
-		onButtonClick(ui.$buttonViewLocation, () => ui.hideMap());
-		onButtonClick(ui.$buttonNextRound, () => state.nextRound());
-		onButtonClick(ui.$buttonReplay, () => state.restartGame());
-		onButtonClick(ui.$buttonSubmitGuess, () => state.processGuess());
-
-		// Preload loading graphic.
-		preloadImage('static/images/zeppy.png');
+    // Preload loading graphic
+    await preload_image('static/images/zeppy.png');
 })();
