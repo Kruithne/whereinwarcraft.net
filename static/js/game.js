@@ -205,7 +205,7 @@ async function document_load() {
 				this.viewing_map = false;
 			},
 			
-			async confirm_guess() {
+			javascriptasync confirm_guess() {
 				if (!this.map_marker || !this.can_place_marker)
 					return;
 				
@@ -238,17 +238,23 @@ async function document_load() {
 					}
 					
 					const data = await response.json();
-
+			
+					// Store map switch needed flag and data for later use
+					let map_switch_needed = false;
+					
 					if (data.mapID !== undefined) {
 						const new_map = Object.keys(this.maps).find(
 							key => this.maps[key].mapID === data.mapID
 						);
 						
 						if (new_map && new_map !== this.selected_map) {
+							map_switch_needed = true;
 							this.clear_map();
 							this.selected_map = new_map;
-
+							
+							// Wait for map change to be applied in the DOM
 							await this.$nextTick();
+							await this.change_map();
 						}
 					}
 					
@@ -261,7 +267,7 @@ async function document_load() {
 						lat: data.lat,
 						lng: data.lng,
 						color: 'red',
-						radius: 2.4,
+						radius: GUESS_THRESHOLD
 					};
 					
 					// Set result color and radius based on result code
@@ -269,17 +275,19 @@ async function document_load() {
 						this.map_circle_data.color = 'yellow';
 					} else if (data.result === 2) {
 						this.map_circle_data.color = 'green';
-						this.map_circle_data.radius = 0.8;
+						this.map_circle_data.radius = BENEFIT_OF_DOUBT_RADIUS;
 					}
 					
-					// Create path between guess and correct location
-					this.map_path_data = {
-						points: [
-							[data.lat, data.lng],
-							[latlng.lat, latlng.lng]
-						],
-						color: this.map_circle_data.color
-					};
+					// Create path between guess and correct location if on same map
+					if (data.result !== 0) {
+						this.map_path_data = {
+							points: [
+								[data.lat, data.lng],
+								[latlng.lat, latlng.lng]
+							],
+							color: this.map_circle_data.color
+						};
+					}
 					
 					// Update the map elements
 					this.$nextTick(() => {
@@ -298,9 +306,11 @@ async function document_load() {
 							radius: this.map_circle_data.radius
 						}).addTo(this.map);
 						
-						this.map_path = L.polyline(this.map_path_data.points, { 
-							color: this.map_path_data.color 
-						}).addTo(this.map);
+						if (this.map_path_data) {
+							this.map_path = L.polyline(this.map_path_data.points, { 
+								color: this.map_path_data.color 
+							}).addTo(this.map);
+						}
 						
 						// Pan to correct location
 						this.map.panTo([data.lat, data.lng]);
@@ -429,16 +439,20 @@ async function document_load() {
 				this.selected_map = map_id;
 			},
 			
-			change_map() {
-				if (this.map) {
-					this.clear_map();
-					this.map.remove();
-					this.map = null;
-				}
-				
-				this.$nextTick(() => {
-					document.getElementById('game-map').style.background = this.map_background;
-					this.initialize_map();
+			async change_map() {
+				return new Promise(resolve => {
+					if (this.map) {
+						this.clear_map();
+						this.map.remove();
+						this.map = null;
+					}
+					
+					this.$nextTick(() => {
+						document.getElementById('game-map').style.background = this.map_background;
+						this.initialize_map().then(() => {
+							resolve();
+						});
+					});
 				});
 			},
 			// #endregion
