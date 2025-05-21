@@ -99,7 +99,7 @@ async function document_load() {
 				this.error_toast_text = text;
 				this.error_toast_timeout = setTimeout(() => {
 					this.error_toast_text = null;
-				}, 3000);
+				}, 7000);
 			},
 
 			// #region game logic
