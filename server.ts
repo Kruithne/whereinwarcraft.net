@@ -16,11 +16,11 @@ export function log(message: string, ...args: unknown[]): void {
 }
 
 async function get_random_location_retail() {
-	return await db.get_single('SELECT `ID` FROM `locations_classic` WHERE `enabled` = 1 ORDER BY RAND() LIMIT 1');
+	return await db.get_single('SELECT `ID` FROM `locations` WHERE `enabled` = 1 ORDER BY RAND() LIMIT 1');
 }
 
 async function get_random_start_location_classic() {
-	return await db.get_single('SELECT `ID` FROM `locations` WHERE `enabled` = 1 ORDER BY RAND() LIMIT 1');
+	return await db.get_single('SELECT `ID` FROM `locations_classic` WHERE `enabled` = 1 ORDER BY RAND() LIMIT 1');
 }
 
 async function clear_token(clear_token: any) {
