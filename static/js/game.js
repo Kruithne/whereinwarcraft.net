@@ -114,7 +114,7 @@ async function document_load() {
 			reset_game_state() {
 				const new_pool = Array(this.locations.length);
 				for (let i = 0, n = this.locations.length; i < n; i++)
-					new_pool[i] = i;
+					new_pool[i] = this.locations[i];
 
 				this.location_pool = new_pool;
 
