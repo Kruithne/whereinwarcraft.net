@@ -103,12 +103,16 @@ async function document_load() {
 							crs: L.CRS.Simple
 						});
 					
-						this.map.setView([-120.90349875311426, 124.75], 2);
+						this.reset_map_view();
 						L.tileLayer('static/images/' + this.tiles_dir + '/{z}/{x}/{y}.png', { maxZoom: this.is_classic ? 6 : 7 }).addTo(this.map);
 
 						resolve();
 					});
 				});
+			},
+
+			reset_map_view() {
+				this.map.setView([-120.90349875311426, 124.75], 2);
 			},
 
 			reset_game_state() {
