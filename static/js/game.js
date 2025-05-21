@@ -244,8 +244,12 @@ async function document_load() {
 							key => this.maps[key].mapID === data.mapID
 						);
 						
-						if (new_map && new_map !== this.selected_map)
+						if (new_map && new_map !== this.selected_map) {
+							this.clear_map();
 							this.selected_map = new_map;
+
+							await this.$nextTick();
+						}
 					}
 					
 					// Update game state
