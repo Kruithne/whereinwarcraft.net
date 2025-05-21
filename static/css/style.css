@@ -44,6 +44,16 @@ body {
 	background: #44c944;
 }
 
+.btn.disabled {
+    background: #808080;
+    color: #ccc;
+    cursor: not-allowed;
+}
+
+.btn.disabled:hover {
+    background: #808080;
+}
+
 /* main menu */
 #main-menu {
 	display: grid;

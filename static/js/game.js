@@ -40,6 +40,9 @@ async function document_load() {
 				leaderboard_data: [],
 				leaderboard_loading: false,
 				leaderboard_last_fetch: 0,
+
+				map_marker: null,
+				can_place_marker: true,
 			}
 		},
 
@@ -120,7 +123,7 @@ async function document_load() {
 				this.locations = locations;
 			},
 
-			async initialize_map() {
+			initialize_map() {
 				return new Promise(resolve => {
 					this.$nextTick(() => {
 						this.map = L.map('game-map', {
@@ -130,12 +133,23 @@ async function document_load() {
 					
 						this.reset_map_view();
 						L.tileLayer('static/images/' + this.tiles_dir + '/{z}/{x}/{y}.png', { maxZoom: this.is_classic ? 6 : 7 }).addTo(this.map);
-
+						
+						this.map.on('click', this.map_click);
+			
 						window.dispatchEvent(new Event('resize'));
-
+						this.initialized_map = true;
+						
 						resolve();
 					});
 				});
+			},
+			
+			map_click(e) {
+				if (!this.can_place_marker)
+					return;
+
+				this.map_marker?.remove();
+				this.map_marker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(this.map);
 			},
 
 			reset_map_view() {
@@ -156,6 +170,21 @@ async function document_load() {
 				this.viewing_map = false;
 			},
 
+			clear_map() {
+				if (this.map_marker) {
+					this.map_marker.remove();
+					this.map_marker = null;
+				}
+				
+				// todo: additional cleanup logic
+			},
+			
+			confirm_guess() {
+				// todo: implement this logic, for now just ensure map marker exists
+				if (!this.map_marker)
+					return;
+			},
+			
 			next_round() {
 				if (!this.is_alive)
 					return; // todo: show gameover screen
@@ -165,8 +194,15 @@ async function document_load() {
 
 				this.current_round++;
 
+				this.clear_map();
+				
+				if (this.initialized_map)
+					this.reset_map_view();
+			
 				const new_location_idx = Math.floor(Math.random() * this.location_pool.length);
 				this.current_location = this.location_pool.splice(new_location_idx, 1)[0];
+
+				this.viewing_map = false;
 			},
 			
 			panorama_mouse_down(e) {

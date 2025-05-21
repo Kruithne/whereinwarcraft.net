@@ -52,7 +52,7 @@
 							<div id="game-map"></div>
 							<div id="game-map-buttons">
 								<input class="btn" type="button" value="Re-view Location" @click="viewing_map = false">
-								<input class="btn" type="button" value="Confirm Guess">
+								<input class="btn" type="button" value="Confirm Guess" :class="{ disabled: !map_marker }" @click="confirm_guess">
 							</div>
 						</div>
 						<div id="game-view-panorama" v-else>
