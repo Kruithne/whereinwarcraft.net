@@ -4,6 +4,9 @@ import crypto from 'node:crypto';
 import { format } from 'node:util';
 import db from './db';
 
+const GUESS_THRESHOLD = 2.4;
+const BOD_RADIUS = 0.8;
+
 const server = serve(Number(process.env.SERVER_PORT), process.env.SERVER_LISTEN_HOST);
 
 export function log(message: string, ...args: unknown[]): void {
@@ -13,6 +16,13 @@ export function log(message: string, ...args: unknown[]): void {
 	formatted_message = formatted_message.replace(/\{([^}]+)\}/g, '\x1b[38;5;13m$1\x1b[0m');
 	
 	console.log(formatted_message);
+}
+
+function point_distance(x1: number, y1: number, x2: number, y2: number): number {
+	const delta_x = x1 - x2;
+	const delta_y = y1 - y2;
+	
+	return Math.sqrt(delta_x * delta_x + delta_y * delta_y);
 }
 
 async function get_random_location_retail() {
@@ -90,6 +100,120 @@ server.route('/api/init/classic', validate_req_json(async (req, url, json) => {
 		token: token,
 		location: location.ID
 	};
+}), 'POST');
+
+server.route('/api/guess', validate_req_json(async (req, url, json) => {
+	if (typeof json.token !== 'string' || json.token.length !== 36)
+		return { status: 400, body: { error: 'Invalid token' } };
+	
+	if (typeof json.lat !== 'number')
+		return { status: 400, body: { error: 'Invalid pin latitude' } };
+	
+	if (typeof json.lng !== 'number')
+		return { status: 400, body: { error: 'Invalid pin longitude' } };
+	
+	const session = await db.get_single('SELECT `currentID`, `lives`, `gameMode`, `score` FROM `sessions` WHERE `token` = ?', [json.token]);
+	if (session === null)
+		return { status: 404, body: { error: 'Game session has expired' } };
+	
+	if (session.lives <= 0)
+		return { status: 400, body: { error: 'You get nothing! You lose! Good day, sir!' } };
+	
+	let location;
+	if (session.gameMode === 1)
+		location = await db.get_single('SELECT l.`name`, l.`lat`, l.`lng`, l.`map`, z.`name` as `zoneName` FROM `locations` AS l JOIN `zones` AS z ON (z.`ID` = l.`zone`) WHERE l.`ID` = ?', [session.currentID]);
+	else if (session.gameMode === 2)
+		location = await db.get_single('SELECT l.`name`, l.`lat`, l.`lng`, z.`name` as `zoneName` FROM `locations_classic` AS l JOIN `zones_classic` AS z ON (z.`ID` = l.`zone`) WHERE l.`ID` = ?', [session.currentID]);
+	else
+		return { status: 400, body: { error: 'Unknown game mode' } };
+	
+	if (location === null)
+		return { status: 500, body: { error: 'Invalid location in session' } };
+	
+	let player_lives = Number(session.lives);
+	let player_score = Number(session.score);
+	
+	const map_id = location.map !== undefined ? Number(location.map) : null;
+	
+	let result = 0; // Red
+	let dist_factor = 0;
+	
+	if (map_id === null || map_id === json.mapID) {
+		const distance = point_distance(location.lat, location.lng, json.lat, json.lng);
+		
+		dist_factor = 1 - (distance / GUESS_THRESHOLD);
+		if (dist_factor > 0) {
+			if (dist_factor < BOD_RADIUS) {
+				result = 1; // Yellow
+			} else {
+				result = 2; // Green
+				dist_factor = 1;
+			}
+			
+			player_score++;
+		} else {
+			dist_factor = 0;
+			player_lives--;
+		}
+	} else {
+		player_lives--;
+	}
+	
+	const dist_pct = dist_factor * 100;
+	await db.execute(
+		'INSERT INTO `guesses` (`token`, `locationID`, `distPct`) VALUES(?, ?, ?)', 
+		[json.token, session.currentID, dist_pct]
+	);
+	
+	const response: any = {
+		distPct: dist_pct,
+		lives: player_lives,
+		score: player_score,
+		lat: location.lat,
+		lng: location.lng,
+		locName: location.name,
+		zoneName: location.zoneName,
+		result: result
+	};
+	
+	if (map_id !== null)
+		response.mapID = map_id;
+	
+	if (player_lives > 0) {
+		let new_location;
+		
+		if (session.gameMode === 1)
+			new_location = await db.get_single('SELECT l.`ID` FROM `locations` AS l WHERE `enabled` = 1 AND NOT EXISTS (SELECT * FROM `guesses` AS g WHERE g.`token` = ? AND g.`locationID` = l.`ID`) ORDER BY RAND() LIMIT 1', [json.token]);
+		else
+			new_location = await db.get_single('SELECT l.`ID` FROM `locations_classic` AS l WHERE `enabled` = 1 AND NOT EXISTS (SELECT * FROM `guesses` AS g WHERE g.`token` = ? AND g.`locationID` = l.`ID`) ORDER BY RAND() LIMIT 1', [json.token]);
+		
+		if (new_location !== null) {
+			response.location = new_location.ID;
+			await db.execute(
+				'UPDATE `sessions` SET `score` = ?, `lives` = ?, `currentID` = ? WHERE `token` = ?', 
+				[player_score, player_lives, new_location.ID, json.token]
+			);
+			
+			log(`game session {${json.token}} updated with new location {${new_location.ID}}, score: {${player_score}}, lives: {${player_lives}}`);
+		} else {
+			// No more locations available
+			await db.execute(
+				'UPDATE `sessions` SET `score` = ?, `lives` = ? WHERE `token` = ?', 
+				[player_score, player_lives, json.token]
+			);
+			
+			log(`game session {${json.token}} updated (no more locations), score: {${player_score}}, lives: {${player_lives}}`);
+		}
+	} else {
+		await db.execute(
+			'UPDATE `sessions` SET `score` = ?, `lives` = ? WHERE `token` = ?', 
+			[player_score, player_lives, json.token]
+		);
+		
+		log(`game session {${json.token}} ended, final score: {${player_score}}`);
+	}
+	
+	return response;
 }), 'POST');
 
 server.route('/api/leaderboard/:mode', (req, url) => {

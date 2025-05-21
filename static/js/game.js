@@ -39,12 +39,23 @@ async function document_load() {
 				leaderboard_last_fetch: 0,
 
 				map_marker: null,
+				map_circle: null,
+				map_path: null,
 				can_place_marker: true,
 
+				map_circle_data: null,
+				map_path_data: null,
+				map_info: {
+					zone_name: '',
+					location_name: '',
+					visible: false
+				},
+
+				guess_result_state: 'playing', // playing, next_round, game_over
 				token: null,
 
 				error_toast_text: null,
-        		error_toast_timeout: null,
+				error_toast_timeout: null,
 
 				selected_map: 'cata',
 				maps: {
@@ -190,27 +201,145 @@ async function document_load() {
 				this.viewing_map = false;
 			},
 			
-			confirm_guess() {
-				// todo: implement this logic, for now just ensure map marker exists
-				if (!this.map_marker)
+			async confirm_guess() {
+				if (!this.map_marker || !this.can_place_marker)
 					return;
+				
+				// Disable marker placement during processing
+				this.can_place_marker = false;
+				
+				try {
+					const latlng = this.map_marker.getLatLng();
+					const payload = {
+						token: this.token,
+						lat: latlng.lat,
+						lng: latlng.lng
+					};
+					
+					// Add mapID for non-classic mode
+					if (!this.is_classic)
+						payload.mapID = this.maps[this.selected_map].mapID;
+					
+					const response = await fetch('/api/guess', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify(payload)
+					});
+					
+					if (!response.ok) {
+						const error_data = await response.json();
+						throw new Error(error_data.error || 'Failed to submit guess');
+					}
+					
+					const data = await response.json();
+					
+					// Update game state
+					this.remaining_lives = data.lives;
+					this.player_guesses.push(data.distPct);
+					
+					// Create circle at correct location
+					this.map_circle_data = {
+						lat: data.lat,
+						lng: data.lng,
+						color: 'red',
+						radius: 2.4,
+					};
+					
+					// Set result color and radius based on result code
+					if (data.result === 1) {
+						this.map_circle_data.color = 'yellow';
+					} else if (data.result === 2) {
+						this.map_circle_data.color = 'green';
+						this.map_circle_data.radius = 0.8;
+					}
+					
+					// Create path between guess and correct location
+					this.map_path_data = {
+						points: [
+							[data.lat, data.lng],
+							[latlng.lat, latlng.lng]
+						],
+						color: this.map_circle_data.color
+					};
+					
+					// Update the map elements
+					this.$nextTick(() => {
+						// Remove previous elements
+						if (this.map_circle) 
+							this.map_circle.remove();
+						
+						if (this.map_path)
+							this.map_path.remove();
+						
+						// Add new elements
+						this.map_circle = L.circle([this.map_circle_data.lat, this.map_circle_data.lng], {
+							color: this.map_circle_data.color,
+							fillColor: this.map_circle_data.color,
+							fillOpacity: 0.5,
+							radius: this.map_circle_data.radius
+						}).addTo(this.map);
+						
+						this.map_path = L.polyline(this.map_path_data.points, { 
+							color: this.map_path_data.color 
+						}).addTo(this.map);
+						
+						// Pan to correct location
+						this.map.panTo([data.lat, data.lng]);
+					});
+					
+					// Set map info
+					this.map_info = {
+						zone_name: data.zoneName,
+						location_name: data.locName,
+						visible: true
+					};
+					
+					// Update current location for next round (if provided)
+					if (data.location)
+						this.current_location = data.location;
+					else
+						this.current_location = null;
+					
+					// Show next round UI state
+					this.guess_result_state = this.remaining_lives <= 0 ? 'game_over' : 'next_round';
+					
+				} catch (error) {
+					console.error('Error submitting guess:', error);
+					this.show_error_toast(error.message || 'Failed to submit guess');
+					this.can_place_marker = true;
+				}
 			},
 			
 			next_round() {
-				if (!this.is_alive)
-					return; // todo: show gameover screen
-			
-				if (!this.current_location)
-					return; // If we don't have a location, we can't proceed
-			
+				if (!this.is_alive || !this.current_location)
+					return;
+				
 				this.current_round++;
-			
+				
+				// Reset the UI state
+				this.guess_result_state = 'playing';
+				
+				// Clear map elements
 				this.clear_map();
 				
+				// Reset the map view if initialized
 				if (this.initialized_map)
 					this.reset_map_view();
-			
+				
+				// Reset map info
+				this.map_info = {
+					zone_name: '',
+					location_name: '',
+					visible: false
+				};
+				
+				// Switch back to panorama view
 				this.viewing_map = false;
+				
+				// Re-enable marker placement
+				this.can_place_marker = true;
 			},
 			// #endregion
 
@@ -262,7 +391,18 @@ async function document_load() {
 					this.map_marker = null;
 				}
 				
-				// todo: additional cleanup logic
+				if (this.map_path) {
+					this.map_path.remove();
+					this.map_path = null;
+				}
+				
+				if (this.map_circle) {
+					this.map_circle.remove();
+					this.map_circle = null;
+				}
+				
+				this.map_circle_data = null;
+				this.map_path_data = null;
 			},
 
 			set_selected_map(map_id) {

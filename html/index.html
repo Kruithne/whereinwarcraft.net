@@ -51,6 +51,9 @@
 						</div>
 						<div v-else>
 							<div id="game-map" :style="{ display: viewing_map ? 'block' : 'none' }"></div>
+							<div id="game-map-info" class="map-info" v-if="map_info.visible">
+								{{ map_info.zone_name }} - {{ map_info.location_name }}
+							</div>
 							<div id="map-selector" v-if="!is_classic && viewing_map">
 								<div id="map-selector-cata" title="Azeroth" class="map-selector-icon" :class="{ selected: selected_map === 'cata' }" @click="set_selected_map('cata')">
 									<div class="map-selector-icon-border"></div>
@@ -65,9 +68,18 @@
 									<div class="map-selector-icon-border"></div>
 								</div>
 							</div>
-							<div id="game-map-buttons" v-show="viewing_map">
+							<div id="game-map-buttons" v-show="viewing_map && guess_result_state === 'playing'">
 								<input class="btn" type="button" value="Re-view Location" @click="viewing_map = false">
 								<input class="btn" type="button" value="Confirm Guess" :class="{ disabled: !map_marker }" @click="confirm_guess">
+							</div>
+							<div id="next-round-button" v-show="guess_result_state === 'next_round'">
+								<input class="btn" type="button" value="Next Round" @click="next_round">
+							</div>
+							<div id="game-over-ui" v-if="guess_result_state === 'game_over'">
+								<h2>Game Over!</h2>
+								<p>Your final score: {{ current_round }}</p>
+								<p>Your accuracy: {{ player_accuracy }}%</p>
+								<input class="btn" type="button" value="Play Again" @click="play(false)">
 							</div>
 							<div id="game-view-panorama" :style="{ display: !viewing_map ? 'block' : 'none' }">
 								<div id="game-panorama" 
@@ -88,7 +100,7 @@
 										</div>
 									</template>
 								</div>
-								<div id="game-panorama-buttons">
+								<div id="game-panorama-buttons" v-show="!viewing_map && guess_result_state === 'playing'">
 									<input class="btn" type="button" value="Make Guess" @click="viewing_map = true">
 									<input class="btn" type="button" value="Leaderboard" @click="toggle_leaderboard">
 								</div>
