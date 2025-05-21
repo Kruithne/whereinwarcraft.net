@@ -182,7 +182,11 @@ async function document_load() {
 				
 				if (!continue_session) {
 					this.reset_game_state();
+					this.guess_result_state = 'playing';
 					this.selected_map = this.is_classic ? 'classic' : 'cata';
+					
+					this.initialized_map = false;
+					this.map = null;
 				}
 				
 				if (await this.initialize_session()) {
@@ -453,7 +457,13 @@ async function document_load() {
 			},
 			
 			change_map() {
-				document.getElementById('game-map').style.background = this.map_background;
+				const map_element = document.getElementById('game-map');
+				if (!map_element) {
+					this.$nextTick(() => this.change_map());
+					return;
+				}
+				
+				map_element.style.background = this.map_background;
 				
 				if (this.map) {
 					this.clear_map();
