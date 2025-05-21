@@ -239,42 +239,41 @@ class UI {
 	}
 
 	_init() {
-		// Containers and structure elements.
-		this.$gameIntro = $('#intro');
-		this.$gameBanners = $('.game-banner', true);
-		this.$gameFrame = $('#game-frame');
-		this.$gameContent = $('#game-content');
-		this.$gameImage = $('#game-image');
-		this.$gameMap = $('#game-map');
-		this.$gameCanvas = $('#game-drag-inner');
-
-		// Game-over frame elements.
-		this.$gameOver = $('#game-over');
-		this.$gameOverSpirit = $('#game-over-spirit');
-		this.$gameOverTitle = $('#game-over-title');
-		this.$gameOverRounds = $('#game-over-rounds-value');
-		this.$gameOverAccuracy = $('#game-over-accuracy-value');
-
-		// Score components for top header.
-		this.$scoreRounds = $('#game-score-round-value');
-		this.$scoreAccuracy = $('#game-score-accuracy-value');
-		this.$scoreLives = $('#game-score-lives-value');
-
-		// Game map info.
-		this.$infoZone = $('#game-map-info');
-
-		// Button elements.
-		this.$buttonViewMap = $('#game-button-map');
-		this.$buttonViewLocation = $('#game-button-location');
-		this.$buttonSubmitGuess = $('#game-button-confirm');
-		this.$buttonNextRound = $('#game-button-next');
-		this.$buttonReplay = $('#game-button-replay');
-		this.$buttonPlay = $('#btn-play');
-		this.$buttonPlayClassic = $('#btn-play-classic');
-
-		// Asynchronously load smooth background images.
-		for (const $node of $('.smooth', true))
-			loadBackgroundSmooth($node);
+		// Containers and structure elements
+		this.$gameIntro = document.querySelector('.intro');
+		this.$gameBanners = document.querySelectorAll('.game-banner');
+		this.$gameFrame = document.querySelector('.game-frame');
+		this.$gameContent = document.querySelector('.game-content');
+		this.$gameImage = document.querySelector('.game-image');
+		this.$gameMap = document.querySelector('.game-map');
+		this.$gameCanvas = document.querySelector('.panorama-inner');
+	
+		// Game-over frame elements
+		this.$gameOver = document.querySelector('.game-over');
+		this.$gameOverSpirit = document.querySelector('.game-over-spirit');
+		this.$gameOverTitle = document.getElementById('game-over-title');
+		this.$gameOverRounds = document.getElementById('game-over-rounds-value');
+		this.$gameOverAccuracy = document.getElementById('game-over-accuracy-value');
+	
+		// Score components for top header
+		this.$scoreRounds = document.getElementById('game-score-round-value');
+		this.$scoreAccuracy = document.getElementById('game-score-accuracy-value');
+		this.$scoreLives = document.getElementById('game-score-lives-value');
+	
+		// Game map info
+		this.$infoZone = document.querySelector('.map-info');
+	
+		// Button elements
+		this.$buttonViewMap = document.getElementById('game-button-map');
+		this.$buttonViewLocation = document.getElementById('game-button-location');
+		this.$buttonSubmitGuess = document.getElementById('game-button-confirm');
+		this.$buttonNextRound = document.getElementById('game-button-next');
+		this.$buttonReplay = document.getElementById('game-button-replay');
+		this.$buttonPlay = document.getElementById('btn-play');
+		this.$buttonPlayClassic = document.getElementById('btn-play-classic');
+	
+		// Asynchronously load smooth background images
+		document.querySelectorAll('.smooth').forEach($node => loadBackgroundSmooth($node));
 	}
 
 	_initializeMap(isClassic) {
