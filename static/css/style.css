@@ -37,6 +37,11 @@ body {
     border: 0;
     color: white;
     border-radius: 15px;
+	cursor: pointer;
+}
+
+.btn:hover {
+	background: #44c944;
 }
 
 /* main menu */
