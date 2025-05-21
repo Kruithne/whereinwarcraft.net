@@ -7,7 +7,7 @@ import db from './db';
 const server = serve(Number(process.env.SERVER_PORT), process.env.SERVER_LISTEN_HOST);
 
 export function log(message: string, ...args: unknown[]): void {
-	let formatted_message = format('[info] ' + message, ...args);
+	let formatted_message = format('[{info}] ' + message, ...args);
 	
 	// Replace all {...} with text wrapped in ANSI color code 13.
 	formatted_message = formatted_message.replace(/\{([^}]+)\}/g, '\x1b[38;5;13m$1\x1b[0m');
