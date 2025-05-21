@@ -136,12 +136,6 @@ async function document_load() {
 
 				const new_location_idx = Math.floor(Math.random() * this.location_pool.length);
 				this.current_location = this.location_pool.splice(new_location_idx, 1)[0];
-
-				this.update_panorama();
-			},
-
-			update_panorama() {
-
 			}
 		}
 	}).mount('#container');
