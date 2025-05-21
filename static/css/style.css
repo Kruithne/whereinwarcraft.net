@@ -68,6 +68,7 @@ body {
 	border: 5px solid white;
 	box-shadow: black 0 0 20px;
 	background: white no-repeat;
+	z-index: 1;
 }
 
 #main-menu-image-a {
@@ -113,6 +114,7 @@ body {
 }
 
 #main-menu-ruffles {
+	z-index: 0;
 	position: absolute;
 	transform: rotate(4deg) translate(33px, -116px);
 	transition: transform 250ms;
