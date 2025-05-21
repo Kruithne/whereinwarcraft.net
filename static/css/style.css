@@ -99,3 +99,15 @@ body {
 	width: 100%;
 	height: 100%;
 }
+
+#main-menu-button-tray {
+	margin-bottom: 5px;
+	display: flex;
+	justify-content: center;
+	gap: 10px;
+}
+
+#main-menu-last-session {
+	text-decoration: underline;
+	cursor: pointer;
+}
