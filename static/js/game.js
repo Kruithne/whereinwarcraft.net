@@ -89,7 +89,11 @@ async function document_load() {
 
 		computed: {
 			player_accuracy() {
-				return 0; // todo
+				if (this.player_guesses.length === 0)
+					return 0;
+		
+				const sum = this.player_guesses.reduce((a, b) => a + b, 0);
+				return Math.ceil(sum / this.player_guesses.length);
 			},
 
 			is_alive() {
