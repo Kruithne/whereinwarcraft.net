@@ -278,6 +278,13 @@ body {
 	z-index: 999;
 }
 
+#game-button-leaderboard {
+	position: absolute;
+	bottom: 20px;
+	right: 10px;
+	z-index: 5;
+}
+
 /* Game map */
 .game-map {
 	z-index: 1;
