@@ -335,3 +335,16 @@ body {
 .map-selector-icon.selected .map-selector-icon-border {
 	background-position: -48px 0;
 }
+
+#game-map-info {
+	z-index: 500;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+#game-map-info span {
+	padding: 15px;
+	background: rgba(0, 0, 0, 0.464);
+	border-radius: 10px;
+}

@@ -51,8 +51,8 @@
 						</div>
 						<div v-else>
 							<div id="game-map" :style="{ display: viewing_map ? 'block' : 'none' }"></div>
-							<div id="game-map-info" class="map-info" v-if="map_info.visible">
-								{{ map_info.zone_name }} - {{ map_info.location_name }}
+							<div id="game-map-info" v-if="map_info.visible">
+								<span>{{ map_info.zone_name }} - {{ map_info.location_name }}</span>
 							</div>
 							<div id="map-selector" v-if="!is_classic && viewing_map">
 								<div id="map-selector-cata" title="Azeroth" class="map-selector-icon" :class="{ selected: selected_map === 'cata' }" @click="set_selected_map('cata')">
