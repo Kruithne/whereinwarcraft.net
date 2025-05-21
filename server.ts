@@ -35,10 +35,18 @@ server.route('/', async (req, url) => {
 	return new Response(index, { status: 200, headers });
 });
 
+server.route('/api/init/:mode', (req, url) => {
+	// todo: handle this properly
+	return {
+		token: Bun.randomUUIDv7(),
+		location: 30,
+	};
+});
+
 server.route('/api/leaderboard/:mode', (req, url) => {
 	// todo: handle mode
 	// todo: return real data
-	
+
 	return {
 		"players": [
 			{
