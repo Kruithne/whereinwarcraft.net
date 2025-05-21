@@ -503,7 +503,8 @@ function get_player_accuracy(state) {
 }
 
 async function load_game(state, is_classic) {
-	const response = await fetch(is_classic ? 'locations_classic.json' : 'locations.json');
+	const location_file = is_classic ? 'locations_classic' : 'locations'
+	const response = await fetch(`data/${location_file}.json`);
 	const content = await response.json();
 
 	for (const zone of content.zones) {

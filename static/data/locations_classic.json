@@ -1,0 +1,3066 @@
+{
+	"zones": [
+		{
+			"name": "Dun Morogh",
+			"locations": [
+				{
+					"id": "cc81dd86fa09e81ff45919be7600b11e",
+					"name": "Gates of Ironforge",
+					"lat": "-126.83013535357368",
+					"lng": "195.34741102128578"
+				},
+				{
+					"id": "8247c078f4f792fdb7a7a5dafef03933",
+					"name": "Thunderbrew Distellery",
+					"lat": "-132.03311032040432",
+					"lng": "192.64331819489615"
+				},
+				{
+					"id": "fc7726376f79f76d7331818f2cdf040d",
+					"name": "Steelgrill's Depot",
+					"lat": "-130.93987043318018",
+					"lng": "194.06539034471626"
+				},
+				{
+					"id": "51014f4395d419a0227a013bb62a26ff",
+					"name": "Chill Breeze Valley",
+					"lat": "-131.7355751744591",
+					"lng": "186.84560082748297"
+				},
+				{
+					"id": "d8d9a7dda852a88a1227352fbe63bdfa",
+					"name": "Iceflow Lake",
+					"lat": "-128.25216038674307",
+					"lng": "187.22107577932232"
+				},
+				{
+					"id": "c2627cf49f25bf046fbdf97d32e473b4",
+					"name": "Brewnall Village",
+					"lat": "-129.80052071511983",
+					"lng": "184.9393896600233"
+				},
+				{
+					"id": "b74b6c0987ed058aa934fe499ce7ee98",
+					"name": "Gnomeregan",
+					"lat": "-128.1114003568906",
+					"lng": "182.1419799658142"
+				},
+				{
+					"id": "9e2de01eede1e5ac63a7c333937c885c",
+					"name": "Shimmer Ridge",
+					"lat": "-126.78180503183079",
+					"lng": "190.09661644776838"
+				},
+				{
+					"id": "36ea2c5ac5fdbd9388288c81f335fc74",
+					"name": "Ironforge Airfield",
+					"lat": "-122.75280552937136",
+					"lng": "203.78419411284904"
+				},
+				{
+					"id": "8737e2444979779fdfc7225533f7db4a",
+					"name": "Amberstill Ranch",
+					"lat": "-131.6287506474425",
+					"lng": "200.16100312067317"
+				},
+				{
+					"id": "5dd8ac853b7a284d56f2217483b5db30",
+					"name": "Gol'Bolar Quarry",
+					"lat": "-134.16243118478633",
+					"lng": "202.94278482776377"
+				},
+				{
+					"id": "141034dbc365a0fcbd1617f3f6927729",
+					"name": "Ironband's Compound",
+					"lat": "-134.41267123785732",
+					"lng": "206.8497816073854"
+				},
+				{
+					"id": "d2adb57d1cd86a64c264b9a13701e4e0",
+					"name": "Helm's Bed Lake",
+					"lat": "-132.03539073368287",
+					"lng": "206.4747099165417"
+				},
+				{
+					"id": "b0d4dfa4df2e3722345f1b709b25b175",
+					"name": "South Gate Outpost",
+					"lat": "-131.57904011143728",
+					"lng": "210.425156657238"
+				},
+				{
+					"id": "231b1a40be6b6e83f8dbca311b58a1bd",
+					"name": "North Gate Outpost",
+					"lat": "-128.54902038342613",
+					"lng": "209.50293515149357"
+				},
+				{
+					"id": "87fa52b7008bb91e65c9861024b33d01",
+					"name": "Frostmane Hold",
+					"lat": "-131.65857542322937",
+					"lng": "183.0019075827342"
+				},
+				{
+					"id": "b94507770950fb336afa58012283668c",
+					"name": "The Grizzled Den",
+					"lat": "-132.78186504509853",
+					"lng": "190.40945697927583"
+				},
+				{
+					"id": "f50c2c47606cf068a82c292e4c3ab691",
+					"name": "Coldridge Pass",
+					"lat": "-137.89343052937136",
+					"lng": "186.58102131895325"
+				},
+				{
+					"id": "f0b25380b0cceb253d7420d5248df9b9",
+					"name": "Anvilmar",
+					"lat": "-136.95503033035513",
+					"lng": "184.11179935423237"
+				}
+			]
+		},
+		{
+			"name": "Westfall",
+			"locations": [
+				{
+					"id": "4c5375319f02096aaec7aa876fd6d338",
+					"name": "The Jansen Stead",
+					"lat": "-171.9836970513996",
+					"lng": "178.21875"
+				},
+				{
+					"id": "77c15a0cae6da21a5a6bd44f909ba079",
+					"name": "Jangolode Mine",
+					"lat": "-173.5301460324761",
+					"lng": "174.046875"
+				},
+				{
+					"id": "bc7c772c516faacf4f936b754e0bd6f3",
+					"name": "The Molsen Farm",
+					"lat": "-175.70183169073235",
+					"lng": "174.078125"
+				},
+				{
+					"id": "69de364e5c2aebe156b11a330a88e2ac",
+					"name": "Gold Coast Quarry",
+					"lat": "-177.31097527304553",
+					"lng": "170.1875"
+				},
+				{
+					"id": "95f4906394b11ebc74ebd624620a18da",
+					"name": "Alexston Farmstead",
+					"lat": "-179.092472469211",
+					"lng": "171.8125"
+				},
+				{
+					"id": "32d3fbaf7d5e0ed4970f7f89413d1ea9",
+					"name": "Stendel's Pond",
+					"lat": "-180.63882677941564",
+					"lng": "174.515625"
+				},
+				{
+					"id": "d7549c43de46aecb7cd0092a7898070c",
+					"name": "Moonbrook",
+					"lat": "-183.23311850718252",
+					"lng": "173.5"
+				},
+				{
+					"id": "abc21d515390120521df299368849870",
+					"name": "Demont's Place",
+					"lat": "-184.45159501355263",
+					"lng": "171.59375"
+				},
+				{
+					"id": "638d28c3eba5961d820932e23f705dda",
+					"name": "Westfall Orchard",
+					"lat": "-187.45109010223595",
+					"lng": "173.015625"
+				},
+				{
+					"id": "821ed53cb9eccf55bcd386dd5a346c8c",
+					"name": "The Dagger Hills",
+					"lat": "-185.40477786797436",
+					"lng": "174.03125"
+				},
+				{
+					"id": "dfd2aa0ae68bc816a10ec5b778028e41",
+					"name": "The Dust Plains",
+					"lat": "-184.6706500641398",
+					"lng": "179.609375"
+				},
+				{
+					"id": "4cbc9ecf563a31d013c68f901cb623a2",
+					"name": "Klaven's Tower",
+					"lat": "-183.93644862740493",
+					"lng": "182.390625"
+				},
+				{
+					"id": "055cf455ecdde27632c9d046b47239b8",
+					"name": "The Dead Acre",
+					"lat": "-181.3432666526362",
+					"lng": "180.046875"
+				},
+				{
+					"id": "d19f4aa8226a730793335314dbdb74fe",
+					"name": "Sentinel Hill",
+					"lat": "-179.17126542480705",
+					"lng": "177.609375"
+				},
+				{
+					"id": "f471240772fe66c3ed9763f1e40e618f",
+					"name": "Saldean's Farm",
+					"lat": "-175.20219459574122",
+					"lng": "177.34375"
+				}
+			]
+		},
+		{
+			"name": "Stormwind City",
+			"locations": [
+				{
+					"id": "633d4d53854aad23d074858fdc504ef8",
+					"name": "The Canals",
+					"lat": "-161.49902751979818",
+					"lng": "182.65625"
+				},
+				{
+					"id": "6cfea9ab43ec1f0b06cfeadf874a84e4",
+					"name": "Old Town",
+					"lat": "-161.6396051843622",
+					"lng": "184.0625"
+				},
+				{
+					"id": "3e432523f032e9acad3b7b17a4e2ee09",
+					"name": "The Royal Keep",
+					"lat": "-159.7652363235081",
+					"lng": "183.421875"
+				},
+				{
+					"id": "3758f549ccc0a69069e40e4c96ae165e",
+					"name": "Dwarven District",
+					"lat": "-158.1876425322892",
+					"lng": "181.75"
+				},
+				{
+					"id": "856ffc9dadecd3ff552198038cc435c4",
+					"name": "Cathedral Square",
+					"lat": "-160.4681246463284",
+					"lng": "180.421875"
+				},
+				{
+					"id": "b53aee934acc62510d2397a5314fb8b0",
+					"name": "The Park",
+					"lat": "-161.74936938683553",
+					"lng": "177.46875"
+				},
+				{
+					"id": "941833e8735531f96f601055c4d99d84",
+					"name": "Mage Quarter",
+					"lat": "-163.62343845659535",
+					"lng": "179.546875"
+				},
+				{
+					"id": "bf0f441c5ad1ce8e089e01b9cdbdadc0",
+					"name": "Valley of Heroes",
+					"lat": "-164.07641093130175",
+					"lng": "183.203125"
+				}
+			]
+		},
+		{
+			"name": "Loch Modan",
+			"locations": [
+				{
+					"id": "34617ed93983b5420780d2f06a287236",
+					"name": "Thelsamar",
+					"lat": "-129.79548348457115",
+					"lng": "215.6479146397102"
+				},
+				{
+					"id": "836f51ab8a71966d3ab47be41558d116",
+					"name": "Valley of Kings",
+					"lat": "-134.59216950105218",
+					"lng": "211.8669833774744"
+				},
+				{
+					"id": "a53856a02f817875b4d8bad688cc369a",
+					"name": "Stonesplinter Valley",
+					"lat": "-134.82703187960107",
+					"lng": "215.02276589542024"
+				},
+				{
+					"id": "9e87119d14484ee51fb9683f196102b8",
+					"name": "Silver Stream Mine",
+					"lat": "-124.62156050007644",
+					"lng": "215.85876640549702"
+				},
+				{
+					"id": "3618124a31968e49683b4d11d225f052",
+					"name": "Stonewrought Dam",
+					"lat": "-123.87203793212433",
+					"lng": "218.9206714283372"
+				},
+				{
+					"id": "99c6b94b54d9db8d057537456ba2e535",
+					"name": "Mo'grosh Stronghold",
+					"lat": "-125.80870242604053",
+					"lng": "225.13837111151418"
+				},
+				{
+					"id": "baeee0974da15413e33f38e4e42b356e",
+					"name": "The Farstrider Lodge",
+					"lat": "-132.52729328202457",
+					"lng": "228.2004886261971"
+				},
+				{
+					"id": "16fa38b98b5bb24cc33ab793dc7d8a54",
+					"name": "Ironband's Excavation Site",
+					"lat": "-132.7639848220462",
+					"lng": "224.92865465928747"
+				},
+				{
+					"id": "57f188b696495530da38bb116aa0acaa",
+					"name": "The Loch",
+					"lat": "-130.83977338902258",
+					"lng": "220.95107753216146"
+				},
+				{
+					"id": "6b01197ad8e46e48e0e95bc2602f88ab",
+					"name": "Grizzlepaw Ridge",
+					"lat": "-132.35843107711602",
+					"lng": "216.53833929025842"
+				},
+				{
+					"id": "7d462ca3ea2b1085bdb193c7e67b657e",
+					"name": "Loch Pier",
+					"lat": "-128.12316089202625",
+					"lng": "217.3822289277551"
+				}
+			]
+		},
+		{
+			"name": "Elwynn Forest",
+			"locations": [
+				{
+					"id": "e9ef3bf5e1cfd30c3dde5ff931a67e98",
+					"name": "Mirror Lake Orchard",
+					"lat": "-168.37385921602592",
+					"lng": "183.46875"
+				},
+				{
+					"id": "9773fb4be769c107391a4afdb5085472",
+					"name": "Thunder Falls",
+					"lat": "-166.78064568429994",
+					"lng": "181.390625"
+				},
+				{
+					"id": "f2d3c97f391635830210f0077ee2d310",
+					"name": "Westbrook Garrison",
+					"lat": "-170.4671779376096",
+					"lng": "181.25"
+				},
+				{
+					"id": "0fbc2199b7f9b893841c70dd2fba55ce",
+					"name": "Stonefield Farm",
+					"lat": "-172.702026291969",
+					"lng": "184.046875"
+				},
+				{
+					"id": "03b1ab837af71e3489c8b34307212c16",
+					"name": "Fargodeep Mine",
+					"lat": "-172.24875402616829",
+					"lng": "185.6875"
+				},
+				{
+					"id": "b8bb423427a75746da694b9068a7fd23",
+					"name": "Jerod's Landing",
+					"lat": "-173.20158975405977",
+					"lng": "189.109375"
+				},
+				{
+					"id": "a56f407f7559a18e51b9b29ee6cf0b63",
+					"name": "Brackwell Pumpkin Patch",
+					"lat": "-171.35846037421987",
+					"lng": "196.078125"
+				},
+				{
+					"id": "91b84f8b87bab88f07ba2b7544362384",
+					"name": "Ridgepoint Tower",
+					"lat": "-171.15528803878394",
+					"lng": "200.71875"
+				},
+				{
+					"id": "ce2bd23c6d854cb3dcfa35559a1dfa4f",
+					"name": "Eastvale Logging Camp",
+					"lat": "-168.31146966537645",
+					"lng": "200.46875"
+				},
+				{
+					"id": "550427957fc8687cc9f0b90a47773a1c",
+					"name": "Heroes' Vigil",
+					"lat": "-165.51486289951345",
+					"lng": "197.90625"
+				},
+				{
+					"id": "28aaa84b8724014716a4104f30891ae9",
+					"name": "Jasperlode Mine",
+					"lat": "-166.0607175578943",
+					"lng": "193.796875"
+				},
+				{
+					"id": "36a5a17ae0269042ec9d5916bdeb41ed",
+					"name": "Crystal Lake",
+					"lat": "-168.52998298819676",
+					"lng": "190.953125"
+				},
+				{
+					"id": "fd5c172c55613b8d6d5edf3daf81a6bd",
+					"name": "Goldshire",
+					"lat": "-168.46739357681776",
+					"lng": "187.171875"
+				},
+				{
+					"id": "da858246aef48bf4f92bd213e69b0725",
+					"name": "Northshire Valley",
+					"lat": "-164.51509431720027",
+					"lng": "188.1875"
+				}
+			]
+		},
+		{
+			"name": "Arathi Highlands",
+			"locations": [
+				{
+					"id": "e1cc2a948e7c6bf1f0cb5ff7302601ee",
+					"name": "Thandol Span",
+					"lat": "-101.3437628070194",
+					"lng": "210.5073160683346"
+				},
+				{
+					"id": "6c93eac49c9a8907dcc67ee07671c149",
+					"name": "Boulderfist Hall",
+					"lat": "-97.78001610738409",
+					"lng": "214.20553740575843"
+				},
+				{
+					"id": "7c58ff3d9c06b8e5cd0c861715e49729",
+					"name": "Witherbark Village",
+					"lat": "-94.93822498777295",
+					"lng": "218.5973662145085"
+				},
+				{
+					"id": "0328e1bd52a9d51aa51ac6353e9731a0",
+					"name": "Go'Shek Farm",
+					"lat": "-93.78205373673332",
+					"lng": "216.84704957994893"
+				},
+				{
+					"id": "3d4645ac7491fa90efcb2ecf963bf976",
+					"name": "Hammerfall",
+					"lat": "-88.42262951863309",
+					"lng": "221.05078096500168"
+				},
+				{
+					"id": "9a56e58caadb639777584fca704bf7cf",
+					"name": "Circle of East Binding",
+					"lat": "-87.0954987242576",
+					"lng": "218.72169411284904"
+				},
+				{
+					"id": "7e03a2b06dec45cfec0f0e6824436e39",
+					"name": "Shards of Myzrael",
+					"lat": "-88.00117779429502",
+					"lng": "217.2370353365928"
+				},
+				{
+					"id": "b5e3054c53c7782715dec51f46d3048e",
+					"name": "Dabyrie's Farmstead",
+					"lat": "-89.15651233763086",
+					"lng": "214.50245422541724"
+				},
+				{
+					"id": "36c0aeaedfc2378d25325aacfbc1b472",
+					"name": "Circle of Outer Binding",
+					"lat": "-91.78003579462417",
+					"lng": "213.6120383237113"
+				},
+				{
+					"id": "ea3f146c4b2c7a7b4b3a64e40f81fa48",
+					"name": "Refuge Pointe",
+					"lat": "-90.5776687533676",
+					"lng": "211.7210518823744"
+				},
+				{
+					"id": "48386ca5c72216470ac4de2e2d985175",
+					"name": "Circle of Inner Binding",
+					"lat": "-93.56262452695023",
+					"lng": "208.28372513524664"
+				},
+				{
+					"id": "ac254198177770eb66610cbe059028e8",
+					"name": "Stromgarde Keep",
+					"lat": "-94.18723078214845",
+					"lng": "204.32984439426954"
+				},
+				{
+					"id": "9ce9872bf94a95ba397d35996334af34",
+					"name": "Boulder'gor",
+					"lat": "-90.29648765870792",
+					"lng": "208.0026394267634"
+				},
+				{
+					"id": "eaa209912b63077e4773484dfd489e41",
+					"name": "Faldir's Cove",
+					"lat": "-98.92200937057028",
+					"lng": "206.9561617135221"
+				},
+				{
+					"id": "24b2202296d50085e36c0674efdd87e2",
+					"name": "Dwarven Farm",
+					"lat": "-96.4994551607872",
+					"lng": "226.87784553793898"
+				}
+			]
+		},
+		{
+			"name": "Hillsbrad Foothills",
+			"locations": [
+				{
+					"id": "1321a8c6d8fa925106a58fc1931dc04f",
+					"name": "Southshore",
+					"lat": "-86.5928311032255",
+					"lng": "192.84626994202392"
+				},
+				{
+					"id": "23a85da532518cb10943a9646d006f29",
+					"name": "Nethander Stead",
+					"lat": "-87.96696486466158",
+					"lng": "196.73763873452708"
+				},
+				{
+					"id": "5bdc450d3401b649c453553946e4159a",
+					"name": "In Loving Memory",
+					"lat": "-92.28809610518046",
+					"lng": "198.19693540590808"
+				},
+				{
+					"id": "6f2aad8038de61b55dacdb00a96f5204",
+					"name": "Dun Garok",
+					"lat": "-91.15490782756359",
+					"lng": "199.09719296163627"
+				},
+				{
+					"id": "969ff75c7adbf268b422196ac9ea2a0a",
+					"name": "Durnholde Keep",
+					"lat": "-84.40485860946336",
+					"lng": "201.03438528843216"
+				},
+				{
+					"id": "da9e8d13b36310c59ec84461bf8b6e4d",
+					"name": "Tarren Mill",
+					"lat": "-79.43665985218587",
+					"lng": "196.5026603365928"
+				},
+				{
+					"id": "30f5b0d0d4932de330845f9534fad968",
+					"name": "Hillsbrad Fields",
+					"lat": "-82.49913032132574",
+					"lng": "187.58090482133227"
+				},
+				{
+					"id": "8467b00b11e5c94bb1ca86b16acf6ff3",
+					"name": "Azurelode Mine",
+					"lat": "-87.20254078630703",
+					"lng": "185.7680403928769"
+				},
+				{
+					"id": "04624a0e4bf930210f76e50450d28f6d",
+					"name": "Purgation Isle",
+					"lat": "-91.66971580709989",
+					"lng": "182.95572559422308"
+				}
+			]
+		},
+		{
+			"name": "Alterac Mountains",
+			"locations": [
+				{
+					"id": "25b3f7d5661162cb82732f3f0131ff43",
+					"name": "Ravenholdt Manor",
+					"lat": "-78.79748186433243",
+					"lng": "202.83143055418589"
+				},
+				{
+					"id": "b0f4f454e250c0bce6c18d57adfe696a",
+					"name": "Alterac Valley Alliance Entrance",
+					"lat": "-79.10818048186425",
+					"lng": "190.8307196199861"
+				},
+				{
+					"id": "09c8040bbc44b223e1bc736b863ffd5b",
+					"name": "Alterac Valley Horde Entrance",
+					"lat": "-75.42274764207363",
+					"lng": "196.98797329179757"
+				},
+				{
+					"id": "24f0c9547f095ee3b5190d3696b569d0",
+					"name": "Chillwind Point",
+					"lat": "-76.65648280677073",
+					"lng": "201.73887540158051"
+				},
+				{
+					"id": "eef45b558b81dde8d760bc063635a855",
+					"name": "Lordamere Internment Camp",
+					"lat": "-79.88980453942595",
+					"lng": "185.7207710932367"
+				},
+				{
+					"id": "531037c12285d422f498e0de8d085636",
+					"name": "Dalaran",
+					"lat": "-75.17217671211104",
+					"lng": "185.89302844440297"
+				},
+				{
+					"id": "89c6fc6121f4ca5296992cf9552606a5",
+					"name": "The Uplands",
+					"lat": "-70.54765904949322",
+					"lng": "188.83086598879194"
+				},
+				{
+					"id": "6d0046b2c3da52addc48c09a43205740",
+					"name": "Dandred's Fold",
+					"lat": "-67.6557937533676",
+					"lng": "190.86221157658352"
+				},
+				{
+					"id": "28dd31ca80673c11efd68bf6066cae28",
+					"name": "Strahnbrad",
+					"lat": "-72.67006033380144",
+					"lng": "196.81593101316233"
+				},
+				{
+					"id": "87854cec81a4e08dbec5612cd5c7a772",
+					"name": "Ruins of Alterac",
+					"lat": "-74.0149029756264",
+					"lng": "190.76790895966352"
+				},
+				{
+					"id": "a3e85eac35d80b71f4ed7f8e5342670d",
+					"name": "Growless Cave",
+					"lat": "-76.99807705398096",
+					"lng": "190.31475707559713"
+				}
+			]
+		},
+		{
+			"name": "Silverpine Forest",
+			"locations": [
+				{
+					"id": "1b3b89648bbf3769dcab7305e7899e0d",
+					"name": "Pyrewood Village",
+					"lat": "-82.6400112554469",
+					"lng": "173.14291792101898"
+				},
+				{
+					"id": "f34b9eb90c2084baffa0cbf2410b75dc",
+					"name": "The Greymane Wall",
+					"lat": "-86.05973050265712",
+					"lng": "173.37733772779626"
+				},
+				{
+					"id": "97b3dfa5003cdd6b37fc53fe77b4b9c2",
+					"name": "Beren's Peril",
+					"lat": "-82.32770812784779",
+					"lng": "179.2534608843472"
+				},
+				{
+					"id": "4d705c5493e931a9b845f13363f36afc",
+					"name": "Ambermill",
+					"lat": "-80.26650748569367",
+					"lng": "179.98797627891605"
+				},
+				{
+					"id": "4023d8efa5ccb86d784edeba3a0655b5",
+					"name": "Shadowfang Keep",
+					"lat": "-81.14095624297117",
+					"lng": "172.2677506423837"
+				},
+				{
+					"id": "bce2a9d895f8833599184a5c3dbd62b5",
+					"name": "Olsen's Farthing",
+					"lat": "-77.70218641598542",
+					"lng": "173.78358474067778"
+				},
+				{
+					"id": "394ebda8fd1d4ff3d7df47952347d091",
+					"name": "The Sepulcher",
+					"lat": "-74.2344010907498",
+					"lng": "172.84594434610892"
+				},
+				{
+					"id": "d62a2253a14af1c1a695005d992b223f",
+					"name": "Deep Elem Mine",
+					"lat": "-75.5625949960901",
+					"lng": "177.42536575553206"
+				},
+				{
+					"id": "7acb5f5604fe234a05f63c518f1f5b70",
+					"name": "The Decrepit Ferry",
+					"lat": "-72.51588733763086",
+					"lng": "178.73776419350352"
+				},
+				{
+					"id": "4a41c0068f5501960e9d5f1b131aaedc",
+					"name": "Fenris Isle",
+					"lat": "-70.09401233763086",
+					"lng": "181.31609829179757"
+				},
+				{
+					"id": "e8cc4d24c332a5b5798a97cd38a09a67",
+					"name": "Valgan's Field",
+					"lat": "-70.62376610738409",
+					"lng": "176.03386254269702"
+				},
+				{
+					"id": "604cba2f8fc4a1f02a42cc93de6ff342",
+					"name": "The Shining Strand",
+					"lat": "-67.84186642846115",
+					"lng": "178.61238184233724"
+				},
+				{
+					"id": "efed4191042b3a3aa660a00f49638384",
+					"name": "Malden's Orchard",
+					"lat": "-65.90764435393599",
+					"lng": "177.56554866199605"
+				},
+				{
+					"id": "1cfbef500e64dcc8b53c7d250a2e0344",
+					"name": "The Ivar Patch",
+					"lat": "-66.87578404949323",
+					"lng": "176.2215417698062"
+				},
+				{
+					"id": "5a1a17ac35b1f02267d8ba78fe0aec30",
+					"name": "The Dead Field",
+					"lat": "-68.90575437888742",
+					"lng": "173.14282830746436"
+				},
+				{
+					"id": "cb2df5e13910348e989486e0ae10111a",
+					"name": "The Skittering Dark",
+					"lat": "-66.9381462388126",
+					"lng": "169.26717114139734"
+				},
+				{
+					"id": "cfcd655a5289e04147a5e90933de23ad",
+					"name": "North Tide's Run",
+					"lat": "-71.02931721036092",
+					"lng": "170.04857049732166"
+				},
+				{
+					"id": "5b5bd87dd6fb5f7c3fae65bfe9028d41",
+					"name": "Brazier of Everfount",
+					"lat": "-75.12415985218587",
+					"lng": "170.42391401594762"
+				}
+			]
+		},
+		{
+			"name": "Tirisfal Glades",
+			"locations": [
+				{
+					"id": "4c0c309be67f4b8e4a0cc497426cf189",
+					"name": "Sewer Entrance",
+					"lat": "-63.060242370899445",
+					"lng": "180.7685541772566"
+				},
+				{
+					"id": "167ecbe20179b01842f8d727873277bf",
+					"name": "Solliden Farmstead",
+					"lat": "-57.17332841565626",
+					"lng": "175.3300146600233"
+				},
+				{
+					"id": "f2d74894e67fc5c29f7b70e5571914f9",
+					"name": "Whispering Shore",
+					"lat": "-54.93570502104154",
+					"lng": "174.6278186538726"
+				},
+				{
+					"id": "5b00ac6bf15816fe2ab52492004df133",
+					"name": "Agamand Mills",
+					"lat": "-52.59343156404823",
+					"lng": "179.84756635144709"
+				},
+				{
+					"id": "2fba3c2003b4f10c3bfe3d86dc62625e",
+					"name": "Stillwater Pond",
+					"lat": "-57.33153963111192",
+					"lng": "179.8940858843472"
+				},
+				{
+					"id": "d491d666013d56364548c30d6404d2cf",
+					"name": "Cold Hearth Manor",
+					"lat": "-59.017990589402956",
+					"lng": "181.87886414534287"
+				},
+				{
+					"id": "fe56af1ec497007f876a90702e24ade5",
+					"name": "Brill",
+					"lat": "-57.48838090916607",
+					"lng": "184.9572311019403"
+				},
+				{
+					"id": "000ddf9370fd2afe986ebcfe2c2e9527",
+					"name": "Garren's Haunt",
+					"lat": "-51.73984956755863",
+					"lng": "184.33180095687823"
+				},
+				{
+					"id": "fc4a8aeb0bd3f1d90f7b4b35107f3dea",
+					"name": "Gunther's Retreat",
+					"lat": "-54.674726963286204",
+					"lng": "188.3629434206127"
+				},
+				{
+					"id": "b2f273f60f911d4d20d004c89f76e310",
+					"name": "Scarlet Watch Post",
+					"lat": "-50.474567890299745",
+					"lng": "192.92541653654632"
+				},
+				{
+					"id": "9119a49bc44c7ae82c4fb91a977ae6b1",
+					"name": "Venomweb Vale",
+					"lat": "-55.2707467080747",
+					"lng": "196.31619089247067"
+				},
+				{
+					"id": "d61b1f48d8f71441ae3129250bf56f29",
+					"name": "Crusader Outpost",
+					"lat": "-58.78384447123037",
+					"lng": "193.20626626266915"
+				},
+				{
+					"id": "0f7e24c3bfdc3a559c6c6a368ad70a51",
+					"name": "Balnir Farmstead",
+					"lat": "-60.160522937964714",
+					"lng": "191.45629613385398"
+				},
+				{
+					"id": "4e71b1bf374226f5d03ca78db0972363",
+					"name": "Undercity Zeppelin Tower",
+					"lat": "-59.78570413607808",
+					"lng": "185.20519388713248"
+				},
+				{
+					"id": "ff4d71267ff51c9dbeb7a0f2c2c92a9b",
+					"name": "Deathknell",
+					"lat": "-60.958427906188064",
+					"lng": "173.37737058609963"
+				},
+				{
+					"id": "60251df7970736001336caa4ade247f2",
+					"name": "Night Web's Hollow",
+					"lat": "-59.59862375276167",
+					"lng": "170.67344205122674"
+				}
+			]
+		},
+		{
+			"name": "Western Plaguelands",
+			"locations": [
+				{
+					"id": "0edf938521375405f87d1b96b1a1f82f",
+					"name": "Felstone Field",
+					"lat": "-62.91064691562123",
+					"lng": "198.97051420104685"
+				},
+				{
+					"id": "7e0b5a372d06dcf01881dea2064cf143",
+					"name": "Command Tent",
+					"lat": "-61.58333253875998",
+					"lng": "200.56456888713248"
+				},
+				{
+					"id": "254238e3634a82278aa4bd742f047745",
+					"name": "Dalson's Tears",
+					"lat": "-61.61456346527436",
+					"lng": "202.6118351996542"
+				},
+				{
+					"id": "3176deb39783926ebf33fe91241dff17",
+					"name": "Northridge Lumber Camp",
+					"lat": "-56.17718744293088",
+					"lng": "203.31471525593832"
+				},
+				{
+					"id": "e77d1ed713beb586b81f8ce9398b6c40",
+					"name": "Hearthglen",
+					"lat": "-52.020679950875035",
+					"lng": "202.12675822680987"
+				},
+				{
+					"id": "40a37629b8212efddde4291f1cd1fde9",
+					"name": "The Weeping Cave",
+					"lat": "-57.81594324134035",
+					"lng": "210.2686826233515"
+				},
+				{
+					"id": "d968e690530a08bb37eee8c9b2085e95",
+					"name": "Uther's Tomb",
+					"lat": "-69.6934895516703",
+					"lng": "204.97155670539865"
+				},
+				{
+					"id": "93905def783708eb6082d8bf549b199b",
+					"name": "Chillwind Camp",
+					"lat": "-70.15864419963138",
+					"lng": "201.53424788098178"
+				},
+				{
+					"id": "4704878412f911cbf9bf070af2ec7986",
+					"name": "Ruins of Andorhal",
+					"lat": "-65.3940110208835",
+					"lng": "199.87676121392838"
+				},
+				{
+					"id": "44d2c82b06e7a1664eb346864c40b978",
+					"name": "The Writhing Haunt",
+					"lat": "-64.90928316139957",
+					"lng": "205.7845794511338"
+				},
+				{
+					"id": "eea9ebf30a12a1b63ab33ce1226950b4",
+					"name": "Darrowmere Lake",
+					"lat": "-69.9710583689461",
+					"lng": "208.08115275216664"
+				},
+				{
+					"id": "0904e95796ccd81da461a58249ee2ba2",
+					"name": "Caer Darrow",
+					"lat": "-68.5656666757989",
+					"lng": "211.89438160907736"
+				}
+			]
+		},
+		{
+			"name": "The Hinterlands",
+			"locations": [
+				{
+					"id": "37714fa6c6231302600685e5c2095f83",
+					"name": "Aerie Peak",
+					"lat": "-76.02463319302376",
+					"lng": "206.4078439352931"
+				},
+				{
+					"id": "74384ed22a158ff55f0ff50de505af42",
+					"name": "Shindigger's Camp",
+					"lat": "-77.01136605986191",
+					"lng": "212.44027982133227"
+				},
+				{
+					"id": "105226c8d5b58652e2340555a9fed933",
+					"name": "Quel'Danil Lodge",
+					"lat": "-76.63613508515124",
+					"lng": "213.8155426877591"
+				},
+				{
+					"id": "baa351981146ab7fdb5134b4a31b2b2c",
+					"name": "Shadra'Alor",
+					"lat": "-82.15136550335383",
+					"lng": "214.97146709184403"
+				},
+				{
+					"id": "dfac1777862581defda982075c9f3be5",
+					"name": "Hiri'watha",
+					"lat": "-79.40069182711436",
+					"lng": "214.26759232510392"
+				},
+				{
+					"id": "541cf0bb230bc6bc57932a3da12f21d1",
+					"name": "The Altar of Zul",
+					"lat": "-81.54061427903605",
+					"lng": "220.25331152842287"
+				},
+				{
+					"id": "0b9c5af4ab724aa0944cad8a44191db0",
+					"name": "Agol'watha",
+					"lat": "-74.36857567194932",
+					"lng": "220.67518652842287"
+				},
+				{
+					"id": "3337632167b488feaf43f41784df235d",
+					"name": "Seradane",
+					"lat": "-71.90002777482115",
+					"lng": "225.7374385975885"
+				},
+				{
+					"id": "db5b6742cf4b3a22ec7f8693fe6f2f3b",
+					"name": "Jintha'Alor",
+					"lat": "-81.43094093670143",
+					"lng": "222.2061826233515"
+				},
+				{
+					"id": "62e97b118b2305eddc7fa105955267c7",
+					"name": "The Overlook Cliffs",
+					"lat": "-79.6505859637053",
+					"lng": "233.98868422599736"
+				},
+				{
+					"id": "6dc368efb31a56e0a09c4b05c3b064e6",
+					"name": "Revantusk Village",
+					"lat": "-84.25910443248654",
+					"lng": "231.347584274158"
+				}
+			]
+		},
+		{
+			"name": "Eastern Plaguelands",
+			"locations": [
+				{
+					"id": "626a8bec85c528574ae08295aa27dd72",
+					"name": "The Marris Stead",
+					"lat": "-61.33126306557047",
+					"lng": "218.30018951554135"
+				},
+				{
+					"id": "65e1b2c31bf75780b78aa5cd98a41712",
+					"name": "The Undercroft",
+					"lat": "-64.29997491859923",
+					"lng": "218.5497593704793"
+				},
+				{
+					"id": "61b314003873bd859baa65d0b77686d8",
+					"name": "The Fungal Vale",
+					"lat": "-56.37944459933527",
+					"lng": "222.40950178605314"
+				},
+				{
+					"id": "6a853662e5e4821834dacf8b82665be7",
+					"name": "Lake Mereldar",
+					"lat": "-61.659817218996864",
+					"lng": "230.41009622263195"
+				},
+				{
+					"id": "b5a2ef2b94ecabb04a2e7c907334a681",
+					"name": "Tyr's Hand",
+					"lat": "-63.245606324614016",
+					"lng": "238.48884254327714"
+				},
+				{
+					"id": "0ef1a6f96faba9b9bf64abee7332e4e7",
+					"name": "Light's Hope Chapel",
+					"lat": "-57.39874778996616",
+					"lng": "238.2542584449831"
+				},
+				{
+					"id": "f15b7feddfec3124e4f0a40ac500c3f0",
+					"name": "The Noxious Glade",
+					"lat": "-53.29004646620564",
+					"lng": "239.78516193923866"
+				},
+				{
+					"id": "d849c1697e528ca3be273cfe8f4b1e0c",
+					"name": "Northdale",
+					"lat": "-50.76006682711436",
+					"lng": "234.54979222878265"
+				},
+				{
+					"id": "b7ead02ba5ac1f163ccdbd86d9400d57",
+					"name": "Terrordale",
+					"lat": "-51.3244434966386",
+					"lng": "213.79825983699908"
+				}
+			]
+		},
+		{
+			"name": "Wetlands",
+			"locations": [
+				{
+					"id": "18859851cf1f7570bdcb3f19d01d9c1b",
+					"name": "Menethil Harbor",
+					"lat": "-114.9499728136839",
+					"lng": "193.80040458807238"
+				},
+				{
+					"id": "1393211fe428f353a0cfd1108cefe48a",
+					"name": "Sundown Marsh",
+					"lat": "-106.18029974830566",
+					"lng": "201.92483106132298"
+				},
+				{
+					"id": "99c5b9ac962956dc71c53402ee52bc2c",
+					"name": "Ironbeard's Tomb",
+					"lat": "-105.94629220768385",
+					"lng": "208.70702200364622"
+				},
+				{
+					"id": "533ec5b6456172d84a6a750a19e7da53",
+					"name": "Raptor Ridge",
+					"lat": "-108.71072033999486",
+					"lng": "218.59671800979692"
+				},
+				{
+					"id": "e2ce37149a81e87077adf502bdd92359",
+					"name": "Grim Batol",
+					"lat": "-117.55659110554903",
+					"lng": "220.42549420162698"
+				},
+				{
+					"id": "93c5624b1c4a4228a44ace7eeb572e4b",
+					"name": "Angerfang Encampment",
+					"lat": "-113.4935556647408",
+					"lng": "212.26894548977833"
+				},
+				{
+					"id": "ef8e2f28dc7547a1c5a44769b6e97442",
+					"name": "Thelgen Rock",
+					"lat": "-116.0550057808031",
+					"lng": "212.40855486949292"
+				},
+				{
+					"id": "691e5aef4956fe68ef618d4f681d34ac",
+					"name": "Dark Iron Cave",
+					"lat": "-119.51167938851253",
+					"lng": "216.11240872640363"
+				},
+				{
+					"id": "5fba3ff781820337e242f8dc53b03b11",
+					"name": "Mosshide Camp",
+					"lat": "-118.9957079268131",
+					"lng": "213.3462550064315"
+				},
+				{
+					"id": "4980998d2b502fb26e94ed3346d31582",
+					"name": "Dun Algaz",
+					"lat": "-119.08778861135215",
+					"lng": "210.1115006423837"
+				},
+				{
+					"id": "8f39dbad32054d1e65f6a321e10d6fcc",
+					"name": "Dwarf Farm",
+					"lat": "-117.29220496859553",
+					"lng": "199.79820905598478"
+				}
+			]
+		},
+		{
+			"name": "Stranglethorn Vale",
+			"locations": [
+				{
+					"id": "02fdf9634016e5c213eda77932375d4d",
+					"name": "Rebel Camp",
+					"lat": "-186.2026732095935",
+					"lng": "189.8125"
+				},
+				{
+					"id": "c7a7969cecdf201838e436308f7eae4d",
+					"name": "Kurzen's Compound",
+					"lat": "-188.54579207044765",
+					"lng": "193.640625"
+				},
+				{
+					"id": "6a84beba4f456e7ad1b946b9fb43fd12",
+					"name": "Venture Co. Operations Center",
+					"lat": "-192.01442636160422",
+					"lng": "192.859375"
+				},
+				{
+					"id": "d27e00a53970753d6a070102ff83d24d",
+					"name": "Ruins of Zul'Mamwe",
+					"lat": "-202.13882151992277",
+					"lng": "193.96875"
+				},
+				{
+					"id": "d56e68407ee6870ac38a1018bd6ad650",
+					"name": "Ruins of Zul'Kunda",
+					"lat": "-189.0625",
+					"lng": "181.90625"
+				},
+				{
+					"id": "e8e335946e50825e2bc2d3223ef0abc8",
+					"name": "Hydraxian Isle",
+					"lat": "-193.5",
+					"lng": "179.09375"
+				},
+				{
+					"id": "3a271cdeb853ac4b3f3b36c9ef3e6950",
+					"name": "Bal'lal Ruins",
+					"lat": "-192.4375",
+					"lng": "184.71875"
+				},
+				{
+					"id": "17e7010c3f34241f870be7b5bbc53565",
+					"name": "Nesingwary's Expedition",
+					"lat": "-188.84375",
+					"lng": "188.25"
+				},
+				{
+					"id": "2f94dbaaa47286889078bf91fd605a7d",
+					"name": "Mosh'Ogg Ogre Mound",
+					"lat": "-195.75",
+					"lng": "197"
+				},
+				{
+					"id": "67b270710626258aa5054ca661dad965",
+					"name": "Ruins of Jubuwal",
+					"lat": "-204.828125",
+					"lng": "187.65625"
+				},
+				{
+					"id": "eae6e9a9a244d27d8f8d9ff339bde454",
+					"name": "Ruins of Aboraz",
+					"lat": "-208.28125",
+					"lng": "190.828125"
+				},
+				{
+					"id": "fc884d93c799df2c1560dad57635f921",
+					"name": "Nek'mani Wellspring",
+					"lat": "-209.796875",
+					"lng": "183.71875"
+				},
+				{
+					"id": "b133b7979fb7524347322e386e8d937b",
+					"name": "Booty Bay",
+					"lat": "-214.3125",
+					"lng": "183.15625"
+				},
+				{
+					"id": "5e72c3337ae3e66ee69d0b93be35dddf",
+					"name": "Cape of Stranglethorn",
+					"lat": "-214",
+					"lng": "185.03125"
+				},
+				{
+					"id": "10f4b96d7e84b3dc19358722721fbf7c",
+					"name": "Southern Savage Coast",
+					"lat": "-212.59375",
+					"lng": "183.3125"
+				},
+				{
+					"id": "525139b7141d94ab1dcb7134119a1c52",
+					"name": "Wild Shore",
+					"lat": "-217.921875",
+					"lng": "183.109375"
+				}
+			]
+		},
+		{
+			"name": "Zul'Gurub",
+			"locations": [
+				{
+					"id": "057676630fa6d2502f87b8f39e29dfe0",
+					"name": "Entrance",
+					"lat": "-191.62343319710246",
+					"lng": "195.921875"
+				},
+				{
+					"id": "0d25201582659799d01e319d44a20175",
+					"name": "Venom Bridge",
+					"lat": "-191.62405907675546",
+					"lng": "201.375"
+				}
+			]
+		},
+		{
+			"name": "Burning Steppes",
+			"locations": [
+				{
+					"id": "c90dbaa70337bebf1e676d99ff299747",
+					"name": "Altar of Storms",
+					"lat": "-150.9478250382329",
+					"lng": "195.01748180171992"
+				},
+				{
+					"id": "d7d4c445228b0c601d638fdd3ad9a717",
+					"name": "Statue of Lothar",
+					"lat": "-155.33884899412922",
+					"lng": "203.11204728506675"
+				},
+				{
+					"id": "2ae62fe09cbcac1fcdf150b1e393c4b2",
+					"name": "Blackrock Stronghold",
+					"lat": "-152.27429122161132",
+					"lng": "202.2681359806685"
+				},
+				{
+					"id": "2dad1a4ea0c0232674ec39214967a811",
+					"name": "Ruins of Thaurissan",
+					"lat": "-152.93098217286516",
+					"lng": "207.73793147213877"
+				},
+				{
+					"id": "c1160c53467f22894aae7e5e15907335",
+					"name": "Slither Rock",
+					"lat": "-151.32084075759064",
+					"lng": "216.37949144022502"
+				},
+				{
+					"id": "227ab1ef356a1a098ee842b5a6ba944b",
+					"name": "Dreadmaul Rock",
+					"lat": "-153.9306882053626",
+					"lng": "212.6289657073714"
+				},
+				{
+					"id": "8375f8bb32711e5b533573610ed9cc8e",
+					"name": "Morgan's Vigil",
+					"lat": "-157.8077984720774",
+					"lng": "213.70703096500168"
+				},
+				{
+					"id": "4463fcfade507197f45eca3eab782ce8",
+					"name": "Blackrock Pass",
+					"lat": "-159.62022498020175",
+					"lng": "211.95691148026222"
+				}
+			]
+		},
+		{
+			"name": "Searing Gorge",
+			"locations": [
+				{
+					"id": "9f7074d3f453ee6fdc601f6728bda529",
+					"name": "Dustfire Valley",
+					"lat": "-139.22619835624357",
+					"lng": "207.19013345252642"
+				},
+				{
+					"id": "a172e0e085033c6c76063522c043ace2",
+					"name": "Thorium Point",
+					"lat": "-140.35213275294814",
+					"lng": "198.93970330746436"
+				},
+				{
+					"id": "51533c5c2cfe0fbc6805dd97493e9379",
+					"name": "Firewatch Ridge",
+					"lat": "-140.38238536320733",
+					"lng": "196.89222490953009"
+				},
+				{
+					"id": "1efcfd4a4787772121830c669746c246",
+					"name": "Tanner Camp",
+					"lat": "-147.2759920335904",
+					"lng": "204.3158503609632"
+				},
+				{
+					"id": "f9811621fdbcd87b7167d80eeb670af3",
+					"name": "Grimesilt Dig Site",
+					"lat": "-145.29028368098952",
+					"lng": "204.59715412909594"
+				},
+				{
+					"id": "8789d3d07a766e54491451104bdb0e2b",
+					"name": "The Cauldron",
+					"lat": "-143.6016498063368",
+					"lng": "199.40866240575843"
+				},
+				{
+					"id": "dee0d87942dc46ff71ac6be1a58e711f",
+					"name": "Blackrock Mountain Entrance",
+					"lat": "-148.50980009626403",
+					"lng": "198.12731383084838"
+				}
+			]
+		},
+		{
+			"name": "Teldrassil",
+			"locations": [
+				{
+					"id": "ecf99501b49c70a3f9d7da8ae4f87fc5",
+					"name": "Shadowglen",
+					"lat": "-26.308860782101263",
+					"lng": "36.879070256518446"
+				},
+				{
+					"id": "64e927c31c249156137d3cfaf14c30ee",
+					"name": "Starbreeze Village",
+					"lat": "-34.1677100832229",
+					"lng": "40.03481244637574"
+				},
+				{
+					"id": "6cf29e0caafc05ab9d5190811dc5bf2e",
+					"name": "Dolanaar",
+					"lat": "-34.29539114750254",
+					"lng": "34.9416688314285"
+				},
+				{
+					"id": "2875d43fa034155df95e02a23bba20ae",
+					"name": "Lake Al'Ameth",
+					"lat": "-37.451704231367955",
+					"lng": "36.879061295162984"
+				},
+				{
+					"id": "96344157e0d6c5ec6bd5f9c8a4e360c8",
+					"name": "Gnarlpine Hold",
+					"lat": "-41.10832222058281",
+					"lng": "28.471144483047503"
+				},
+				{
+					"id": "59ce680e7074d1ca5027c0b60a13e707",
+					"name": "Pools of Arlithrien",
+					"lat": "-37.20066334758879",
+					"lng": "28.409089563701997"
+				},
+				{
+					"id": "64e5e0d1b4bcda90e01570fc0606a322",
+					"name": "Wellspring Lake",
+					"lat": "-29.123631801255783",
+					"lng": "28.76842573116167"
+				},
+				{
+					"id": "1e5588696fd8576d34908a9e6b176462",
+					"name": "Ban'ethil Barrow Den",
+					"lat": "-34.27857806803745",
+					"lng": "29.39335702743648"
+				},
+				{
+					"id": "e9745348e3846ec8a2175ddc9c264848",
+					"name": "Fel Rock",
+					"lat": "-32.54303601652748",
+					"lng": "34.331800956878226"
+				}
+			]
+		},
+		{
+			"name": "Darnassus",
+			"locations": [
+				{
+					"id": "526777f6d0aa7a97dc1eb1bceda99689",
+					"name": "Auction House",
+					"lat": "-34.231356106777724",
+					"lng": "22.064792921018963"
+				},
+				{
+					"id": "a0f9d27c007f4fa1ad2dc1f8c8455ddd",
+					"name": "Rut'theran Village Portal",
+					"lat": "-33.44906522299857",
+					"lng": "19.32984439426955"
+				},
+				{
+					"id": "410ed9bf8a55245b5851bbe09eac8578",
+					"name": "Cenarion Enclave",
+					"lat": "-31.4177416251556",
+					"lng": "19.486246737312364"
+				},
+				{
+					"id": "6095f6138a131a97566bf285f24faaf4",
+					"name": "Craftmen's Terrace Inn",
+					"lat": "-31.730451904706946",
+					"lng": "23.09631176168275"
+				},
+				{
+					"id": "ce222c0ad8eb64c8ee890e59048bf7eb",
+					"name": "Warrior's Terrace",
+					"lat": "-33.075106106777724",
+					"lng": "22.127376560336586"
+				}
+			]
+		},
+		{
+			"name": "Darkshore",
+			"locations": [
+				{
+					"id": "931b22867eedb5251730e8f5ee3e3bb3",
+					"name": "Shatterspear Village",
+					"lat": "-57.78333334561911",
+					"lng": "58.82234682422834"
+				},
+				{
+					"id": "88046cd0163c96d6c6c61de70b7723b9",
+					"name": "Auberdine",
+					"lat": "-67.06161544422388",
+					"lng": "39.595582904772044"
+				},
+				{
+					"id": "68565afa7368cd2c67cc8869899dd48f",
+					"name": "Bashal'aran",
+					"lat": "-63.76330002929717",
+					"lng": "43.7207681061182"
+				},
+				{
+					"id": "60c0fa37fc8630e05e1309223ace9e05",
+					"name": "Cliffspring Falls",
+					"lat": "-63.35677666588042",
+					"lng": "51.12843400028082"
+				},
+				{
+					"id": "6589a87bb9b6933851534e5c3888d4a2",
+					"name": "Ruins of Mathystra",
+					"lat": "-58.01021943386996",
+					"lng": "52.92559277653703"
+				},
+				{
+					"id": "2e09e50583128e7a90e3861f8af7a58f",
+					"name": "Mist's Edge",
+					"lat": "-61.951325728175526",
+					"lng": "42.28319641527453"
+				},
+				{
+					"id": "70b283e6f4f961fd0835e3726e815415",
+					"name": "Ameth'Aran",
+					"lat": "-73.09073110677772",
+					"lng": "42.84691217249854"
+				},
+				{
+					"id": "853ebd20271782cc572f577d41a977f3",
+					"name": "Grove of the Ancients",
+					"lat": "-80.2803233883136",
+					"lng": "43.1437513270767"
+				},
+				{
+					"id": "fdec0c68386858bb1fcd8a8d1f4687de",
+					"name": "Blackwood Den",
+					"lat": "-83.76147059720046",
+					"lng": "43.87805762335151"
+				},
+				{
+					"id": "fc5185c31cb0fb3e76e6dbc98edbc371",
+					"name": "The Master's Glaive",
+					"lat": "-84.33908041229967",
+					"lng": "40.158814748801234"
+				},
+				{
+					"id": "b1cdd930e5710d8d382044dbf4c94492",
+					"name": "Twilight Vale",
+					"lat": "-87.78049161195469",
+					"lng": "40.2208577196728"
+				}
+			]
+		},
+		{
+			"name": "Ashenvale",
+			"locations": [
+				{
+					"id": "9742dfb84ca6513dde72e2d448e80cc6",
+					"name": "The Zoram Strand",
+					"lat": "-88.19920190470694",
+					"lng": "32.17321801734025"
+				},
+				{
+					"id": "c967c817fce02abd88df20694665f96a",
+					"name": "Lake Falathim",
+					"lat": "-98.71830703128171",
+					"lng": "39.17447858134156"
+				},
+				{
+					"id": "0e4237ae89cb854c01ea9b9bbda8c552",
+					"name": "The Ruins of Ordil'Aran",
+					"lat": "-94.5462743216182",
+					"lng": "45.26896938672622"
+				},
+				{
+					"id": "0e33c68d8afe389d71c3ce9ab41c786a",
+					"name": "Bathran's Haunt",
+					"lat": "-91.16900330246366",
+					"lng": "45.972228807058116"
+				},
+				{
+					"id": "1554a7cde531b74c5fe1ec19b2038bf8",
+					"name": "Maestra's Post",
+					"lat": "-97.38830002929717",
+					"lng": "42.37732279220383"
+				},
+				{
+					"id": "de5118b9e0a95d36cbfb3a798bd8117e",
+					"name": "Fire Scar Shrine",
+					"lat": "-105.56206754525927",
+					"lng": "41.877179410516476"
+				},
+				{
+					"id": "b803546bf9e8a69925e3f4ca4ce49f57",
+					"name": "Astranaar",
+					"lat": "-101.21539465949557",
+					"lng": "48.17525821926654"
+				},
+				{
+					"id": "5c543fe7d45b07afc0ad72ed53079a99",
+					"name": "Iris Lake",
+					"lat": "-99.95049512394772",
+					"lng": "53.284591399607734"
+				},
+				{
+					"id": "81fbadeccf897ef85f2c5143257b7fce",
+					"name": "The Ruins of Stardust",
+					"lat": "-107.54500213033256",
+					"lng": "46.31436875019388"
+				},
+				{
+					"id": "34f0deecfedcb51c9df1cc73d09cf22b",
+					"name": "The Talondeep Path",
+					"lat": "-109.09191918624282",
+					"lng": "51.080976512175944"
+				},
+				{
+					"id": "e90586c4f9c0faab069a8bc95f5123a6",
+					"name": "Mystral Lake",
+					"lat": "-108.56031171100554",
+					"lng": "54.534761665361465"
+				},
+				{
+					"id": "b7f2926c71e0c047f918f83b95379a35",
+					"name": "Raynewood Retreat",
+					"lat": "-104.9521668463809",
+					"lng": "60.331786021285794"
+				},
+				{
+					"id": "8070a37dc65565e3af33ab09c7f44d80",
+					"name": "The Howling Vale",
+					"lat": "-97.65467152170444",
+					"lng": "55.59618331558783"
+				},
+				{
+					"id": "a1b5f9f59b3111f110dc2ef9ea2b4fd6",
+					"name": "Silverwing Grove",
+					"lat": "-113.82774511514711",
+					"lng": "61.68961966814675"
+				},
+				{
+					"id": "13b5b1ab5d26dc647ea445a771b3154e",
+					"name": "Fallen Sky Lake",
+					"lat": "-113.21595190030664",
+					"lng": "64.83078832371129"
+				},
+				{
+					"id": "c420d82d432da6d4e55a9cf5919ad63f",
+					"name": "Warsong Labor Camp",
+					"lat": "-112.60660844223935",
+					"lng": "67.64375730131368"
+				},
+				{
+					"id": "ed79222b5b3a7baaf7c0bf70a2a44b72",
+					"name": "The Dor'Danil Barrow Den",
+					"lat": "-110.74678134120396",
+					"lng": "69.40948685046071"
+				},
+				{
+					"id": "a9498947111b22db284f0b487deda22a",
+					"name": "Demon Fall Canyon",
+					"lat": "-111.98296474534551",
+					"lng": "73.31490643152145"
+				},
+				{
+					"id": "35aed11aa8bbfad13b6d7945b3396937",
+					"name": "Splintertree Post",
+					"lat": "-105.54549628727821",
+					"lng": "68.17354958749226"
+				},
+				{
+					"id": "5f5696d01e9a85ae21732aa9ae3544fc",
+					"name": "Forest Song",
+					"lat": "-99.49861077330065",
+					"lng": "74.59604590813746"
+				},
+				{
+					"id": "46744d54b016b9d4d1811e143b69e7a6",
+					"name": "Warsong Lumber Camp",
+					"lat": "-102.95230352808929",
+					"lng": "78.17475040912383"
+				}
+			]
+		},
+		{
+			"name": "Azshara",
+			"locations": [
+				{
+					"id": "3bba61fddfeccfbcf13d260a98da2f86",
+					"name": "Talrendis Point",
+					"lat": "-102.04510727010823",
+					"lng": "80.6438857474086"
+				},
+				{
+					"id": "f9abf6dea936778524a310ce16bce642",
+					"name": "Valormok",
+					"lat": "-93.57513764871042",
+					"lng": "85.80067044161768"
+				},
+				{
+					"id": "1e8abd3505c130b1476cfaeae84b357a",
+					"name": "Thalassian Base Camp",
+					"lat": "-86.27916685078121",
+					"lng": "102.157646785473"
+				},
+				{
+					"id": "df00187863addcf0e5f8fbf40c99fd8b",
+					"name": "Tower of Eldara",
+					"lat": "-87.59090984439638",
+					"lng": "118.05139332429142"
+				},
+				{
+					"id": "6c4ab567ca82ea9d8d0c54d059ead9a6",
+					"name": "Temple of Arkkoran",
+					"lat": "-90.28021824853793",
+					"lng": "112.2690380904514"
+				},
+				{
+					"id": "d6dc5ceafe4146f990b13aeb201f6be4",
+					"name": "Lake Mennar",
+					"lat": "-102.58940634560426",
+					"lng": "94.25208680984339"
+				},
+				{
+					"id": "530e10fcfba1b1ff7d701343444c1411",
+					"name": "The Ruined Reaches",
+					"lat": "-105.04418204008232",
+					"lng": "100.61267756706741"
+				},
+				{
+					"id": "060627c7b963238913e5f7e9a74218db",
+					"name": "Ravencrest Monument",
+					"lat": "-104.2643514270539",
+					"lng": "109.05096616634785"
+				},
+				{
+					"id": "c689e443877f529ace7c591a274f7239",
+					"name": "Forlorn Ridge",
+					"lat": "-97.91757340151452",
+					"lng": "87.37633405598478"
+				},
+				{
+					"id": "a8f51681b5a453b6df73368b184692ca",
+					"name": "Bay of Storms",
+					"lat": "-92.38683858641532",
+					"lng": "101.22216010333293"
+				}
+			]
+		},
+		{
+			"name": "Durotar",
+			"locations": [
+				{
+					"id": "20a7c8ed093901994ea4f84281ddb96b",
+					"name": "Rocktusk Farm",
+					"lat": "-115.51382572817553",
+					"lng": "83.67494755894394"
+				},
+				{
+					"id": "39787f250385bc9d579e9cd911e38b1c",
+					"name": "Thunder Ridge",
+					"lat": "-119.2174133431885",
+					"lng": "83.59693606944643"
+				},
+				{
+					"id": "08434e7451ae68e36cb3d7d34e9d0178",
+					"name": "Tor'kren Farm",
+					"lat": "-120.62226498417203",
+					"lng": "84.20646042537076"
+				},
+				{
+					"id": "5f9974daeb51506c81623672eb9013bc",
+					"name": "Razor Hill",
+					"lat": "-124.65429301851202",
+					"lng": "88.72165826742719"
+				},
+				{
+					"id": "9724af96bfc3c986f8cf97aca5610687",
+					"name": "Tiragarde Keep",
+					"lat": "-129.81107923136796",
+					"lng": "92.06545606132298"
+				},
+				{
+					"id": "c44b48b4edae4f2457fad52b4912ca5a",
+					"name": "Darkspear Strand",
+					"lat": "-137.5277895197199",
+					"lng": "89.2525050064315"
+				},
+				{
+					"id": "9d99557b83d38591767949ec0a472dd0",
+					"name": "Echo Isles",
+					"lat": "-138.26265867666558",
+					"lng": "96.4413790809353"
+				},
+				{
+					"id": "4496ec87c2e2fbf338744bd024a7a6ca",
+					"name": "Kolkar Crag",
+					"lat": "-136.68517502929717",
+					"lng": "85.86150064238372"
+				},
+				{
+					"id": "0777d29b75c30c2846f3105344a8798e",
+					"name": "Dustwind Cave",
+					"lat": "-119.96681404646716",
+					"lng": "89.01897834808167"
+				},
+				{
+					"id": "13d0ea39df88e88f520947a628752cfd",
+					"name": "Skull Rock",
+					"lat": "-113.62135026812369",
+					"lng": "90.06578464435648"
+				},
+				{
+					"id": "b55f6be4f8a1398d1aa531dc076f24e2",
+					"name": "Jaggedswine Farm",
+					"lat": "-115.87222292826178",
+					"lng": "86.65905969251713"
+				},
+				{
+					"id": "db3e754e4d15589f05a23beb9a5d672f",
+					"name": "Shrine of the Dormant Flame",
+					"lat": "-129.85792268943524",
+					"lng": "81.65881176168276"
+				},
+				{
+					"id": "c8656a53abee4b9783c8bc17694fc761",
+					"name": "Spirit Rock",
+					"lat": "-135.78062829366306",
+					"lng": "84.58142457994892"
+				},
+				{
+					"id": "1bb746cf320d2fab0efdcc932f065a06",
+					"name": "Valley of Trials",
+					"lat": "-133.21640400134203",
+					"lng": "83.909421133854"
+				}
+			]
+		},
+		{
+			"name": "The Barrens",
+			"locations": [
+				{
+					"id": "effe23f4e93d4b177831313cda81ecef",
+					"name": "Ratchet",
+					"lat": "-136.5441294701945",
+					"lng": "79.6747593704793"
+				},
+				{
+					"id": "c3087ba376ef3be6c34387bf6a8351c6",
+					"name": "The Merchant Coast",
+					"lat": "-141.26334208520743",
+					"lng": "80.89387081181616"
+				},
+				{
+					"id": "4fd6ff802e178611f5dfb2daa76f1f15",
+					"name": "Fray Island",
+					"lat": "-143.21501615630316",
+					"lng": "84.86338252703023"
+				},
+				{
+					"id": "98ec5d83679858af74a780175c8463c0",
+					"name": "Northwatch Hold",
+					"lat": "-147.5135103088485",
+					"lng": "77.44049788098178"
+				},
+				{
+					"id": "153e6181674cbab25be0df11e6c78669",
+					"name": "Camp Taurajo",
+					"lat": "-149.90357806803746",
+					"lng": "62.268204684393666"
+				},
+				{
+					"id": "813f03bbc867ba7a575c0efc896c22dd",
+					"name": "Moonkin Stone",
+					"lat": "-151.356713582015",
+					"lng": "59.502158500687074"
+				},
+				{
+					"id": "ad084d4bbca8c43dbd64d0a4a9b5fc85",
+					"name": "Field of Giants",
+					"lat": "-158.01442502489687",
+					"lng": "60.87733175355929"
+				},
+				{
+					"id": "40635808c1374306feb370c5fb592c4b",
+					"name": "Blackthorn Ridge",
+					"lat": "-161.80887129607882",
+					"lng": "60.84594733322739"
+				},
+				{
+					"id": "e803fb2f4638b837e7d80fa926e0dd54",
+					"name": "Wailing Caverns",
+					"lat": "-135.7314297046207",
+					"lng": "63.486649998308046"
+				},
+				{
+					"id": "8661c2272399d75653ad633fc532f248",
+					"name": "The Dry Hills",
+					"lat": "-120.0751166207553",
+					"lng": "56.736127252572906"
+				},
+				{
+					"id": "e3254528127ce93b29595bedd04a3657",
+					"name": "Mor'shan Base Camp",
+					"lat": "-117.74572994344723",
+					"lng": "64.159421133854"
+				},
+				{
+					"id": "c658a306212d55b8086e9f7e5b82291c",
+					"name": "The Mor'shan Rampart",
+					"lat": "-115.96477433481911",
+					"lng": "65.28449282469768"
+				},
+				{
+					"id": "5b9d75ef5af6ab77eeee1b4ebc86ceb7",
+					"name": "The Sludge Fen",
+					"lat": "-117.62198110677772",
+					"lng": "73.14358106132298"
+				},
+				{
+					"id": "b1c55481ad7e96d825bfcb4751679ca5",
+					"name": "Boulder Lode Mine",
+					"lat": "-115.02896708520744",
+					"lng": "78.18956888713248"
+				},
+				{
+					"id": "464a62519695363909e8870dd6279d50",
+					"name": "Far Watch Stables",
+					"lat": "-127.52823110677772",
+					"lng": "78.44049788098178"
+				},
+				{
+					"id": "919c98710bad18be5daf4189da3179a2",
+					"name": "Raptor Grounds",
+					"lat": "-146.71738180125578",
+					"lng": "74.6281263270767"
+				},
+				{
+					"id": "e971a2e3d28e8bd7b5dad29963b9d4d4",
+					"name": "The Crossroads",
+					"lat": "-132.09081521859827",
+					"lng": "68.76858404844145"
+				}
+			]
+		},
+		{
+			"name": "Thunder Bluff",
+			"locations": [
+				{
+					"id": "5919a04bf7a06d202cb31b446827b42d",
+					"name": "Elder Rise",
+					"lat": "-137.52837830246366",
+					"lng": "46.34730945925725"
+				},
+				{
+					"id": "f9fdcaa67d2dcb22109e1ab64d9200de",
+					"name": "The Pools of Vision",
+					"lat": "-137.4649425584602",
+					"lng": "42.11148869390978"
+				},
+				{
+					"id": "8a1f4a2ab8f019f9f5a57370c2cd6609",
+					"name": "Hunter Rise",
+					"lat": "-141.0141832034128",
+					"lng": "45.11206222065918"
+				}
+			]
+		},
+		{
+			"name": "Mulgore",
+			"locations": [
+				{
+					"id": "0d5eff721c2443f931ef022779b76904",
+					"name": "Winterhoof Water Well",
+					"lat": "-151.59056288313667",
+					"lng": "50.80007600503886"
+				},
+				{
+					"id": "a4c2a12703aa0df322dab4c0af9d556f",
+					"name": "Brambleblade Ravine",
+					"lat": "-157.10673460997015",
+					"lng": "53.784334507417896"
+				},
+				{
+					"id": "7c32046bd4d6c350553bb03d09575d68",
+					"name": "Red Cloud Mesa",
+					"lat": "-156.2468233971142",
+					"lng": "49.064679410516476"
+				},
+				{
+					"id": "d3336147a9ff082819528f9912b8cf1f",
+					"name": "Camp Narache",
+					"lat": "-155.02725330686397",
+					"lng": "46.501689523084686"
+				},
+				{
+					"id": "4a5aa0d7be6eccaebe693776cbc00f97",
+					"name": "Palemane Rock",
+					"lat": "-150.2481797002204",
+					"lng": "41.501949402393016"
+				},
+				{
+					"id": "084b706f685cf405fc24f43e0143aa85",
+					"name": "Bael'dun Digsite",
+					"lat": "-146.1536306379253",
+					"lng": "40.20519090001399"
+				},
+				{
+					"id": "d16f4eba436b9a2f8f0cd58f0dda39fe",
+					"name": "Wildmane Water Well",
+					"lat": "-134.6050839154921",
+					"lng": "45.29966079556924"
+				},
+				{
+					"id": "ba31846a73079e71294b0e233676e059",
+					"name": "Red Rocks",
+					"lat": "-137.1845862465534",
+					"lng": "54.70698018398741"
+				},
+				{
+					"id": "7b9938ef5e46a5136daeae05ce805e50",
+					"name": "Ravaged Caravan",
+					"lat": "-145.76462479047063",
+					"lng": "51.065889193503516"
+				},
+				{
+					"id": "95d9cd7693da0f67ce9150e4151e8d03",
+					"name": "The Venture Co. Mine",
+					"lat": "-145.60785960556984",
+					"lng": "54.660129080935306"
+				}
+			]
+		},
+		{
+			"name": "Thousand Needles",
+			"locations": [
+				{
+					"id": "124982fd84d8d8836cfe3b5977455747",
+					"name": "Ironstone Camp",
+					"lat": "-182.61427380807714",
+					"lng": "76.26790298542653"
+				},
+				{
+					"id": "e1d6a05a998f390c825951b0e236ec07",
+					"name": "Freewind Post",
+					"lat": "-178.98269138192876",
+					"lng": "67.1286789439967"
+				},
+				{
+					"id": "da135cb9dd1c93a11d8d7b5ac79fd674",
+					"name": "Highperch",
+					"lat": "-176.6225383475888",
+					"lng": "55.34532302546371"
+				},
+				{
+					"id": "81b6580d7c1abd272a030200c87ae4de",
+					"name": "Camp E'thok",
+					"lat": "-171.15292620142827",
+					"lng": "55.76709945055366"
+				},
+				{
+					"id": "99078d4be642731d863e56a24259bdf3",
+					"name": "Whitereach Post",
+					"lat": "-173.87347409159227",
+					"lng": "57.064706294582855"
+				},
+				{
+					"id": "d93a93cd795c5de6053c7aa90604b144",
+					"name": "Roguefeather Den",
+					"lat": "-179.19007138113903",
+					"lng": "59.54913207559713"
+				},
+				{
+					"id": "cad734ee356a8f804c73d026731faebb",
+					"name": "Darkcloud Pinnacle",
+					"lat": "-175.83284172504727",
+					"lng": "62.408686302706315"
+				},
+				{
+					"id": "5c2e96e310fd61fafa9592d16b538bd8",
+					"name": "Mirage Raceway",
+					"lat": "-186.3813668525054",
+					"lng": "82.06573087622374"
+				},
+				{
+					"id": "19e80be6a526d34f9571401b7ac30461",
+					"name": "The Rustmaul Dig Site",
+					"lat": "-188.5704600790167",
+					"lng": "77.53361461186265"
+				},
+				{
+					"id": "d0fd0c4e7e48e47e2e6495792e5ce39e",
+					"name": "Weazel's Crater",
+					"lat": "-182.5853575427897",
+					"lng": "81.00698460176798"
+				},
+				{
+					"id": "6e1f4cb174a676d9465868dd04abb3fc",
+					"name": "Beached Ship",
+					"lat": "-180.14833857023402",
+					"lng": "82.75695534435008"
+				}
+			]
+		},
+		{
+			"name": "Silithus",
+			"locations": [
+				{
+					"id": "efe06df31fcfb50e4b3a4674f50250b9",
+					"name": "Tauren Village",
+					"lat": "-228.96512097800374",
+					"lng": "21.11697108180219"
+				},
+				{
+					"id": "3023a0a462829554b46c75f6b69c85a1",
+					"name": "Cenarion Hold",
+					"lat": "-192.09012097800374",
+					"lng": "37.06956067105453"
+				},
+				{
+					"id": "6d2362f692a1e214860c783018a007f1",
+					"name": "The Scarab Wall",
+					"lat": "-204.12141408922636",
+					"lng": "29.694554819570953"
+				},
+				{
+					"id": "0ee4a420b427f31061b3e315c40ba15d",
+					"name": "Bronzebeard Encampment",
+					"lat": "-203.2307343711361",
+					"lng": "33.678300785086"
+				},
+				{
+					"id": "dc69f903beaa8282e0dadd156d6ad165",
+					"name": "Staghelm Point",
+					"lat": "-189.33392234948656",
+					"lng": "43.22501486928753"
+				},
+				{
+					"id": "317eb30b0009f8b424b5c923ac49e18d",
+					"name": "Ortell's Hideout",
+					"lat": "-199.06839086899328",
+					"lng": "42.147723705697814"
+				}
+			]
+		},
+		{
+			"name": "Tanaris",
+			"locations": [
+				{
+					"id": "6d7dcbaa73dc5a6c96b7ef47fe1619f5",
+					"name": "South Seas Islands",
+					"lat": "-234.71322966735863",
+					"lng": "88.70422752092915"
+				},
+				{
+					"id": "a88d757f31845dc99f4d4ac1fed932c0",
+					"name": "Noonshade Ruins",
+					"lat": "-193.56980196943115",
+					"lng": "85.50675931965012"
+				},
+				{
+					"id": "ea2dc7bc7ecc120872321930b0a09824",
+					"name": "Steamwheedle Port",
+					"lat": "-193.42955881595913",
+					"lng": "89.92869283448593"
+				},
+				{
+					"id": "65428c096e3e6dbf74b78fb82528908f",
+					"name": "Zul'Farrak",
+					"lat": "-191.5541372970646",
+					"lng": "71.4289766314396"
+				},
+				{
+					"id": "bcbde8210a8ca747ec11229245aa152f",
+					"name": "Sandsorrow Watch",
+					"lat": "-195.47611147798096",
+					"lng": "71.80382156712471"
+				},
+				{
+					"id": "60dfb16450925027000ab7d23c3ef5e3",
+					"name": "The Noxious Lair",
+					"lat": "-200.61691004458459",
+					"lng": "69.14777051756646"
+				},
+				{
+					"id": "3491d910788b1dcccd244cd116c9cd00",
+					"name": "Dunemaul Compound",
+					"lat": "-207.7890379559213",
+					"lng": "72.91354765613957"
+				},
+				{
+					"id": "c8e0f05b62149206ad773680c71ee51f",
+					"name": "Abyssal Sands",
+					"lat": "-205.53883959408859",
+					"lng": "74.03841599775899"
+				},
+				{
+					"id": "81e7b9ecf3d63a7a7178eb2a2a5fd586",
+					"name": "Valley of the Watchers",
+					"lat": "-218.11673151893515",
+					"lng": "70.398098200647"
+				},
+				{
+					"id": "fe8a3341c47ea095bf4b698ea57fc36e",
+					"name": "Eastmoon Ruins",
+					"lat": "-211.8981352493555",
+					"lng": "77.17919606207388"
+				},
+				{
+					"id": "ecbb7909411afc7ebd4e2019c1a44702",
+					"name": "Broken Pillar",
+					"lat": "-202.94495074080567",
+					"lng": "80.58521785421424"
+				},
+				{
+					"id": "734a8a84cf6faa3123e9c9790bfe8223",
+					"name": "Caverns of Time",
+					"lat": "-205.11691004458459",
+					"lng": "87.67888885918589"
+				},
+				{
+					"id": "85d119c82477ffdb3901d9f781a96995",
+					"name": "Zalashji's Den",
+					"lat": "-196.96053606843913",
+					"lng": "90.21070352735146"
+				},
+				{
+					"id": "a0f96c3bb6bd7bfbc4cd435b4353f532",
+					"name": "Lost Rigger Cove",
+					"lat": "-204.66357180561442",
+					"lng": "91.788108794871"
+				},
+				{
+					"id": "6d8462dcf60f03115c1beb4857ee8fb7",
+					"name": "Southbreak Shore",
+					"lat": "-210.84738619393812",
+					"lng": "89.05600198473064"
+				}
+			]
+		},
+		{
+			"name": "Un'Goro Crater",
+			"locations": [
+				{
+					"id": "759a1477cefd77e25fb090e576021dc1",
+					"name": "Golakka Hot Springs",
+					"lat": "-195.61508467494903",
+					"lng": "50.179070255176896"
+				},
+				{
+					"id": "831619ccf650ea209e1e9eb522366f2b",
+					"name": "Eastern Crystal Pylon",
+					"lat": "-195.49071511800284",
+					"lng": "66.14735506223221"
+				},
+				{
+					"id": "b358060dae2db0d8ba1594f21c5d105f",
+					"name": "Fire Plume Ridge",
+					"lat": "-195.28686494642014",
+					"lng": "56.289100621337965"
+				},
+				{
+					"id": "12d88bcf9a809e5f16ffbba31f181e86",
+					"name": "Marshal's Refuge",
+					"lat": "-185.33266787731696",
+					"lng": "54.23075034405932"
+				}
+			]
+		},
+		{
+			"name": "Hyjal",
+			"locations": [
+				{
+					"id": "46479da54ad21ca92f479343b2ffba66",
+					"name": "Hyjal Ruins",
+					"lat": "-79.69149715374664",
+					"lng": "61.17603254693063"
+				},
+				{
+					"id": "9e357611cb9e68f2cd613bd05e2db566",
+					"name": "Hyjal Crater",
+					"lat": "-76.17419569810734",
+					"lng": "70.63467855211695"
+				},
+				{
+					"id": "02d5108d178e3dcfb9ce3142c2f3b418",
+					"name": "Nordrassil",
+					"lat": "-76.7398201209024",
+					"lng": "76.02550856288339"
+				}
+			]
+		},
+		{
+			"name": "Swamp of Sorrows",
+			"locations": [
+				{
+					"id": "1079775c55089af0620089cdfb42484f",
+					"name": "Stonard",
+					"lat": "-177.6778645515442",
+					"lng": "218.77555573350222"
+				},
+				{
+					"id": "06cea74c15740a0f7751709fc8b79d99",
+					"name": "Stagalbog",
+					"lat": "-181.0216145515442",
+					"lng": "223.30673815251947"
+				},
+				{
+					"id": "4a09f3559714568793382c97064a951c",
+					"name": "Misty Reed Post",
+					"lat": "-181.6622395515442",
+					"lng": "226.30665560393652"
+				},
+				{
+					"id": "98d2f5441c3c485fc47c63c483304bbb",
+					"name": "The Temple of Atal'Hakkar",
+					"lat": "-178.0528645515442",
+					"lng": "223.85361224539218"
+				},
+				{
+					"id": "2b41a43f379d392d5a0162db569789fd",
+					"name": "The Harborage",
+					"lat": "-174.5684895515442",
+					"lng": "214.38489580910175"
+				},
+				{
+					"id": "e5a65bd18d160e9ae788c392b46c130b",
+					"name": "Splinterspear Junction",
+					"lat": "-177.2507026967236",
+					"lng": "212.3852456082201"
+				},
+				{
+					"id": "a09d500221cb62974344830d8140d3a1",
+					"name": "Itharius's Cave",
+					"lat": "-179.77961879462873",
+					"lng": "211.64858386089605"
+				}
+			]
+		},
+		{
+			"name": "Deadwind Pass",
+			"locations": [
+				{
+					"id": "e129f1c8e0114cdfb06be1df45736373",
+					"name": "Ariden's Camp",
+					"lat": "-177.77968856749595",
+					"lng": "208.00791146349667"
+				},
+				{
+					"id": "80ba2027082a86af7d0653f9c534ef04",
+					"name": "The Vice",
+					"lat": "-183.93602578357994",
+					"lng": "209.5863121167931"
+				},
+				{
+					"id": "65f8f1c082154cdbf51984bf9b1bb877",
+					"name": "Karazhan",
+					"lat": "-184.10799672127234",
+					"lng": "206.757961355496"
+				},
+				{
+					"id": "798f0a09a118f7ca07bd70ef32ab3495",
+					"name": "Morgan's Plot",
+					"lat": "-184.12362172127234",
+					"lng": "205.10168391489637"
+				}
+			]
+		},
+		{
+			"name": "Blasted Lands",
+			"locations": [
+				{
+					"id": "5382447358132819b1550580bd4fee12",
+					"name": "Garrison Armory",
+					"lat": "-182.0997395515442",
+					"lng": "217.82250466437597"
+				},
+				{
+					"id": "934ecf147c3cd4727b0e915a62e22830",
+					"name": "Dreadmaul Hold",
+					"lat": "-182.2247395515442",
+					"lng": "213.36936016113933"
+				},
+				{
+					"id": "056bbc8f5d6743ccf80d865052d4cdbf",
+					"name": "Dreadmaul Post",
+					"lat": "-187.9591145515442",
+					"lng": "214.66612993437425"
+				},
+				{
+					"id": "30de20f2d015304929be18e717af3a46",
+					"name": "The Tainted Scar",
+					"lat": "-194.7403645515442",
+					"lng": "211.11922817411934"
+				},
+				{
+					"id": "9ad8d93f042a3188b36bfe60ef666edf",
+					"name": "Serpent's Coil",
+					"lat": "-185.9122395515442",
+					"lng": "220.0410505607368"
+				}
+			]
+		},
+		{
+			"name": "Badlands",
+			"locations": [
+				{
+					"id": "3e5fd3a58a0d7b2d9488d37afbd0ab51",
+					"name": "Hammertoe's Digsite",
+					"lat": "-139.91141804466503",
+					"lng": "219.90041104670024"
+				},
+				{
+					"id": "38d8ad0656e6bf1a26425cc3359b624d",
+					"name": "Camp Kosh",
+					"lat": "-138.20804278225708",
+					"lng": "223.13488991277438"
+				},
+				{
+					"id": "6566b03585359d7d03189c4c18212156",
+					"name": "Crypt",
+					"lat": "-141.11493631416323",
+					"lng": "220.68180936201136"
+				},
+				{
+					"id": "2b747277d9baee22a730e485a0ae323e",
+					"name": "Uldaman Back Entrance",
+					"lat": "-141.55268657657115",
+					"lng": "222.71300039873782"
+				},
+				{
+					"id": "4d82dac34a16b8942a28918e6d113827",
+					"name": "Agmond's End",
+					"lat": "-145.60990453587462",
+					"lng": "219.1660836708827"
+				},
+				{
+					"id": "cb33ce00329c3b1359422c8a58459a09",
+					"name": "Valley of Fangs",
+					"lat": "-143.00037940776224",
+					"lng": "217.40050312011968"
+				},
+				{
+					"id": "45283ac1565a86f1e01a1ef00143d33d",
+					"name": "Dustbelch Grotto",
+					"lat": "-148.0528645515442",
+					"lng": "209.24429847648395"
+				},
+				{
+					"id": "498141e7876566871a0bc8c66dd73654",
+					"name": "Apocryphan's Rest",
+					"lat": "-144.2559895515442",
+					"lng": "210.99425720219244"
+				},
+				{
+					"id": "e9a18e8825820d57ca18a0c1941ea5f4",
+					"name": "Kargath",
+					"lat": "-142.1153645515442",
+					"lng": "208.541184815575"
+				}
+			]
+		},
+		{
+			"name": "Winterspring",
+			"locations": [
+				{
+					"id": "d5e1f1aaf0ab2321aeea37db8a4bfec5",
+					"name": "Everlook",
+					"lat": "-63.42389053062247",
+					"lng": "88.27546638146464"
+				},
+				{
+					"id": "bce38628921d415a0f0b1dc3577ab4b2",
+					"name": "Starfall Village",
+					"lat": "-58.908133291379045",
+					"lng": "82.58798905964676"
+				},
+				{
+					"id": "3a13c5796df3c6a2c4a089a5d82ed9f4",
+					"name": "Frostsaber Rock",
+					"lat": "-51.18920697238778",
+					"lng": "80.54110952401034"
+				},
+				{
+					"id": "793f4c8c2c8cb367af1040db429e0919",
+					"name": "The Hidden Grove",
+					"lat": "-54.50219863111339",
+					"lng": "90.1191542432456"
+				},
+				{
+					"id": "03f65230228596fcda0c42bacb62400c",
+					"name": "Lake Kel'Theril",
+					"lat": "-65.31471897561238",
+					"lng": "82.96299722379233"
+				},
+				{
+					"id": "9fe4de1e0141f388cea03c452e2c4434",
+					"name": "Donova's Camp",
+					"lat": "-67.14228450189015",
+					"lng": "68.0411634980838"
+				},
+				{
+					"id": "ac48389abb08e608e567a4f2f3ff8820",
+					"name": "Ice Thistle Hills",
+					"lat": "-65.61129558962719",
+					"lng": "92.35356280695515"
+				},
+				{
+					"id": "d2df5a80bd28a38b16fa41d55d1fbbed",
+					"name": "Mazthoril",
+					"lat": "-69.7207248416245",
+					"lng": "86.40056661902963"
+				},
+				{
+					"id": "6aa0a7b5d643b6b75806714dabed2bce",
+					"name": "Owl Wing Thicket",
+					"lat": "-75.3302185178686",
+					"lng": "90.57229058233666"
+				},
+				{
+					"id": "4e6e00731b5a8c4ec188554b236920c3",
+					"name": "Frostwhisper Gorge",
+					"lat": "-77.59610799635549",
+					"lng": "88.80671411364642"
+				},
+				{
+					"id": "de603066bc67ae7654286d9698fea21d",
+					"name": "Darkwhisper Gorge",
+					"lat": "-86.18963081611676",
+					"lng": "85.86928940521108"
+				}
+			]
+		},
+		{
+			"name": "Duskwood",
+			"locations": [
+				{
+					"id": "9f12da4d86f3baeff29113ddeee519c9",
+					"name": "Manor Mistmantle",
+					"lat": "-176.90460135141194",
+					"lng": "199.6329788176958"
+				},
+				{
+					"id": "f8d88bf7d92238d3972bde33537d06e0",
+					"name": "Darkshire Town Hall",
+					"lat": "-178.74831646497836",
+					"lng": "198.25799129069563"
+				},
+				{
+					"id": "11d8b02585a77a499711ed64654c6f53",
+					"name": "Darkshire",
+					"lat": "-178.93606067001355",
+					"lng": "198.8361562042951"
+				},
+				{
+					"id": "3f07f0c6ec9e16fd7f74f058db73d4f6",
+					"name": "Blind Mary's House",
+					"lat": "-180.99791527099194",
+					"lng": "200.7581235044939"
+				},
+				{
+					"id": "47b1b80a3c50d57d164531c0e08b6282",
+					"name": "Beggar's Haunt",
+					"lat": "-176.98238620868435",
+					"lng": "202.2580486664949"
+				},
+				{
+					"id": "47d41f7b9be7d2fb33190b8253486975",
+					"name": "Tranquil Gardens Cemetary",
+					"lat": "-182.98515629768372",
+					"lng": "200.38703438398076"
+				},
+				{
+					"id": "b01216ce892935745039f93f57ef3c4c",
+					"name": "Roland's Doom",
+					"lat": "-183.53203129768372",
+					"lng": "198.51092219179796"
+				},
+				{
+					"id": "cf3ba09d03be58c14ea8a445c427b834",
+					"name": "The Rotting Orchard",
+					"lat": "-182.51640629768372",
+					"lng": "196.52713109269393"
+				},
+				{
+					"id": "42ba7a58ae29dce7a74b2c0a7e0fb4c1",
+					"name": "The Yorgen Farmstead",
+					"lat": "-183.53607001421744",
+					"lng": "192.41285077798722"
+				},
+				{
+					"id": "af47c4f6471c47cb576cdafbb52dc200",
+					"name": "Addle's Stead",
+					"lat": "-182.96953129768372",
+					"lng": "185.3841426843055"
+				},
+				{
+					"id": "82b9d2aceee5e80075260a66ace973b1",
+					"name": "Raven Hill",
+					"lat": "-180.71953129768372",
+					"lng": "184.7749252448647"
+				},
+				{
+					"id": "a5104620d73ab4fed6d3adfa51cb550e",
+					"name": "The Hushed Bank",
+					"lat": "-176.64140629768372",
+					"lng": "181.82258804766087"
+				},
+				{
+					"id": "565d3dd660cfb0dbffaa7d497f3e4e50",
+					"name": "Raven Hill Cemetery",
+					"lat": "-178.59453129768372",
+					"lng": "184.98015414174384"
+				},
+				{
+					"id": "8d1a0e654998d1628d1e160385e92aae",
+					"name": "Eliza's Tombstone",
+					"lat": "-176.14140629768372",
+					"lng": "187.26230316375828"
+				},
+				{
+					"id": "40b781ad6443bc509bbebed0148fb4d4",
+					"name": "Vul'Gol Ogre Mound",
+					"lat": "-183.71953129768372",
+					"lng": "188.49606645805773"
+				}
+			]
+		},
+		{
+			"name": "Desolace",
+			"locations": [
+				{
+					"id": "760e3620b43c4cae82886992227ee42b",
+					"name": "Gelkis Village",
+					"lat": "-149.02048754911704",
+					"lng": "19.23024313777811"
+				},
+				{
+					"id": "91e9a26ad163c52c9bf60ddc21a47d3a",
+					"name": "Shadowprey Village",
+					"lat": "-143.62985353309762",
+					"lng": "13.855504630794197"
+				},
+				{
+					"id": "5fe9f9582e22fb575d2100baa832d60f",
+					"name": "Valley of Spears",
+					"lat": "-140.66110353309762",
+					"lng": "17.090059970805292"
+				},
+				{
+					"id": "9d964100ff03151edff4aa1eef8d4a90",
+					"name": "Mannoroc Coven",
+					"lat": "-145.16129286950536",
+					"lng": "25.808976785315558"
+				},
+				{
+					"id": "1005ac1ebe2241f8db8621c2914a4b6a",
+					"name": "Valley of Bones",
+					"lat": "-149.0674572173209",
+					"lng": "31.386795207296693"
+				},
+				{
+					"id": "ab8bc7b30c8bf14ad64cc6ae59ae6fba",
+					"name": "Shadowbreak Ravine",
+					"lat": "-145.17673304110733",
+					"lng": "38.01226409132554"
+				},
+				{
+					"id": "c83aad60bc4f1fb39ebaf3fd048b18a1",
+					"name": "Scrabblescrew's Camp",
+					"lat": "-140.75502934547626",
+					"lng": "29.964915698796418"
+				},
+				{
+					"id": "aded7b644fe008b496b6a77113e9d402",
+					"name": "Kodo Graveyard",
+					"lat": "-139.95801910518497",
+					"lng": "25.620807273024365"
+				},
+				{
+					"id": "7505c3d65ddeab824e5e35ee6b92b5bf",
+					"name": "Ghost Walker Post",
+					"lat": "-139.02078958576752",
+					"lng": "27.69923208829281"
+				},
+				{
+					"id": "79e507d465c26520daab059aff3c36db",
+					"name": "Ethel Rethor",
+					"lat": "-130.91112156513645",
+					"lng": "20.6053941725374"
+				},
+				{
+					"id": "87058fb7c95626f476597434197e6025",
+					"name": "Ranazjar Isle",
+					"lat": "-124.91132442557333",
+					"lng": "15.91786261303546"
+				},
+				{
+					"id": "51f47577c9461059e3298268325c0440",
+					"name": "Thunder Axe Fortress",
+					"lat": "-131.5986621372238",
+					"lng": "27.13334301962508"
+				},
+				{
+					"id": "936b62db964f72c7a08442decebeeade",
+					"name": "Kormek's Hut",
+					"lat": "-134.34887401368013",
+					"lng": "30.398776593020703"
+				},
+				{
+					"id": "4c69245e08c71ef20e66fecad90a6eac",
+					"name": "Kolkar Village",
+					"lat": "-137.08293345300052",
+					"lng": "35.523343174293814"
+				},
+				{
+					"id": "58e9154f1c69b1faadc3d00892c91f75",
+					"name": "Sargeron",
+					"lat": "-129.76537711090714",
+					"lng": "36.8828807063164"
+				},
+				{
+					"id": "609f50d6e7d9a014249dfae647ebbddb",
+					"name": "Nijel's Point",
+					"lat": "-126.1856622769525",
+					"lng": "31.24329229943821"
+				}
+			]
+		},
+		{
+			"name": "Felwood",
+			"locations": [
+				{
+					"id": "b754d27ace36e6d66a40aab02672d1d5",
+					"name": "Morlos'Aran",
+					"lat": "-91.49731767766409",
+					"lng": "59.22637065508026"
+				},
+				{
+					"id": "94169deab20c92eac216ea3ba078e2c0",
+					"name": "Deadwood Village",
+					"lat": "-94.02889061268613",
+					"lng": "54.80510605312063"
+				},
+				{
+					"id": "0b9d3d4c654c1ac11176f772415ea3b0",
+					"name": "Ruins of Constellas",
+					"lat": "-84.15289696646448",
+					"lng": "46.19656899599262"
+				},
+				{
+					"id": "1625d2f310eacdfe3d03e242591bd3eb",
+					"name": "Jaedenar",
+					"lat": "-81.70091465961937",
+					"lng": "47.695904420611384"
+				},
+				{
+					"id": "27b77f0b02da4aeab19efd3e844ffccf",
+					"name": "Shatter Scar Vale",
+					"lat": "-74.81170560548523",
+					"lng": "51.00759176049847"
+				},
+				{
+					"id": "d2b564cc28c6ae0a1c5f4a854d2a0469",
+					"name": "Irontree Woods",
+					"lat": "-68.65406450077492",
+					"lng": "55.024256965443"
+				},
+				{
+					"id": "cf065ba76d1f7a1602bd2fe2dcaf506b",
+					"name": "Talonbranch Glade",
+					"lat": "-69.34064537801989",
+					"lng": "62.4613813358797"
+				},
+				{
+					"id": "9b12d5f07393de091a7115b8e792d7f7",
+					"name": "Timbermaw Hold",
+					"lat": "-63.120146544771",
+					"lng": "63.84685785995833"
+				}
+			]
+		},
+		{
+			"name": "Moonglade",
+			"locations": [
+				{
+					"id": "3441aeca522e74c76e2c98136818b5ed",
+					"name": "Stormrage Barrow Dens",
+					"lat": "-55.939702021863226",
+					"lng": "71.68164925404554"
+				},
+				{
+					"id": "0b89741b7cc1837a6fa107015ed60196",
+					"name": "Shrine of Remulos",
+					"lat": "-53.345562085632565",
+					"lng": "65.13494887604791"
+				},
+				{
+					"id": "f3efdf3f585a1cc6c661298c61ff9408",
+					"name": "Nighthaven",
+					"lat": "-52.22031795164469",
+					"lng": "67.65050085230146"
+				}
+			]
+		},
+		{
+			"name": "Stonetalon Mountains",
+			"locations": [
+				{
+					"id": "fbef9a537f82d5af0beddb5ab591bd3a",
+					"name": "Mirkfallon Lake",
+					"lat": "-112.0289899773083",
+					"lng": "36.00790960089819"
+				},
+				{
+					"id": "1ff38ecccd44a8ddd27a4903ddb0d6a4",
+					"name": "Sishir Canyon",
+					"lat": "-123.419739183086",
+					"lng": "39.25814436937525"
+				},
+				{
+					"id": "324e3c1a7a9f39beb0a63fd9153ff723",
+					"name": "Malaka'jin",
+					"lat": "-129.05874950797582",
+					"lng": "46.36781553883863"
+				},
+				{
+					"id": "46834cb761ef6b20d6ac7f67e7910340",
+					"name": "Grimtotem Post",
+					"lat": "-126.41936656575288",
+					"lng": "47.461901438351966"
+				},
+				{
+					"id": "44ce475edd1600cfb0be125249ea95b3",
+					"name": "Blackwolf River",
+					"lat": "-115.82574077153059",
+					"lng": "43.97676434375719"
+				},
+				{
+					"id": "b44fa3e685526ad8265de69b42e243ef",
+					"name": "Windshear Mine",
+					"lat": "-118.27894029499721",
+					"lng": "47.80535888071132"
+				}
+			]
+		},
+		{
+			"name": "Feralas",
+			"locations": [
+				{
+					"id": "a63cdbca76cbd92185387bda6e29fe3a",
+					"name": "Thalanaar",
+					"lat": "-170.0067288432507",
+					"lng": "51.425908224590295"
+				},
+				{
+					"id": "3a91c9697d3beb6dd831e1c26e420e64",
+					"name": "Lariss Pavilion",
+					"lat": "-166.22916004675938",
+					"lng": "43.160612954638836"
+				},
+				{
+					"id": "712b52b54479d9d331b855a9b7d26d07",
+					"name": "Camp Mojache",
+					"lat": "-168.60438066989468",
+					"lng": "42.75370349454175"
+				},
+				{
+					"id": "9ae9fade8ee1555596cfb4f1c5466ffb",
+					"name": "The Writhing Deep",
+					"lat": "-176.99440508469303",
+					"lng": "41.6762325492282"
+				},
+				{
+					"id": "b8667c9d24b424cc8e2a42c2432e5833",
+					"name": "Grimtotem Compound",
+					"lat": "-170.2756918552156",
+					"lng": "36.5040170083584"
+				},
+				{
+					"id": "10bc460a7a8180ce648027de678c410e",
+					"name": "Dire Maul",
+					"lat": "-169.33849827623683",
+					"lng": "30.770901469035618"
+				},
+				{
+					"id": "8d8a8206b107d2e53c6f4b1019b7e0f2",
+					"name": "Feathermoon Stronghold",
+					"lat": "-170.07265265310153",
+					"lng": "12.535510251836833"
+				},
+				{
+					"id": "e8c517d772b482255c1022578133e112",
+					"name": "Isle of Dread",
+					"lat": "-182.4474688004888",
+					"lng": "12.145377144204332"
+				},
+				{
+					"id": "3524c365b8eb1af6d23e7c6dbaf3c7db",
+					"name": "Ruins of Ravenwind",
+					"lat": "-154.46251772896883",
+					"lng": "22.004703495508643"
+				}
+			]
+		},
+		{
+			"name": "Orgrimmar",
+			"locations": [
+				{
+					"id": "2f63fa3f80d5085d34dc7cc3bda3142e",
+					"name": "Grommash Hold",
+					"lat": "-109.31388234864296",
+					"lng": "83.73311277305312"
+				},
+				{
+					"id": "e80aa10cc55da95b30a3895d80380527",
+					"name": "Valley of Spirits",
+					"lat": "-113.43572292951674",
+					"lng": "83.99895270290344"
+				},
+				{
+					"id": "cf2dad989023638f73e8ba2cb7acce97",
+					"name": "Back Entrance",
+					"lat": "-111.48274448478764",
+					"lng": "81.04527636111351"
+				},
+				{
+					"id": "6f47142475850837410cc9df04b121b3",
+					"name": "The Ring of Valor",
+					"lat": "-107.10570463825808",
+					"lng": "89.1085488626045"
+				},
+				{
+					"id": "306f975affb1cf13b789bb977ca1e02e",
+					"name": "Cleft of Shadow",
+					"lat": "-110.2877834412201",
+					"lng": "85.06772782033994"
+				}
+			]
+		},
+		{
+			"name": "Redridge Mountains",
+			"locations": [
+				{
+					"id": "1108c390456b67022934f66ac6e907af",
+					"name": "Three Corners",
+					"lat": "-169.79765629768372",
+					"lng": "205.8863485321347"
+				},
+				{
+					"id": "251b0a23702b7c87babeca892a0e4979",
+					"name": "Lakeshire Town Hall",
+					"lat": "-166.17265629768372",
+					"lng": "208.66859023683102"
+				},
+				{
+					"id": "e5184e20b6cce965da580f1bdd3083c8",
+					"name": "Lakeshire",
+					"lat": "-166.31328129768372",
+					"lng": "207.183334751353"
+				},
+				{
+					"id": "acdcc610fb9b772ca93e65e6bd31b39e",
+					"name": "Rethban Caverns",
+					"lat": "-163.93828129768372",
+					"lng": "206.8702415821888"
+				},
+				{
+					"id": "740dc62bd30efec110b03c5913456044",
+					"name": "Render's Camp",
+					"lat": "-161.46953129768372",
+					"lng": "209.99513963123874"
+				},
+				{
+					"id": "14169c656412cbcd9ec0decf810b7955",
+					"name": "Alther's Mill",
+					"lat": "-166.25078129768372",
+					"lng": "213.29178292453398"
+				},
+				{
+					"id": "b0c151642f43b56113f0a300ab092716",
+					"name": "Stonewatch",
+					"lat": "-167.76640629768372",
+					"lng": "216.3708996292303"
+				},
+				{
+					"id": "4e29eb91bd220a9b3aba0d206b151797",
+					"name": "Galardell Valley",
+					"lat": "-164.51640629768372",
+					"lng": "218.18410401761275"
+				}
+			]
+		},
+		{
+			"name": "Dustwallow Marsh",
+			"locations": [
+				{
+					"id": "05059342bcb138c4275319e2dbda7c06",
+					"name": "Theramore Isle",
+					"lat": "-162.99770592729956",
+					"lng": "86.14777121041493"
+				},
+				{
+					"id": "b87cfb0120b8c3584929bda4b7ef6e0e",
+					"name": "Tidefury Cove",
+					"lat": "-166.59107118037755",
+					"lng": "82.14873511030669"
+				},
+				{
+					"id": "d90f9f38f283168f03601e0c803c6217",
+					"name": "Beezil's Wreck",
+					"lat": "-165.37501440883173",
+					"lng": "79.93035584103428"
+				},
+				{
+					"id": "796dc76cd5162984e6e6769cf9d7fd40",
+					"name": "The Quagmire",
+					"lat": "-165.65395592729956",
+					"lng": "75.9295958430427"
+				},
+				{
+					"id": "5347e613200dd309807653047656b2d0",
+					"name": "Onyxia's Lair",
+					"lat": "-171.71619942935155",
+					"lng": "79.24241096416117"
+				},
+				{
+					"id": "5aeda7db34fd82879ac9e92d623b17c6",
+					"name": "Emberstrife's Den",
+					"lat": "-174.43631741840764",
+					"lng": "80.27414291410705"
+				},
+				{
+					"id": "d50cd859d3cdd651e69695ee50695329",
+					"name": "Stonemaul Ruins",
+					"lat": "-168.59171242524758",
+					"lng": "75.52291950270596"
+				},
+				{
+					"id": "d9d1ecd284c917d2a612e038396b5b5a",
+					"name": "Bloodfen Burrow",
+					"lat": "-168.3726622317737",
+					"lng": "69.05118512034879"
+				},
+				{
+					"id": "815bce0e5b06592659463904477ec2a9",
+					"name": "The Den of Flame",
+					"lat": "-168.43467910933938",
+					"lng": "72.61600218739629"
+				},
+				{
+					"id": "f1fb43231a6c3c0db43e9773eb8d2136",
+					"name": "Shady Rest Inn",
+					"lat": "-162.55927650731078",
+					"lng": "68.05281633555023"
+				},
+				{
+					"id": "4691c1165fe82fad128f1652d4b4095b",
+					"name": "Brackenwall Village",
+					"lat": "-156.9046583837568",
+					"lng": "71.16675511972942"
+				},
+				{
+					"id": "f593fe18478b971f934913503a57c017",
+					"name": "Darkmist Cavern",
+					"lat": "-154.17056520517684",
+					"lng": "69.90033304866508"
+				},
+				{
+					"id": "d9cf69b7035799c55a10b49121ebb480",
+					"name": "Swamplight Manor",
+					"lat": "-155.43567688759038",
+					"lng": "80.84074328487674"
+				},
+				{
+					"id": "f226cbdd4840025954460124830e3b44",
+					"name": "Dreadmurk Shore",
+					"lat": "-149.96733955466968",
+					"lng": "82.74491719280218"
+				},
+				{
+					"id": "b8ae0bce6f00a341791486f23165a68e",
+					"name": "Alcaz Island",
+					"lat": "-152.81827204597013",
+					"lng": "91.59034474934457"
+				}
+			]
+		}
+	]
+}
