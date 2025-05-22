@@ -249,31 +249,16 @@ server.route('/api/guess', validate_req_json(async (_req, _url, json) => {
 	return response;
 }), 'POST');
 
-server.route('/api/leaderboard/:mode', async (_req, url) => {
-	const mode = url.searchParams.get('mode');
-	
-	let game_mode: number;
-	if (mode === 'classic')
-		game_mode = 2;
-	else if (mode === 'retail')
-		game_mode = 1;
-	else
-		return status_response(400, 'Invalid mode');
-
+server.route('/api/leaderboard/classic', async (req, url) => {
 	return {
-		players: await db.get_all(`
-			SELECT 
-				s.name,
-				s.score,
-				COALESCE(AVG(g.distPct), 0) as accuracy
-			FROM sessions s
-			LEFT JOIN guesses g ON s.token = g.token
-			WHERE s.gameMode = ? AND s.name IS NOT NULL AND s.score > 0
-			GROUP BY s.token, s.name, s.score
-			ORDER BY s.score DESC, accuracy DESC
-			LIMIT 10
-		`, [game_mode])
-	};
+		players: await db.get_all('SELECT `name`, `score`, `accuracy` FROM `scoreboard_classic` ORDER BY `score` DESC, `accuracy` DESC LIMIT 10')
+	}
+});
+
+server.route('/api/leaderboard/retail', async (req, url) => {
+	return {
+		players: await db.get_all('SELECT `name`, `score`, `accuracy` FROM `scoreboard` ORDER BY `score` DESC, `accuracy` DESC LIMIT 10')
+	}
 });
 
 server.dir('/static', './static', async (file_path, file, stat, _request) => {
