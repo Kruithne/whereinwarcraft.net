@@ -182,6 +182,23 @@ async function fetch_json_post(endpoint, payload) {
 				}, 7000);
 			},
 
+			preload_image(url) {
+				return new Promise(resolve => {
+					const temp_img = document.createElement('img');
+					temp_img.src = url;
+					
+					if (temp_img.complete)
+						resolve();
+					else
+						temp_img.addEventListener('load', resolve, { once: true });
+				});
+			},
+		
+			async load_panorama_smooth(url) {
+				await this.preload_image(url);
+				return url;
+			},
+
 			// #region game logic
 			async play(is_classic = false) {
 				this.is_classic = is_classic;
@@ -202,7 +219,13 @@ async function fetch_json_post(endpoint, payload) {
 				
 				if (await this.initialize_session()) {
 					this.current_round = 0;
-					this.next_round();
+					
+					// Preload the initial panorama
+					if (this.current_location) {
+						const panorama_url = this.current_location_background;
+						await this.load_panorama_smooth(panorama_url);
+					}
+					
 					this.is_loading = false;
 				} else {
 					this.show_error_toast('Sorry, there\'s a murloc in the engine right now. Please try again later!');
@@ -346,11 +369,18 @@ async function fetch_json_post(endpoint, payload) {
 				}
 			},
 			
-			next_round() {
+			async next_round() {
 				if (!this.is_alive || !this.current_location) {
 					this.show_game_over();
 					return;
 				}
+				
+				// Show loading state
+				this.is_loading = true;
+				
+				// Preload the panorama image
+				const panorama_url = this.current_location_background;
+				await this.load_panorama_smooth(panorama_url);
 				
 				// Reset the UI state
 				this.guess_result_state = 'playing';
@@ -374,6 +404,9 @@ async function fetch_json_post(endpoint, payload) {
 				
 				// Re-enable marker placement
 				this.can_place_marker = true;
+				
+				// Hide loading state
+				this.is_loading = false;
 			},
 
 			show_game_over() {
