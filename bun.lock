@@ -4,7 +4,7 @@
     "": {
       "dependencies": {
         "mysql2": "^3.14.1",
-        "spooder": "^4.6.0",
+        "spooder": "^4.6.1",
       },
       "devDependencies": {
         "bun-types": "^1.2.9",
@@ -40,7 +40,7 @@
 
     "seq-queue": ["seq-queue@0.0.5", "", {}, "sha512-hr3Wtp/GZIc/6DAGPDcV4/9WoZhjrkXsi5B/07QgX8tsdc6ilr7BFM6PM6rbdAX1kFSDYeZGLipIZZKyQP0O5Q=="],
 
-    "spooder": ["spooder@4.6.0", "", { "optionalDependencies": { "mysql2": "^3.11.0" }, "bin": { "spooder": "src/cli.ts" } }, "sha512-bDu5OB7721/D0Lc7/gul4e1eqezI5db+STKtwoZn1oCvdM2+dsKNlEZbnBRdWefSOFh7UvjjfQFAmo+8ojaDCQ=="],
+    "spooder": ["spooder@4.6.1", "", { "optionalDependencies": { "mysql2": "^3.11.0" }, "bin": { "spooder": "src/cli.ts" } }, "sha512-2SDjijouUe5qWWkPvKXwjuN/oM1uwCWLkkvS2fzuLCxRFDkMgNDYWLoS+aM1DA65tUr83B/5dNBhH2BSFQMX5w=="],
 
     "sqlstring": ["sqlstring@2.3.3", "", {}, "sha512-qC9iz2FlN7DQl3+wjwn3802RTyjCx7sDvfQEXchwa6CWOx07/WVfh91gBmQ9fahw8snwGEWU3xGzOt4tFyHLxg=="],
 
