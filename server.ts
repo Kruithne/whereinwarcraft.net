@@ -51,6 +51,25 @@ function status_response(status_code = 400, status_text: string): Response {
 	});
 }
 
+async function cleanup_old_sessions() {
+	try {
+		const sessions = await db.get_all('SELECT `token` FROM `sessions` WHERE `updated` < DATE_SUB(NOW(), INTERVAL 5 DAY)');
+		
+		for (const session of sessions) {
+			await db.execute('DELETE FROM `guesses` WHERE `token` = ?', [session.token]);
+			await db.execute('DELETE FROM `sessions` WHERE `token` = ?', [session.token]);
+		}
+		
+		if (sessions.length > 0)
+			log(`cleaned up {${sessions.length}} old sessions`);
+			
+	} catch (error) {
+		caution('cleanup_old_sessions failed', { error });
+	}
+	
+	setTimeout(cleanup_old_sessions, 24 * 60 * 60 * 1000); // 24 hours
+}
+
 let index: string|null = null;
 let index_hash: string|null = null;
 
@@ -337,3 +356,5 @@ if (typeof process.env.GH_WEBHOOK_SECRET === 'string') {
 } else {
 	caution('GH_WEBHOOK_SECRET environment variable not configured');
 }
+
+cleanup_old_sessions();
