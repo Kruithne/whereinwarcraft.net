@@ -183,10 +183,6 @@ async function fetch_json_post(endpoint, payload) {
 			},
 
 			// #region game logic
-			play_classic() {
-				this.play(true);
-			},
-
 			async play(is_classic = false) {
 				this.is_classic = is_classic;
 				this.in_game = true;

@@ -22,8 +22,8 @@
 						<h1>How well do you know the world of Azeroth?</h1>
 						<h2>Can you accurately place all the locations on the map?</h2>
 						<div id="main-menu-button-tray">
-							<input class="btn" type="button" value="Play Retail" @click="play">
-							<input class="btn" type="button" value="Play Classic" @click="play_classic">
+							<input class="btn" type="button" value="Play Retail" @click="play(false)">
+							<input class="btn" type="button" value="Play Classic" @click="play(true)">
 						</div>
 						<a id="main-menu-last-session" v-if="token" @click="continue_session">Continue last session</a>
 					</div>
