@@ -184,34 +184,29 @@ async function fetch_json_post(endpoint, payload) {
 
 			// #region game logic
 			play_classic() {
-				this.is_classic = true;
-				this.play(false);
+				this.play(true);
 			},
 
-			async play(continue_session = false) {
+			async play(is_classic = false) {
+				this.is_classic = is_classic;
 				this.in_game = true;
 				this.is_loading = true;
 				
 				this.setup_panorama_events();
+				this.reset_game_state();
+				this.guess_result_state = 'playing';
+				this.selected_map = this.is_classic ? 'classic' : 'cata';
 				
-				if (!continue_session) {
-					this.reset_game_state();
-					this.guess_result_state = 'playing';
-					this.selected_map = this.is_classic ? 'classic' : 'cata';
-					
-					this.token = null;
-					localStorage.removeItem('wiw-token');
-					localStorage.removeItem('wiw-local-guesses');
-					
-					this.initialized_map = false;
-					this.map = null;
-				}
+				// Clear any existing session data
+				localStorage.removeItem('wiw-token');
+				localStorage.removeItem('wiw-local-guesses');
 				
-				if (continue_session || await this.initialize_session(false)) {
-					if (!continue_session) {
-						this.current_round = 0;
-						this.next_round();
-					}
+				this.initialized_map = false;
+				this.map = null;
+				
+				if (await this.initialize_session()) {
+					this.current_round = 0;
+					this.next_round();
 					this.is_loading = false;
 				} else {
 					this.show_error_toast('Sorry, there\'s a murloc in the engine right now. Please try again later!');
@@ -601,11 +596,8 @@ async function fetch_json_post(endpoint, payload) {
 			// #endregion
 
 			// #region session
-			async initialize_session(continue_session = false) {
+			async initialize_session() {
 				try {
-					if (continue_session)
-						return true;
-					
 					const endpoint = `/api/init/${this.mode_tag}`;
 					const payload = { 
 						...(this.token && { clear_token: this.token })
@@ -614,7 +606,7 @@ async function fetch_json_post(endpoint, payload) {
 					const response = await fetch_json_post(endpoint, payload);
 					if (!response.ok)
 						throw new Error(response.statusText);
-
+			
 					const data = await response.json();
 					
 					this.token = data.token;
@@ -630,16 +622,20 @@ async function fetch_json_post(endpoint, payload) {
 			},
 			
 			async continue_session() {
+				if (!this.token) {
+					this.show_error_toast('No session found');
+					return;
+				}
+				
 				try {
 					const response = await fetch_json_post('/api/resume', { token: this.token });
 					if (!response.ok)
 						throw new Error(response.statusText);
-
+			
 					const data = await response.json();
 					
 					if (data.resume) {
 						this.is_classic = data.mode === 2;
-						
 						this.remaining_lives = data.lives;
 						this.player_score = data.score;
 						this.current_location = data.location;
@@ -657,14 +653,17 @@ async function fetch_json_post(endpoint, payload) {
 							this.player_guesses = [];
 						}
 						
-						await this.play(true);
+						this.in_game = true;
+						this.setup_panorama_events();
+						this.guess_result_state = 'playing';
+						this.selected_map = this.is_classic ? 'classic' : 'cata';
+						this.is_loading = false;
 					} else {
-						localStorage.removeItem('wiw-token');
-						localStorage.removeItem('wiw-local-guesses');
-						this.token = null;
+						throw new Error('Session expired');
 					}
 				} catch (error) {
 					console.error('Failed to resume session:', error);
+					this.show_error_toast('Failed to resume session');
 					localStorage.removeItem('wiw-token');
 					localStorage.removeItem('wiw-local-guesses');
 					this.token = null;
@@ -673,19 +672,5 @@ async function fetch_json_post(endpoint, payload) {
 		}
 	}).mount('#container');
 
-	const stored_token = localStorage.getItem('wiw-token');
-	if (stored_token) {
-		try {
-			const response = await fetch_json_post('/api/resume', { token: stored_token });
-			const data = await response.json();
-			
-			if (data.resume)
-				state.token = stored_token;
-			else
-				localStorage.removeItem('wiw-token');
-		} catch (error) {
-			console.error('Failed to check session:', error);
-			localStorage.removeItem('wiw-token');
-		}
-	}
+	state.token = localStorage.getItem('wiw-token') ?? null;
 })();
