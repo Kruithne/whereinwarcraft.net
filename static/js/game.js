@@ -433,20 +433,14 @@ async function fetch_json_post(endpoint, payload) {
 			},
 
 			clear_map() {
-				if (this.map_marker) {
-					this.map_marker.remove();
-					this.map_marker = null;
-				}
-				
-				if (this.map_path) {
-					this.map_path.remove();
-					this.map_path = null;
-				}
-				
-				if (this.map_circle) {
-					this.map_circle.remove();
-					this.map_circle = null;
-				}
+				this.map_marker?.remove();
+				this.map_marker = null;
+
+				this.map_path?.remove();
+				this.map_path = null;
+
+				this.map_circle?.remove();
+				this.map_circle = null;
 				
 				this.map_circle_data = null;
 				this.map_path_data = null;
