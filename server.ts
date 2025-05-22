@@ -9,7 +9,7 @@ const BOD_RADIUS = 0.8;
 
 const server = serve(Number(process.env.SERVER_PORT), process.env.SERVER_LISTEN_HOST);
 
-export function log(message: string, ...args: unknown[]): void {
+function log(message: string, ...args: unknown[]): void {
 	let formatted_message = format('[{info}] ' + message, ...args);
 	
 	// Replace all {...} with text wrapped in ANSI color code 13.
