@@ -267,8 +267,6 @@ async function fetch_json_post(endpoint, payload) {
 							
 							// Update the map tiles without reinitializing the map object
 							if (this.map) {
-								document.getElementById('game-map').style.background = this.map_background;
-								
 								// Remove existing tile layer
 								this.map.eachLayer(layer => {
 									if (layer instanceof L.TileLayer)
@@ -397,9 +395,6 @@ async function fetch_json_post(endpoint, payload) {
 				
 				return new Promise(resolve => {
 					this.$nextTick(() => {
-						const map_element = document.getElementById('game-map');
-						map_element.style.background = this.map_background;
-						
 						this.map = L.map('game-map', {
 							attributionControl: false,
 							crs: L.CRS.Simple
@@ -454,13 +449,10 @@ async function fetch_json_post(endpoint, payload) {
 			},
 			
 			change_map() {
-				const map_element = document.getElementById('game-map');
-				if (!map_element) {
+				if (!this.$refs.game_map) {
 					this.$nextTick(() => this.change_map());
 					return;
 				}
-				
-				map_element.style.background = this.map_background;
 				
 				if (this.map) {
 					this.clear_map();
