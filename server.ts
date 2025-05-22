@@ -18,10 +18,6 @@ function log(message: string, ...args: unknown[]): void {
 	console.log(formatted_message);
 }
 
-function response_obj(text: string, status: number) {
-	return new Response(text, { status });
-}
-
 function point_distance(x1: number, y1: number, x2: number, y2: number): number {
 	const delta_x = x1 - x2;
 	const delta_y = y1 - y2;
@@ -43,6 +39,16 @@ async function clear_token(clear_token: any) {
 		await db.execute('DELETE FROM `sessions` WHERE `token` = ?', [clear_token]);
 		await db.execute('DELETE FROM `guesses` WHERE `token` = ?', [clear_token]);
 	}
+}
+
+function status_response(status_code = 400, status_text: string): Response {
+	if (status_text === undefined)
+		status_text = HTTP_STATUS_CODE[status_code] ?? 'Unknown Status Code';
+
+	return new Response('', {
+		status: status_code,
+		statusText: status_text
+	});
 }
 
 let index: string|null = null;
@@ -68,7 +74,7 @@ server.route('/', async (req, _url) => {
 
 server.route('/api/resume', validate_req_json(async (req, url, json) => {
 	if (typeof json.token !== 'string' || json.token.length !== 36)
-		return response_obj('Invalid token', 400);
+		return status_response(400, 'Invalid token');
 
 	const session = await db.get_single('SELECT `gameMode`, `lives`, `score`, `currentID` FROM `sessions` WHERE `token` = ?', [json.token]);
 	
@@ -95,7 +101,7 @@ server.route('/api/init/retail', validate_req_json(async (_req, _url, json) => {
 
 	if (location === null) {
 		caution('get_random_location_retail(): failed to get start location');
-		return 500;
+		return status_response(500, 'Failed to get start location');
 	}
 
 	await db.execute('INSERT INTO `sessions` (`token`, `currentID`, `gameMode`) VALUES(?, ?, ?)', [token, location.ID, 1]);
@@ -115,7 +121,7 @@ server.route('/api/init/classic', validate_req_json(async (_req, _url, json) => 
 
 	if (location === null) {
 		caution('get_random_start_location_classic(): failed to get start location');
-		return 500;
+		return status_response(500, 'Failed to get start location');
 	}
 
 	await db.execute('INSERT INTO `sessions` (`token`, `currentID`, `gameMode`) VALUES(?, ?, ?)', [token, location.ID, 2]);
@@ -131,20 +137,20 @@ server.route('/api/init/classic', validate_req_json(async (_req, _url, json) => 
 
 server.route('/api/guess', validate_req_json(async (_req, _url, json) => {
 	if (typeof json.token !== 'string' || json.token.length !== 36)
-		return response_obj('Invalid token', 400);
+		return status_response(400, 'Invalid token');
 	
 	if (typeof json.lat !== 'number')
-		return response_obj('Invalid pin latitude', 400);
+		return status_response(400, 'Invalid pin latitude');
 	
 	if (typeof json.lng !== 'number')
-		return response_obj('Invalid pin longitude', 400);
+		return status_response(400, 'Invalid pin longitude');
 	
 	const session = await db.get_single('SELECT `currentID`, `lives`, `gameMode`, `score` FROM `sessions` WHERE `token` = ?', [json.token]);
 	if (session === null)
-		return response_obj('Game session has expired', 404);
+		return status_response(404, 'Game session has expired');
 	
 	if (session.lives <= 0)
-		return response_obj('You get nothing! you lose! Good day, sir!', 400);
+		return status_response(400, 'You get nothing! You lose! Good day, sir!');
 	
 	let location;
 	if (session.gameMode === 1)
@@ -152,10 +158,10 @@ server.route('/api/guess', validate_req_json(async (_req, _url, json) => {
 	else if (session.gameMode === 2)
 		location = await db.get_single('SELECT l.`name`, l.`lat`, l.`lng`, z.`name` as `zoneName` FROM `locations_classic` AS l JOIN `zones_classic` AS z ON (z.`ID` = l.`zone`) WHERE l.`ID` = ?', [session.currentID]);
 	else
-		return response_obj('Unknown game mode', 400);
+		return status_response(400, 'Unknown game mode');
 	
 	if (location === null)
-		return response_obj('Invalid location in session', 500);
+		return status_response(500, 'Invalid location in session');
 	
 	let player_lives = Number(session.lives);
 	let player_score = Number(session.score);

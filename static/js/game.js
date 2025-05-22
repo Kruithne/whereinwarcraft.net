@@ -239,10 +239,8 @@ async function fetch_json_post(endpoint, payload) {
 						payload.mapID = this.maps[this.selected_map].mapID;
 					
 					const response = await fetch_json_post('/api/guess', payload);
-					if (!response.ok) {
-						const error_text = await response.text();
-						throw new Error(error_text || 'Failed to submit guess');
-					}
+					if (!response.ok)
+						throw new Error(response.statusText || 'Failed to submit guess');
 					
 					const data = await response.json();
 					
@@ -521,6 +519,9 @@ async function fetch_json_post(endpoint, payload) {
 					const endpoint = `/api/leaderboard/${this.mode_tag}`;
 						
 					const response = await fetch(endpoint);
+					if (!response.ok)
+						throw new Error(response.statusText);
+					
 					const data = await response.json();
 					
 					this.leaderboard_data = data.players || [];
@@ -545,6 +546,9 @@ async function fetch_json_post(endpoint, payload) {
 					};
 					
 					const response = await fetch_json_post(endpoint, payload);
+					if (!response.ok)
+						throw new Error(response.statusText);
+
 					const data = await response.json();
 					
 					this.token = data.token;
@@ -562,6 +566,9 @@ async function fetch_json_post(endpoint, payload) {
 			async continue_session() {
 				try {
 					const response = await fetch_json_post('/api/resume', { token: this.token });
+					if (!response.ok)
+						throw new Error(response.statusText);
+
 					const data = await response.json();
 					
 					if (data.resume) {
