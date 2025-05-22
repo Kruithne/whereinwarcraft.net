@@ -185,9 +185,9 @@ async function fetch_json_post(endpoint, payload) {
 			// #region game logic
 			play_classic() {
 				this.is_classic = true;
-				this.play();
+				this.play(false);
 			},
-
+			
 			async play(continue_session = false) {
 				this.in_game = true;
 				this.is_loading = true;
@@ -198,6 +198,10 @@ async function fetch_json_post(endpoint, payload) {
 					this.reset_game_state();
 					this.guess_result_state = 'playing';
 					this.selected_map = this.is_classic ? 'classic' : 'cata';
+					
+					this.token = null;
+					localStorage.removeItem('wiw-token');
+					localStorage.removeItem('wiw-local-guesses');
 					
 					this.initialized_map = false;
 					this.map = null;
