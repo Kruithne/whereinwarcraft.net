@@ -249,63 +249,30 @@ server.route('/api/guess', validate_req_json(async (_req, _url, json) => {
 	return response;
 }), 'POST');
 
-server.route('/api/leaderboard/:mode', (_req, _url) => {
-	// todo: handle mode
-	// todo: return real data
+server.route('/api/leaderboard/:mode', async (_req, url) => {
+	const mode = url.searchParams.get('mode');
+	
+	let game_mode: number;
+	if (mode === 'classic')
+		game_mode = 2;
+	else if (mode === 'retail')
+		game_mode = 1;
+	else
+		return status_response(400, 'Invalid mode');
 
 	return {
-		"players": [
-			{
-				"name": "Thrall",
-				"score": 42,
-				"accuracy": 94.5
-			},
-			{
-				"name": "Jaina",
-				"score": 38,
-				"accuracy": 89.2
-			},
-			{
-				"name": "Sylvanas",
-				"score": 35,
-				"accuracy": 82.7
-			},
-			{
-				"name": "Anduin",
-				"score": 31,
-				"accuracy": 78.3
-			},
-			{
-				"name": "Illidan",
-				"score": 29,
-				"accuracy": 75.6
-			},
-			{
-				"name": "Arthas",
-				"score": 25,
-				"accuracy": 71.9
-			},
-			{
-				"name": "Tyrande",
-				"score": 22,
-				"accuracy": 68.4
-			},
-			{
-				"name": "Vol'jin",
-				"score": 19,
-				"accuracy": 65.2
-			},
-			{
-				"name": "Garrosh",
-				"score": 15,
-				"accuracy": 59.8
-			},
-			{
-				"name": "Varian",
-				"score": 12,
-				"accuracy": 51.3
-			}
-		]
+		players: await db.get_all(`
+			SELECT 
+				s.name,
+				s.score,
+				COALESCE(AVG(g.distPct), 0) as accuracy
+			FROM sessions s
+			LEFT JOIN guesses g ON s.token = g.token
+			WHERE s.gameMode = ? AND s.name IS NOT NULL AND s.score > 0
+			GROUP BY s.token, s.name, s.score
+			ORDER BY s.score DESC, accuracy DESC
+			LIMIT 10
+		`, [game_mode])
 	};
 });
 
