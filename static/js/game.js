@@ -187,7 +187,7 @@ async function fetch_json_post(endpoint, payload) {
 				this.is_classic = true;
 				this.play(false);
 			},
-			
+
 			async play(continue_session = false) {
 				this.in_game = true;
 				this.is_loading = true;
@@ -207,7 +207,7 @@ async function fetch_json_post(endpoint, payload) {
 					this.map = null;
 				}
 				
-				if (await this.initialize_session(continue_session)) {
+				if (continue_session || await this.initialize_session(false)) {
 					if (!continue_session) {
 						this.current_round = 0;
 						this.next_round();
