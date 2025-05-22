@@ -207,6 +207,14 @@ async function fetch_json_post(endpoint, payload) {
 				
 				this.setup_panorama_events();
 				this.reset_game_state();
+				
+				// Reset map info visibility
+				this.map_info = {
+					zone_name: '',
+					location_name: '',
+					visible: false
+				};
+				
 				this.guess_result_state = 'playing';
 				this.selected_map = this.is_classic ? 'classic' : 'cata';
 				
@@ -214,8 +222,10 @@ async function fetch_json_post(endpoint, payload) {
 				localStorage.removeItem('wiw-token');
 				localStorage.removeItem('wiw-local-guesses');
 				
+				// Reset map state completely
 				this.initialized_map = false;
 				this.map = null;
+				this.can_place_marker = true;
 				
 				if (await this.initialize_session()) {
 					this.current_round = 0;
@@ -240,6 +250,17 @@ async function fetch_json_post(endpoint, payload) {
 				this.guess_result_state = 'playing';
 				this.player_guesses.length = 0;
 				this.viewing_map = false;
+
+				this.map_marker?.remove();
+				this.map_marker = null;
+
+				this.map_path?.remove();
+				this.map_path = null;
+
+				this.map_circle?.remove();
+				this.map_circle = null;
+				
+				this.can_place_marker = true;
 			},
 			
 			async confirm_guess() {
@@ -500,6 +521,8 @@ async function fetch_json_post(endpoint, payload) {
 						
 						window.dispatchEvent(new Event('resize'));
 						this.initialized_map = true;
+						
+						this.can_place_marker = true;
 						
 						resolve();
 					});
