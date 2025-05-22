@@ -77,10 +77,10 @@
 						</div>
 						<div>
 							<div id="game-map" ref="game_map" :style="{ display: !is_loading && viewing_map ? 'block' : 'none', background: map_background }"></div>
-							<div id="game-map-info" v-if="map_info.visible">
+							<div id="game-map-info" v-if="!is_loading && map_info.visible">
 								<span>{{ map_info.zone_name }} - {{ map_info.location_name }}</span>
 							</div>
-							<div id="map-selector" v-if="!is_classic && viewing_map">
+							<div id="map-selector" v-if="!is_loading && !is_classic && viewing_map">
 								<div id="map-selector-cata" title="Azeroth" class="map-selector-icon" :class="{ selected: selected_map === 'cata' }" @click="set_selected_map('cata')">
 									<div class="map-selector-icon-border"></div>
 								</div>
