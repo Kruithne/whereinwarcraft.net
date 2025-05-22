@@ -1,4 +1,3 @@
-// Changes to game.js
 import { createApp } from './vue.esm.prod.js';
 
 const MAX_LIVES = 3;
@@ -8,6 +7,16 @@ const BENEFIT_OF_DOUBT_RADIUS = 0.8;
 async function document_load() {
 	if (document.readyState === 'loading')
 		await new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve, { once: true }));
+}
+
+async function fetch_json_post(endpoint, payload) {
+	return await fetch(endpoint, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify(payload)
+	});
 }
 
 (async () => {
@@ -229,14 +238,7 @@ async function document_load() {
 					if (!this.is_classic)
 						payload.mapID = this.maps[this.selected_map].mapID;
 					
-					const response = await fetch('/api/guess', {
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json',
-						},
-						body: JSON.stringify(payload)
-					});
-					
+					const response = await fetch_json_post('/api/guess', payload);
 					if (!response.ok) {
 						const error_text = await response.text();
 						throw new Error(error_text || 'Failed to submit guess');
@@ -550,14 +552,7 @@ async function document_load() {
 						...(this.token && { clear_token: this.token })
 					};
 					
-					const response = await fetch(endpoint, {
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json',
-						},
-						body: JSON.stringify(payload)
-					});
-					
+					const response = await fetch_json_post(endpoint, payload);
 					const data = await response.json();
 					
 					this.token = data.token;
