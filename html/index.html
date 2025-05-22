@@ -76,7 +76,7 @@
 							<span>Loading, hold tight!</span>
 						</div>
 						<div>
-							<div id="game-map" ref="game_map" :style="{ display: viewing_map ? 'block' : 'none', background: map_background }"></div>
+							<div id="game-map" ref="game_map" :style="{ display: !is_loading && viewing_map ? 'block' : 'none', background: map_background }"></div>
 							<div id="game-map-info" v-if="map_info.visible">
 								<span>{{ map_info.zone_name }} - {{ map_info.location_name }}</span>
 							</div>
