@@ -66,18 +66,26 @@ server.route('/', async (req, _url) => {
 	return new Response(index, { status: 200, headers });
 });
 
-server.route('/api/resume', validate_req_json(async(req, url, json) => {
+server.route('/api/resume', validate_req_json(async (req, url, json) => {
 	if (typeof json.token !== 'string' || json.token.length !== 36)
 		return response_obj('Invalid token', 400);
 
-	const session = await db.get_single('SELECT `gameMode`, `lives` FROM `sessions` WHERE `token` = ?', [json.token]);
+	const session = await db.get_single('SELECT `gameMode`, `lives`, `score`, `currentID` FROM `sessions` WHERE `token` = ?', [json.token]);
+	
 	if (session !== null && session.lives > 0) {
+		log(`resumed game session {${json.token}} with mode {${session.gameMode}}`);
+
 		return {
-			mode: session.gameMode as number,
-			resume: true
-		}
+			mode: session.gameMode,
+			resume: true,
+			lives: session.lives,
+			score: session.score,
+			location: session.currentID
+		};
 	} else {
-		return { resume: false };
+		return {
+			resume: false
+		};
 	}
 }), 'POST');
 

@@ -249,6 +249,7 @@ async function fetch_json_post(endpoint, payload) {
 					// Update game state
 					this.remaining_lives = data.lives;
 					this.player_guesses.push(data.distPct);
+					localStorage.setItem('wiw-local-guesses', JSON.stringify(this.player_guesses));
 					
 					// Check if we need to change the map
 					let map_changed = false;
@@ -380,6 +381,9 @@ async function fetch_json_post(endpoint, payload) {
 
 			show_game_over() {
 				this.guess_result_state = 'game_over';
+
+				localStorage.removeItem('wiw-token');
+				localStorage.removeItem('wiw-local-guesses');
 				
 				if (this.map_marker) {
 					this.map_marker.remove();
@@ -563,14 +567,34 @@ async function fetch_json_post(endpoint, payload) {
 					
 					if (data.resume) {
 						this.is_classic = data.mode === 2;
+						
+						this.remaining_lives = data.lives;
+						this.current_round = data.score;
+						this.current_location = data.location;
+						
+						const stored_guesses = localStorage.getItem('wiw-local-guesses');
+						if (stored_guesses) {
+							try {
+								this.player_guesses = JSON.parse(stored_guesses);
+								if (!Array.isArray(this.player_guesses))
+									this.player_guesses = [];
+							} catch {
+								this.player_guesses = [];
+							}
+						} else {
+							this.player_guesses = [];
+						}
+						
 						await this.play(true);
 					} else {
 						localStorage.removeItem('wiw-token');
+						localStorage.removeItem('wiw-local-guesses');
 						this.token = null;
 					}
 				} catch (error) {
 					console.error('Failed to resume session:', error);
 					localStorage.removeItem('wiw-token');
+					localStorage.removeItem('wiw-local-guesses');
 					this.token = null;
 				}
 			}
