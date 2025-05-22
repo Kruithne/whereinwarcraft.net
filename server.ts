@@ -289,7 +289,7 @@ server.route('/api/submit', validate_req_json(async (_req, _url, json) => {
 	const table = session.gameMode === 2 ? 'scoreboard_classic' : 'scoreboard';
 	
 	await db.execute(
-		'INSERT INTO `' + table + '` (`name`, `score`, `accuracy`, `uid`) VALUES(?, ?, ?, ?)',
+		'INSERT INTO `' + table + '` (`name`, `score`, `accuracy`, `id`) VALUES(?, ?, ?, ?)',
 		[name, score, accuracy, uid]
 	);
 	
