@@ -198,7 +198,7 @@ async function fetch_json_post(endpoint, payload) {
 					this.map = null;
 				}
 				
-				if (await this.initialize_session()) {
+				if (await this.initialize_session(continue_session)) {
 					if (!continue_session) {
 						this.current_round = 0;
 						this.next_round();
@@ -531,8 +531,11 @@ async function fetch_json_post(endpoint, payload) {
 			// #endregion
 
 			// #region session
-			async initialize_session() {
+			async initialize_session(continue_session = false) {
 				try {
+					if (continue_session)
+						return true;
+					
 					const endpoint = `/api/init/${this.mode_tag}`;
 					const payload = { 
 						...(this.token && { clear_token: this.token })
@@ -554,14 +557,40 @@ async function fetch_json_post(endpoint, payload) {
 			},
 			
 			async continue_session() {
-				this.is_classic = this.token.includes('classic');
-				this.play(true);
+				try {
+					const response = await fetch_json_post('/api/resume', { token: this.token });
+					const data = await response.json();
+					
+					if (data.resume) {
+						this.is_classic = data.mode === 2;
+						await this.play(true);
+					} else {
+						localStorage.removeItem('wiw-token');
+						this.token = null;
+					}
+				} catch (error) {
+					console.error('Failed to resume session:', error);
+					localStorage.removeItem('wiw-token');
+					this.token = null;
+				}
 			}
 			// #endregion
 		}
 	}).mount('#container');
 
 	const stored_token = localStorage.getItem('wiw-token');
-	if (stored_token)
-		state.token = stored_token;
+	if (stored_token) {
+		try {
+			const response = await fetch_json_post('/api/resume', { token: stored_token });
+			const data = await response.json();
+			
+			if (data.resume)
+				state.token = stored_token;
+			else
+				localStorage.removeItem('wiw-token');
+		} catch (error) {
+			console.error('Failed to check session:', error);
+			localStorage.removeItem('wiw-token');
+		}
+	}
 })();

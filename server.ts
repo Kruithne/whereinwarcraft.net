@@ -48,7 +48,7 @@ async function clear_token(clear_token: any) {
 let index: string|null = null;
 let index_hash: string|null = null;
 
-server.route('/', async (req, url) => {
+server.route('/', async (req, _url) => {
 	if (index === null) {
 		index = await Bun.file('./html/index.html').text();
 		index_hash = crypto.createHash('sha256').update(index).digest('hex');
@@ -66,7 +66,22 @@ server.route('/', async (req, url) => {
 	return new Response(index, { status: 200, headers });
 });
 
-server.route('/api/init/retail', validate_req_json(async (req, url, json) => {
+server.route('/api/resume', validate_req_json(async(req, url, json) => {
+	if (typeof json.token !== 'string' || json.token.length !== 36)
+		return response_obj('Invalid token', 400);
+
+	const session = await db.get_single('SELECT `gameMode`, `lives` FROM `sessions` WHERE `token` = ?', [json.token]);
+	if (session !== null && session.lives > 0) {
+		return {
+			mode: session.gameMode as number,
+			resume: true
+		}
+	} else {
+		return { resume: false };
+	}
+}), 'POST');
+
+server.route('/api/init/retail', validate_req_json(async (_req, _url, json) => {
 	const token = Bun.randomUUIDv7();
 	const location = await get_random_location_retail();
 
@@ -86,7 +101,7 @@ server.route('/api/init/retail', validate_req_json(async (req, url, json) => {
 	};
 }), 'POST');
 
-server.route('/api/init/classic', validate_req_json(async (req, url, json) => {
+server.route('/api/init/classic', validate_req_json(async (_req, _url, json) => {
 	const token = Bun.randomUUIDv7();
 	const location = await get_random_start_location_classic();
 
@@ -106,7 +121,7 @@ server.route('/api/init/classic', validate_req_json(async (req, url, json) => {
 	};
 }), 'POST');
 
-server.route('/api/guess', validate_req_json(async (req, url, json) => {
+server.route('/api/guess', validate_req_json(async (_req, _url, json) => {
 	if (typeof json.token !== 'string' || json.token.length !== 36)
 		return response_obj('Invalid token', 400);
 	
@@ -220,7 +235,7 @@ server.route('/api/guess', validate_req_json(async (req, url, json) => {
 	return response;
 }), 'POST');
 
-server.route('/api/leaderboard/:mode', (req, url) => {
+server.route('/api/leaderboard/:mode', (_req, _url) => {
 	// todo: handle mode
 	// todo: return real data
 
@@ -280,7 +295,7 @@ server.route('/api/leaderboard/:mode', (req, url) => {
 	};
 });
 
-server.dir('/static', './static', async (file_path, file, stat, request) => {
+server.dir('/static', './static', async (file_path, file, stat, _request) => {
 	// ignore hidden files
 	if (path.basename(file_path).startsWith('.'))
 		return 404; // Not Found
@@ -303,7 +318,7 @@ server.error((err: Error) => {
 });
 
 // Unhandled response codes.
-server.default((req, status_code) => default_handler(status_code));
+server.default((_req, status_code) => default_handler(status_code));
 
 // Automatic update webhook
 if (typeof process.env.GH_WEBHOOK_SECRET === 'string') {
