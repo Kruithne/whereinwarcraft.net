@@ -292,6 +292,8 @@ server.route('/api/submit', validate_req_json(async (_req, _url, json) => {
 		'INSERT INTO `' + table + '` (`name`, `score`, `accuracy`, `id`) VALUES(?, ?, ?, ?)',
 		[name, score, accuracy, uid]
 	);
+
+	await db.execute('DELETE FROM `sessions` WHERE `token` = ?', [json.token]);
 	
 	log(`score submitted for session {${json.token}}: {${name}} - score: {${score}}, accuracy: {${accuracy}}%`);
 	
