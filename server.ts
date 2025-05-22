@@ -261,6 +261,43 @@ server.route('/api/leaderboard/retail', async (req, url) => {
 	}
 });
 
+server.route('/api/submit', validate_req_json(async (_req, _url, json) => {
+	if (typeof json.token !== 'string' || json.token.length !== 36)
+		return status_response(400, 'Invalid token');
+	
+	if (typeof json.name !== 'string' || json.name.trim().length === 0)
+		return status_response(400, 'Invalid name');
+	
+	if (typeof json.uid !== 'string' || json.uid.length === 0)
+		return status_response(400, 'Invalid UID');
+	
+	const session = await db.get_single('SELECT `gameMode`, `lives`, `score` FROM `sessions` WHERE `token` = ?', [json.token]);
+	if (session === null)
+		return status_response(404, 'Game session not found');
+	
+	if (session.score <= 0)
+		return status_response(400, 'Score must be greater than 0');
+	
+	const name = json.name.substring(0, 20);
+	const uid = json.uid;
+	const score = session.score;
+	
+	const guesses = await db.get_all('SELECT `distPct` FROM `guesses` WHERE `token` = ?', [json.token]);
+	const accuracy = guesses.length > 0 ? 
+		Math.ceil(guesses.reduce((sum, guess) => sum + guess.distPct, 0) / guesses.length) : 0;
+	
+	const table = session.gameMode === 2 ? 'scoreboard_classic' : 'scoreboard';
+	
+	await db.execute(
+		'INSERT INTO `' + table + '` (`name`, `score`, `accuracy`, `uid`) VALUES(?, ?, ?, ?)',
+		[name, score, accuracy, uid]
+	);
+	
+	log(`score submitted for session {${json.token}}: {${name}} - score: {${score}}, accuracy: {${accuracy}}%`);
+	
+	return { success: true };
+}), 'POST');
+
 server.dir('/static', './static', async (file_path, file, stat, _request) => {
 	// ignore hidden files
 	if (path.basename(file_path).startsWith('.'))

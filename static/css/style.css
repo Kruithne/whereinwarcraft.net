@@ -400,3 +400,18 @@ body {
     0% { transform: translate(-50%, -60%); }
     100% { transform: translate(-50%, -50%); }
 }
+
+#game-over-ui input[type="text"] {
+	padding: 10px;
+	margin-bottom: 10px;
+	width: 200px;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	background: white;
+	color: black;
+	text-shadow: none;
+}
+
+#game-over-ui .btn {
+	margin: 5px;
+}

@@ -53,6 +53,21 @@
 							<p>Your final score: {{ player_score }}</p>
 							<p>Your accuracy: {{ player_accuracy }}%</p>
 							<input class="btn" type="button" value="Play Again" @click="play(false)">
+							<input class="btn" type="button" value="Submit Score" :class="{ disabled: player_score <= 0 }" @click="show_score_submission_form" v-if="!show_score_submission">
+							<div v-if="show_score_submission" style="margin-top: 20px;">
+								<input type="text" 
+									v-model="player_name" 
+									placeholder="Enter your name..." 
+									maxlength="20" 
+									style="padding: 10px; margin-bottom: 10px; width: 200px; border: 1px solid #ccc; border-radius: 5px;">
+								<div>
+									<input class="btn" type="button" 
+										:value="score_submitted ? 'Score Sent!' : (submitting_score ? 'Sending...' : 'Send')" 
+										:class="{ disabled: submitting_score || score_submitted || player_name.trim().length === 0 }" 
+										@click="submit_score">
+									<input class="btn" type="button" value="Cancel" @click="hide_score_submission_form" v-if="!score_submitted">
+								</div>
+							</div>
 						</div>
 					</div>
 					<div id="game-window" v-else>

@@ -60,6 +60,11 @@ async function fetch_json_post(endpoint, payload) {
 					visible: false
 				},
 
+				show_score_submission: false,
+				submitting_score: false,
+				score_submitted: false,
+				player_name: '',
+
 				guess_result_state: 'playing', // playing, next_round, game_over
 				token: null,
 
@@ -389,6 +394,62 @@ async function fetch_json_post(endpoint, payload) {
 			},
 			// #endregion
 
+			// #region submit score
+			show_score_submission_form() {
+				if (this.player_score <= 0)
+					return;
+				
+				this.show_score_submission = true;
+				this.score_submitted = false;
+				this.player_name = '';
+			},
+			
+			hide_score_submission_form() {
+				this.show_score_submission = false;
+			},
+			
+			async submit_score() {
+				if (this.submitting_score || this.score_submitted)
+					return;
+				
+				const name = this.player_name.trim();
+				if (name.length === 0 || this.player_score <= 0)
+					return;
+				
+				this.submitting_score = true;
+				
+				try {
+					let uid = localStorage.getItem('wiw-score-token');
+					if (uid === null) {
+						uid = ([1e7]+1e3+4e3+8e3+1e11).replace(/[018]/g, c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
+						localStorage.setItem('wiw-score-token', uid);
+					}
+					
+					const payload = {
+						token: this.token,
+						name: name.substring(0, 20),
+						uid: uid
+					};
+					
+					const response = await fetch_json_post('/api/submit', payload);
+					if (!response.ok)
+						throw new Error(response.statusText || 'Failed to submit score');
+					
+					this.score_submitted = true;
+					
+					setTimeout(() => {
+						this.hide_score_submission_form();
+					}, 2000);
+					
+				} catch (error) {
+					console.error('Error submitting score:', error);
+					this.show_error_toast('Failed to submit score');
+				} finally {
+					this.submitting_score = false;
+				}
+			},
+			// #endregion
+
 			// #region map
 			initialize_map() {
 				if (this.initialized_map && this.map)
@@ -521,7 +582,7 @@ async function fetch_json_post(endpoint, payload) {
 					const response = await fetch(endpoint);
 					if (!response.ok)
 						throw new Error(response.statusText);
-					
+
 					const data = await response.json();
 					
 					this.leaderboard_data = data.players || [];
