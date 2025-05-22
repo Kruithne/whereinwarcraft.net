@@ -18,6 +18,10 @@ export function log(message: string, ...args: unknown[]): void {
 	console.log(formatted_message);
 }
 
+function response_obj(text: string, status: number) {
+	return new Response(text, { status });
+}
+
 function point_distance(x1: number, y1: number, x2: number, y2: number): number {
 	const delta_x = x1 - x2;
 	const delta_y = y1 - y2;
@@ -104,20 +108,20 @@ server.route('/api/init/classic', validate_req_json(async (req, url, json) => {
 
 server.route('/api/guess', validate_req_json(async (req, url, json) => {
 	if (typeof json.token !== 'string' || json.token.length !== 36)
-		return { status: 400, body: { error: 'Invalid token' } };
+		return response_obj('Invalid token', 400);
 	
 	if (typeof json.lat !== 'number')
-		return { status: 400, body: { error: 'Invalid pin latitude' } };
+		return response_obj('Invalid pin latitude', 400);
 	
 	if (typeof json.lng !== 'number')
-		return { status: 400, body: { error: 'Invalid pin longitude' } };
+		return response_obj('Invalid pin longitude', 400);
 	
 	const session = await db.get_single('SELECT `currentID`, `lives`, `gameMode`, `score` FROM `sessions` WHERE `token` = ?', [json.token]);
 	if (session === null)
-		return { status: 404, body: { error: 'Game session has expired' } };
+		return response_obj('Game session has expired', 404);
 	
 	if (session.lives <= 0)
-		return { status: 400, body: { error: 'You get nothing! You lose! Good day, sir!' } };
+		return response_obj('You get nothing! you lose! Good day, sir!', 400);
 	
 	let location;
 	if (session.gameMode === 1)
@@ -125,10 +129,10 @@ server.route('/api/guess', validate_req_json(async (req, url, json) => {
 	else if (session.gameMode === 2)
 		location = await db.get_single('SELECT l.`name`, l.`lat`, l.`lng`, z.`name` as `zoneName` FROM `locations_classic` AS l JOIN `zones_classic` AS z ON (z.`ID` = l.`zone`) WHERE l.`ID` = ?', [session.currentID]);
 	else
-		return { status: 400, body: { error: 'Unknown game mode' } };
+		return response_obj('Unknown game mode', 400);
 	
 	if (location === null)
-		return { status: 500, body: { error: 'Invalid location in session' } };
+		return response_obj('Invalid location in session', 500);
 	
 	let player_lives = Number(session.lives);
 	let player_score = Number(session.score);

@@ -238,8 +238,8 @@ async function document_load() {
 					});
 					
 					if (!response.ok) {
-						const error_data = await response.json();
-						throw new Error(error_data.error || 'Failed to submit guess');
+						const error_text = await response.text();
+						throw new Error(error_text || 'Failed to submit guess');
 					}
 					
 					const data = await response.json();
