@@ -53,7 +53,7 @@
 							<p>Your final score: {{ player_score }}</p>
 							<p>Your accuracy: {{ player_accuracy }}%</p>
 							<input class="btn" type="button" value="Play Again" @click="play(false)">
-							<input class="btn" type="button" value="Submit Score" :class="{ disabled: player_score <= 0 }" @click="show_score_submission_form" v-if="!show_score_submission">
+							<input class="btn" type="button" value="Submit Score" :class="{ disabled: player_score <= 0 }" @click="show_score_submission_form" v-if="!show_score_submission && !score_has_been_submitted">
 							<div v-if="show_score_submission" style="margin-top: 20px;">
 								<input type="text" 
 									v-model="player_name" 

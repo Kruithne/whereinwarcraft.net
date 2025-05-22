@@ -436,6 +436,7 @@ async function fetch_json_post(endpoint, payload) {
 						throw new Error(response.statusText || 'Failed to submit score');
 					
 					this.score_submitted = true;
+					this.score_has_been_submitted = true;
 					
 					setTimeout(() => {
 						this.hide_score_submission_form();
