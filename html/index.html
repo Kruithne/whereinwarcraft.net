@@ -71,11 +71,11 @@
 						</div>
 					</div>
 					<div id="game-window" v-else>
-						<div id="game-loading" v-if="is_loading">
+						<div class="loading" v-if="is_loading">
 							<img src="static/images/zeppy.png">
 							<span>Loading, hold tight!</span>
 						</div>
-						<div v-else>
+						<div>
 							<div id="game-map" ref="game_map" :style="{ display: viewing_map ? 'block' : 'none', background: map_background }"></div>
 							<div id="game-map-info" v-if="map_info.visible">
 								<span>{{ map_info.zone_name }} - {{ map_info.location_name }}</span>
@@ -94,14 +94,14 @@
 									<div class="map-selector-icon-border"></div>
 								</div>
 							</div>
-							<div id="game-map-buttons" v-show="viewing_map && guess_result_state === 'playing'">
+							<div id="game-map-buttons" v-show="!is_loading && viewing_map && guess_result_state === 'playing'">
 								<input class="btn" type="button" value="Re-view Location" @click="viewing_map = false">
 								<input class="btn" type="button" value="Confirm Guess" :class="{ disabled: !map_marker }" @click="confirm_guess">
 							</div>
-							<div id="next-round-button" v-show="guess_result_state === 'next_round'">
+							<div id="next-round-button" v-show="!is_loading && guess_result_state === 'next_round'">
 								<input class="btn" type="button" value="Next Round" @click="next_round">
 							</div>
-							<div id="game-view-panorama" :style="{ display: !viewing_map ? 'block' : 'none' }">
+							<div id="game-view-panorama" v-show="!is_loading" :style="{ display: !viewing_map ? 'block' : 'none' }">
 								<div id="game-panorama" 
 									:style="{ 
 										backgroundImage: 'url(' + current_location_background + ')', 

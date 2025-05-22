@@ -177,14 +177,14 @@ body {
 	position: relative;
 }
 
-#game-loading {
+.loading {
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	flex-direction: column;
 }
 
-#game-loading img {
+#loading img {
 	animation: zeppy 0.6s linear infinite alternate;
 	margin-bottom: 20px;
 }

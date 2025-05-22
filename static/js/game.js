@@ -388,6 +388,10 @@ async function fetch_json_post(endpoint, payload) {
 				// Clear map elements
 				this.clear_map();
 				
+				// Reset the map view if initialized
+				if (this.initialized_map)
+					this.reset_map_view();
+				
 				// Reset map info
 				this.map_info = {
 					zone_name: '',
@@ -397,13 +401,6 @@ async function fetch_json_post(endpoint, payload) {
 				
 				// Switch back to panorama view
 				this.viewing_map = false;
-				
-				// Reset the map view if initialized, but wait for next tick to ensure proper sizing
-				if (this.initialized_map) {
-					await this.$nextTick();
-					this.map.invalidateSize();
-					this.reset_map_view();
-				}
 				
 				// Re-enable marker placement
 				this.can_place_marker = true;
