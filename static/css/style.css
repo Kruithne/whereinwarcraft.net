@@ -95,7 +95,7 @@ body {
 
 #main-menu-logo {
 	transform: rotate(-8deg);
-    margin-bottom: 40px;
+    margin-bottom: 0;
 }
 
 #main-menu-content {
