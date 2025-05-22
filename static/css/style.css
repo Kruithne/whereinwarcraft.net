@@ -184,7 +184,7 @@ body {
 	flex-direction: column;
 }
 
-#loading img {
+.loading img {
 	animation: zeppy 0.6s linear infinite alternate;
 	margin-bottom: 20px;
 }
