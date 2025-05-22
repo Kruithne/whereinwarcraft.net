@@ -39,7 +39,7 @@
 			</div>
 			<div id="game" v-else>
 				<div id="game-header">
-					<span>Round: {{ current_round }}</span>
+					<span>Score: {{ player_score }}</span>
 					<span>Accuracy: {{ player_accuracy }}%</span>
 					<span>Lives Remaining: {{ remaining_lives }}</span>
 				</div>
@@ -50,7 +50,7 @@
 							<h2>Game Over!</h2>
 							<p v-if="is_alive">You completed every location!</p>
 							<p v-else>You ran out of lives!</p>
-							<p>Your final score: {{ current_round }}</p>
+							<p>Your final score: {{ player_score }}</p>
 							<p>Your accuracy: {{ player_accuracy }}%</p>
 							<input class="btn" type="button" value="Play Again" @click="play(false)">
 						</div>

@@ -31,7 +31,7 @@ async function fetch_json_post(endpoint, payload) {
 
 				initialized_map: false,
 
-				current_round: 0,
+				player_score: 0,
 				remaining_lives: MAX_LIVES,
 				player_guesses: [],
 				current_location: null,
@@ -211,7 +211,7 @@ async function fetch_json_post(endpoint, payload) {
 			},
 
 			reset_game_state() {
-				this.current_round = 0;
+				this.player_score = 0;
 				this.remaining_lives = MAX_LIVES;
 				
 				this.guess_result_state = 'playing';
@@ -248,6 +248,7 @@ async function fetch_json_post(endpoint, payload) {
 					
 					// Update game state
 					this.remaining_lives = data.lives;
+					this.player_score = data.score;
 					this.player_guesses.push(data.distPct);
 					localStorage.setItem('wiw-local-guesses', JSON.stringify(this.player_guesses));
 					
@@ -352,8 +353,6 @@ async function fetch_json_post(endpoint, payload) {
 					this.show_game_over();
 					return;
 				}
-				
-				this.current_round++;
 				
 				// Reset the UI state
 				this.guess_result_state = 'playing';
@@ -569,7 +568,7 @@ async function fetch_json_post(endpoint, payload) {
 						this.is_classic = data.mode === 2;
 						
 						this.remaining_lives = data.lives;
-						this.current_round = data.score;
+						this.player_score = data.score;
 						this.current_location = data.location;
 						
 						const stored_guesses = localStorage.getItem('wiw-local-guesses');
@@ -598,7 +597,6 @@ async function fetch_json_post(endpoint, payload) {
 					this.token = null;
 				}
 			}
-			// #endregion
 		}
 	}).mount('#container');
 
