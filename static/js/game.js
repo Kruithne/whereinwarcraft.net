@@ -468,16 +468,9 @@ async function fetch_json_post(endpoint, payload) {
 				this.submitting_score = true;
 				
 				try {
-					let uid = localStorage.getItem('wiw-score-token');
-					if (uid === null) {
-						uid = ([1e7]+1e3+4e3+8e3+1e11).replace(/[018]/g, c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
-						localStorage.setItem('wiw-score-token', uid);
-					}
-					
 					const payload = {
 						token: this.token,
-						name: name.substring(0, 20),
-						uid: uid
+						name: name.substring(0, 20)
 					};
 					
 					const response = await fetch_json_post('/api/submit', payload);

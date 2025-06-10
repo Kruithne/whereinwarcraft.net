@@ -287,9 +287,6 @@ server.route('/api/submit', validate_req_json(async (_req, _url, json) => {
 	if (typeof json.name !== 'string' || json.name.trim().length === 0)
 		return status_response(400, 'Invalid name');
 	
-	if (typeof json.uid !== 'string' || json.uid.length === 0)
-		return status_response(400, 'Invalid UID');
-	
 	const session = await db.get_single('SELECT `gameMode`, `lives`, `score` FROM `sessions` WHERE `token` = ?', [json.token]);
 	if (session === null)
 		return status_response(404, 'Game session not found');
@@ -298,7 +295,7 @@ server.route('/api/submit', validate_req_json(async (_req, _url, json) => {
 		return status_response(400, 'Score must be greater than 0');
 	
 	const name = json.name.substring(0, 20);
-	const uid = json.uid;
+	const uid = Bun.randomUUIDv7();
 	const score = session.score;
 	
 	const guesses = await db.get_all('SELECT `distPct` FROM `guesses` WHERE `token` = ?', [json.token]);
