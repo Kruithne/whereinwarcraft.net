@@ -321,7 +321,7 @@ server.route('/ads.txt', () => {
 });
 
 server.route('/privacy', () => {
-	return Bun.file('./static/privacy.txt');
+	return Bun.file('./html/privacy.html');
 });
 
 server.dir('/static', './static', async (file_path, file, stat, _request) => {
