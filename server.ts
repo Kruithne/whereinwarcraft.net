@@ -320,7 +320,7 @@ server.route('/ads.txt', () => {
 	return Bun.file('./static/ads.txt');
 });
 
-server.route('/privacy', () => {
+server.route('/privacy/', () => {
 	return Bun.file('./html/privacy.html');
 });
 
