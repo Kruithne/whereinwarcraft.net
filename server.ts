@@ -316,6 +316,10 @@ server.route('/api/submit', validate_req_json(async (_req, _url, json) => {
 	return { success: true };
 }), 'POST');
 
+server.route('/ads.txt', () => {
+	return Bun.file('./static/ads.txt');
+});
+
 server.dir('/static', './static', async (file_path, file, stat, _request) => {
 	// ignore hidden files
 	if (path.basename(file_path).startsWith('.'))
