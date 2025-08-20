@@ -148,7 +148,7 @@ body {
     justify-content: center;
     gap: 70px;
     font-size: 1.7em;
-    background: #00000057;
+    background: #000000;
 }
 
 #game-footer {
@@ -423,9 +423,4 @@ body {
 	z-index: 500;
 	color: #ffffff80;
 	text-decoration: none;
-}
-
-[data-name="mediavine-gdpr-button"] {
-	position: absolute;
-	bottom: 0;
 }
