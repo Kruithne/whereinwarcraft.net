@@ -1,0 +1,84 @@
+# Privacy Policy
+
+**Last Updated:** 20/08/25
+
+## Information We Collect
+
+### Information You Provide
+- Game scores you submit
+- Communications you send to us (if any)
+
+### Information Automatically Collected
+- IP address
+- Browser type and version
+- Device information
+- Game usage statistics and gameplay data
+- Technical information about how you use our website
+
+### Third-Party Advertising
+Our website displays advertisements served by Mediavine, Inc. ("Mediavine"). Mediavine may collect and use information about your visits to this and other websites to provide advertisements about goods and services that may be of interest to you. This information may include:
+
+- Your IP address
+- Browser information
+- Device identifiers
+- Browsing behavior and interests
+- Demographic information
+
+## How We Use Information
+
+We use the information we collect to:
+- Operate the web game
+- Display submitted scores
+- Improve the game experience
+- Comply with legal obligations
+
+## Information Sharing
+
+We do not sell, trade, or rent your personal information to third parties, except:
+- With Mediavine for advertising purposes as described above
+- When required by law or to protect our rights
+- With service providers who help us operate the website (under confidentiality agreements)
+
+## Data Retention
+
+We retain your information for as long as necessary to display game scores and as required by applicable law.
+
+## Your Rights
+
+Depending on your location, you may have rights regarding your personal information, including:
+- Access to your personal information
+- Correction of inaccurate information
+- Deletion of your information
+- Restriction of processing
+- Data portability
+- Objecting to processing
+
+**For EU residents:** You have additional rights under GDPR. You may withdraw consent for data processing at any time.
+
+## Cookies and Tracking
+
+Our website uses cookies and similar technologies:
+- Essential cookies for website functionality
+- Analytics cookies (via third-party advertising partners)
+- Advertising cookies (via Mediavine)
+
+You can control cookie settings through your browser, but some features may not work properly if you disable cookies.
+
+## International Data Transfers
+
+Your information may be transferred to and processed in countries other than your own, including the United States. We ensure appropriate safeguards are in place for such transfers.
+
+## Children's Privacy
+
+Our service is not intended for children under 13 (or 16 in the EU). We do not knowingly collect personal information from children under these ages.
+
+## Intellectual Property Notice
+
+This website is a fan-created game based on World of Warcraft. World of Warcraft and related assets are trademarks and copyrights of Blizzard Entertainment, Inc. This website is not affiliated with or endorsed by Blizzard Entertainment.
+
+## Changes to This Policy
+
+We may update this privacy policy from time to time. We will notify you of any material changes by posting the new policy on this page with an updated "Last Updated" date.
+---
+
+*This privacy policy was last updated on 20/08/25.*

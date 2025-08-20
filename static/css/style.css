@@ -415,3 +415,9 @@ body {
 #game-over-ui .btn {
 	margin: 5px;
 }
+
+#privacy {
+	position: absolute;
+	bottom: 2px;
+	left: 2px;
+}

@@ -320,6 +320,10 @@ server.route('/ads.txt', () => {
 	return Bun.file('./static/ads.txt');
 });
 
+server.route('/privacy', () => {
+	return Bun.file('./static/privacy.txt');
+});
+
 server.dir('/static', './static', async (file_path, file, stat, _request) => {
 	// ignore hidden files
 	if (path.basename(file_path).startsWith('.'))
