@@ -424,3 +424,8 @@ body {
 	color: #ffffff80;
 	text-decoration: none;
 }
+
+[data-name="mediavine-gdpr-button"] {
+	position: absolute;
+	bottom: 0;
+}
