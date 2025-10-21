@@ -10,7 +10,12 @@
 		"spooder": "^4.6.1"
 	},
 	"spooder": {
-		"auto_restart": 0,
+		"auto_restart": {
+			"enabled": true,
+			"max_attempts": -1,
+			"backoff_max": 300000,
+			"backoff_grace": 30000 
+		},
 		"run": "bun run server.ts",
 		"update": [
 			"git fetch --depth=1 origin main",
@@ -19,6 +24,7 @@
 			"bun install"
 		],
 		"canary": {
+			"enabled": true,
 			"account": "kruithne",
 			"repository": "kruithne/whereinwarcraft.net",
 			"crash_console_history": 64,
