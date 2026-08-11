@@ -302,7 +302,8 @@ server.json('/api/submit', async (_req, _url, json) => {
 	);
 
 	await db.execute('DELETE FROM `sessions` WHERE `token` = ?', [json.token]);
-	
+	await db.execute('DELETE FROM `guesses` WHERE `token` = ?', [json.token]);
+
 	log(`score submitted for session {${json.token}}: {${name}} - score: {${score}}, accuracy: {${accuracy}}%`);
 
 	return { success: true };
