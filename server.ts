@@ -7,6 +7,11 @@ import db from './db';
 const GUESS_THRESHOLD = 2.4;
 const BOD_RADIUS = 0.8;
 const NAME_MAX_LENGTH = 20;
+const SECURITY_HEADERS = {
+	'X-Content-Type-Options': 'nosniff',
+	'Referrer-Policy': 'strict-origin-when-cross-origin',
+	'X-Frame-Options': 'SAMEORIGIN'
+};
 
 const server = http_serve(Number(process.env.SERVER_PORT), process.env.SERVER_LISTEN_HOST);
 
@@ -112,7 +117,7 @@ server.route('/', async (req, _url) => {
 	
 	const headers = {
 		'Content-Type': 'text/html',
-		'Access-Control-Allow-Origin':  '*',
+		...SECURITY_HEADERS,
 		'ETag': index_hash as string
 	} as Record<string, string>;
 	
@@ -349,23 +354,23 @@ server.json('/api/submit', async (_req, _url, json) => {
 }, 'POST');
 
 server.route('/ads.txt', () => {
-	return Bun.file('./static/ads.txt');
+	return new Response(Bun.file('./static/ads.txt'), { headers: SECURITY_HEADERS });
 });
 
 server.route('/privacy', () => {
-	return Bun.file('./html/privacy.html');
+	return new Response(Bun.file('./html/privacy.html'), { headers: SECURITY_HEADERS });
 });
 
 server.dir('/static', './static', async (file_path, file, stat, _request) => {
 	// ignore hidden files
 	if (path.basename(file_path).startsWith('.'))
 		return 404; // Not Found
-	
+
 	// ignore directories
 	if (stat.isDirectory())
 		return 401; // Unauthorized
-	
-	return file;
+
+	return new Response(file, { headers: SECURITY_HEADERS });
 });
 
 async function default_handler(status_code: number): Promise<Response> {
