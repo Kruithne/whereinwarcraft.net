@@ -19,6 +19,15 @@ body {
 	user-select: none;
 	color: white;
 	text-shadow: 0 0 10px black;
+	height: 100dvh;
+	display: flex;
+	flex-direction: column;
+}
+
+#container {
+	position: relative;
+	flex: 1;
+	min-height: 0;
 }
 
 #backdrop {
@@ -58,7 +67,7 @@ body {
 #main-menu {
 	display: grid;
 	grid-template-columns: 40% 60%;
-	position: fixed;
+	position: absolute;
     inset: 0;
     align-items: center;
     width: 1080px;
@@ -136,10 +145,10 @@ body {
 
 /* game */
 #game {
-	position: fixed;
+	position: absolute;
 	inset: 0;
 	display: grid;
-	grid-template-rows: 80px 1fr 80px;
+	grid-template-rows: 80px 1fr;
 }
 
 #game-header {
@@ -149,18 +158,6 @@ body {
     gap: 70px;
     font-size: 1.7em;
     background: #000000;
-}
-
-#game-footer {
-	display: flex;
-    align-items: center;
-    flex-direction: column;
-    background: #00000057;
-    justify-content: center;
-}
-
-#game-footer a {
-	color: #ffb100;
 }
 
 #game-window {
@@ -416,11 +413,97 @@ body {
 	margin: 5px;
 }
 
-#privacy {
-	position: absolute;
-	bottom: 2px;
-	left: 2px;
-	z-index: 500;
-	color: #ffffff80;
+/* footer */
+#site-footer {
+	flex: none;
+	background: #0a0a0a;
+	border-top: 1px solid #ffffff;
+	color: #ffffff;
+	font-size: 0.9em;
+	text-shadow: none;
+}
+
+#footer-container {
+	max-width: 1280px;
+	margin: 0 auto;
+	padding: 18px 30px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 40px;
+}
+
+#footer-left {
+	display: flex;
+	align-items: center;
+	gap: 20px;
+}
+
+#footer-logo {
+	flex: none;
+	width: 140px;
+	height: auto;
+}
+
+#footer-credits {
+	line-height: 1.6;
+	color: #ffffffb3;
+	border-left: 1px solid #ffffff26;
+	padding-left: 20px;
+}
+
+#footer-right {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 8px;
+	line-height: 1.6;
+	text-align: right;
+}
+
+#footer-support {
+	color: #ffffffb3;
+}
+
+#footer-links {
+	display: flex;
+	gap: 20px;
+}
+
+#site-footer a {
+	color: #ffb100;
 	text-decoration: none;
+}
+
+#site-footer a:hover {
+	text-decoration: underline;
+}
+
+@media (max-width: 900px) {
+	#footer-container {
+		flex-direction: column;
+		align-items: center;
+		gap: 14px;
+		padding: 18px 20px;
+		text-align: center;
+	}
+
+	#footer-left {
+		flex-direction: column;
+		gap: 12px;
+	}
+
+	#footer-logo {
+		width: 120px;
+	}
+
+	#footer-credits {
+		border-left: 0;
+		padding-left: 0;
+	}
+
+	#footer-right {
+		align-items: center;
+		text-align: center;
+	}
 }
