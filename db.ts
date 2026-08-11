@@ -1,13 +1,19 @@
-import { db_init_mysql, caution } from 'spooder';
+import mysql from 'mysql2/promise';
+import { caution, panic } from 'spooder';
+import { db_schema } from './db_schema';
 import type { RowDataPacket, ResultSetHeader } from 'mysql2';
 
-const db_pool = await db_init_mysql({
+const schema_result = await db_schema();
+if (!schema_result.success)
+	await panic('database schema migration failed', schema_result);
+
+const db_pool = mysql.createPool({
 	host: process.env.DB_HOST,
 	user: process.env.DB_USER,
 	password: process.env.DB_PASSWORD,
 	database: process.env.DB_DATABASE,
 	connectionLimit: 10
-}, undefined, true);
+});
 
 type db_pool = typeof db_pool;
 type db = db_pool | PoolConnection;

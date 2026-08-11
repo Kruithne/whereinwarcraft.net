@@ -1,4 +1,4 @@
-import { serve, caution, HTTP_STATUS_CODE, validate_req_json } from 'spooder';
+import { http_serve, caution, EXIT_CODE, HTTP_STATUS_CODE, HTTP_STATUS_TEXT } from 'spooder';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { format } from 'node:util';
@@ -7,7 +7,7 @@ import db from './db';
 const GUESS_THRESHOLD = 2.4;
 const BOD_RADIUS = 0.8;
 
-const server = serve(Number(process.env.SERVER_PORT), process.env.SERVER_LISTEN_HOST);
+const server = http_serve(Number(process.env.SERVER_PORT), process.env.SERVER_LISTEN_HOST);
 
 function log(message: string, ...args: unknown[]): void {
 	let formatted_message = format('[{info}] ' + message, ...args);
@@ -43,7 +43,7 @@ async function clear_token(clear_token: any) {
 
 function status_response(status_code = 400, status_text: string): Response {
 	if (status_text === undefined)
-		status_text = HTTP_STATUS_CODE[status_code] ?? 'Unknown Status Code';
+		status_text = HTTP_STATUS_TEXT[status_code] ?? 'Unknown Status Code';
 
 	return new Response('', {
 		status: status_code,
@@ -91,7 +91,7 @@ server.route('/', async (req, _url) => {
 	return new Response(index, { status: 200, headers });
 });
 
-server.route('/api/resume', validate_req_json(async (req, url, json) => {
+server.json('/api/resume', async (req, url, json) => {
 	if (typeof json.token !== 'string' || json.token.length !== 36)
 		return status_response(400, 'Invalid token');
 
@@ -112,9 +112,9 @@ server.route('/api/resume', validate_req_json(async (req, url, json) => {
 			resume: false
 		};
 	}
-}), 'POST');
+}, 'POST');
 
-server.route('/api/init/retail', validate_req_json(async (_req, _url, json) => {
+server.json('/api/init/retail', async (_req, _url, json) => {
 	const token = Bun.randomUUIDv7();
 	const location = await get_random_location_retail();
 
@@ -132,9 +132,9 @@ server.route('/api/init/retail', validate_req_json(async (_req, _url, json) => {
 		token: token,
 		location: location.ID
 	};
-}), 'POST');
+}, 'POST');
 
-server.route('/api/init/classic', validate_req_json(async (_req, _url, json) => {
+server.json('/api/init/classic', async (_req, _url, json) => {
 	const token = Bun.randomUUIDv7();
 	const location = await get_random_start_location_classic();
 
@@ -152,9 +152,9 @@ server.route('/api/init/classic', validate_req_json(async (_req, _url, json) => 
 		token: token,
 		location: location.ID
 	};
-}), 'POST');
+}, 'POST');
 
-server.route('/api/guess', validate_req_json(async (_req, _url, json) => {
+server.json('/api/guess', async (_req, _url, json) => {
 	if (typeof json.token !== 'string' || json.token.length !== 36)
 		return status_response(400, 'Invalid token');
 	
@@ -264,9 +264,9 @@ server.route('/api/guess', validate_req_json(async (_req, _url, json) => {
 		
 		log(`game session {${json.token}} ended, final score: {${player_score}}`);
 	}
-	
+
 	return response;
-}), 'POST');
+}, 'POST');
 
 server.route('/api/leaderboard/classic', async (req, url) => {
 	return {
@@ -280,7 +280,7 @@ server.route('/api/leaderboard/retail', async (req, url) => {
 	}
 });
 
-server.route('/api/submit', validate_req_json(async (_req, _url, json) => {
+server.json('/api/submit', async (_req, _url, json) => {
 	if (typeof json.token !== 'string' || json.token.length !== 36)
 		return status_response(400, 'Invalid token');
 	
@@ -312,9 +312,9 @@ server.route('/api/submit', validate_req_json(async (_req, _url, json) => {
 	await db.execute('DELETE FROM `sessions` WHERE `token` = ?', [json.token]);
 	
 	log(`score submitted for session {${json.token}}: {${name}} - score: {${score}}, accuracy: {${accuracy}}%`);
-	
+
 	return { success: true };
-}), 'POST');
+}, 'POST');
 
 server.route('/ads.txt', () => {
 	return Bun.file('./static/ads.txt');
@@ -337,7 +337,7 @@ server.dir('/static', './static', async (file_path, file, stat, _request) => {
 });
 
 async function default_handler(status_code: number): Promise<Response> {
-	return new Response(HTTP_STATUS_CODE[status_code], { status: status_code });
+	return new Response(HTTP_STATUS_TEXT[status_code], { status: status_code });
 }
 
 // Unhandled exceptions and rejections from handlers.
@@ -354,9 +354,10 @@ if (typeof process.env.GH_WEBHOOK_SECRET === 'string') {
 	server.webhook(process.env.GH_WEBHOOK_SECRET, '/internal/hook_source_change', () => {
 		setImmediate(async () => {
 			await server.stop(false);
-			process.exit(0);
+			process.exit(EXIT_CODE.SUCCESS);
 		});
-		return 200;
+
+		return HTTP_STATUS_CODE.OK_200;
 	});
 } else {
 	caution('GH_WEBHOOK_SECRET environment variable not configured');
