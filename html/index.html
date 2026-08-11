@@ -24,12 +24,16 @@
 		<script type="text/javascript" async="async" data-noptimize="1" data-cfasync="false" src="//scripts.scriptwrapper.com/tags/bbe4182c-95a5-4d90-abbb-57cf9bbb6d7c.js"></script>
 	</head>
 	<body>
+		<header id="site-header">
+			<div id="header-container">
+				<img id="header-logo" src="/{{cache_bust=static/images/wiw_footer_logo.svg}}" alt="Where in Warcraft?">
+			</div>
+		</header>
 		<div id="container" v-cloak>
 			<div id="error-toast" v-if="error_toast_text">{{ error_toast_text }}</div>
 			<div id="backdrop"></div>
 			<div id="main-menu" v-if="!in_game">
 				<div>
-					<img id="main-menu-logo" src="/{{cache_bust=static/images/logo.png}}" alt="Where in Warcraft?">
 					<div id="main-menu-content">
 						<h1>How well do you know the world of Azeroth?</h1>
 						<h2>Can you accurately place all the locations on the map?</h2>

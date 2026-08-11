@@ -94,6 +94,97 @@ body {
     background: #808080;
 }
 
+/* page */
+body.page {
+	overflow: auto;
+	height: auto;
+	min-height: 100dvh;
+	user-select: text;
+}
+
+#page-content {
+	flex: 1;
+	width: 100%;
+	max-width: 900px;
+	box-sizing: border-box;
+	margin: 0 auto;
+	padding: 40px 30px;
+	line-height: 1.6;
+}
+
+#page-content h1 {
+	font-size: 2em;
+	padding-bottom: 10px;
+	margin-bottom: 20px;
+	border-bottom: 1px solid var(--color-border);
+}
+
+#page-content h2 {
+	font-size: 1.4em;
+	margin-top: 30px;
+	margin-bottom: 10px;
+	color: var(--color-link);
+}
+
+#page-content h3 {
+	font-size: 1.1em;
+	margin-top: 20px;
+	margin-bottom: 8px;
+	color: var(--color-text-muted);
+}
+
+#page-content p {
+	margin-bottom: 12px;
+}
+
+#page-content ul {
+	margin-bottom: 12px;
+	padding-left: 25px;
+}
+
+#page-content li {
+	margin-bottom: 5px;
+}
+
+#page-content hr {
+	border: 0;
+	border-top: 1px solid var(--color-border);
+	margin: 30px 0;
+}
+
+#page-content a {
+	color: var(--color-link);
+	text-decoration: none;
+}
+
+#page-content a:hover {
+	text-decoration: underline;
+}
+
+/* header */
+#site-header {
+	flex: none;
+	position: relative;
+	z-index: 1;
+	background: var(--color-panel);
+	border-bottom: 1px solid var(--color-border);
+	box-shadow: var(--shadow-panel);
+}
+
+#header-container {
+	max-width: 1280px;
+	margin: 0 auto;
+	padding: 14px 30px;
+	display: flex;
+	align-items: center;
+}
+
+#header-logo {
+	flex: none;
+	width: 150px;
+	height: auto;
+}
+
 /* main menu */
 #main-menu {
 	display: grid;
@@ -131,11 +222,6 @@ body {
 
 #main-menu-image-c {
 	transform: rotate(7deg) translate(16px, -19px);
-}
-
-#main-menu-logo {
-	transform: rotate(-8deg);
-    margin-bottom: 0;
 }
 
 #main-menu-content {
@@ -191,6 +277,7 @@ body {
 }
 
 #game-window {
+	box-sizing: border-box;
 	border: 1px solid var(--color-border-light);
 	border-bottom: 0;
 	width: 100%;
@@ -203,8 +290,9 @@ body {
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	box-sizing: border-box;
 	gap: 60px;
-	padding: 10px 20px;
+	padding: 18px 20px;
 	font-size: 1.4em;
 	background: black;
 	border: 1px solid var(--color-border-light);
@@ -522,6 +610,7 @@ body {
 	flex: none;
 	width: 140px;
 	height: auto;
+	opacity: 0.5;
 }
 
 #footer-credits {
@@ -559,6 +648,15 @@ body {
 }
 
 @media (max-width: 900px) {
+	#header-container {
+		justify-content: center;
+		padding: 12px 20px;
+	}
+
+	#header-logo {
+		width: 120px;
+	}
+
 	#footer-container {
 		flex-direction: column;
 		align-items: center;
@@ -593,7 +691,7 @@ body {
 
 	#game-stats {
 		gap: 20px;
-		padding: 8px 12px;
+		padding: 14px 12px;
 		font-size: 1.1em;
 	}
 
