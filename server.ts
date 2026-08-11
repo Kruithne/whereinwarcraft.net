@@ -89,11 +89,8 @@ async function clear_token(clear_token: any) {
 	}
 }
 
-function status_response(status_code = 400, status_text: string): Response {
-	if (status_text === undefined)
-		status_text = HTTP_STATUS_TEXT[status_code] ?? 'Unknown Status Code';
-
-	return new Response('', {
+function status_response(status_code: number, status_text: string): Response {
+	return Response.json({ error: status_text }, {
 		status: status_code,
 		statusText: status_text
 	});
@@ -374,12 +371,12 @@ server.dir('/static', './static', async (file_path, file, stat, _request) => {
 
 	// ignore directories
 	if (stat.isDirectory())
-		return 401; // Unauthorized
+		return 404; // Not Found
 
 	return new Response(file, { headers: SECURITY_HEADERS });
 });
 
-async function default_handler(status_code: number): Promise<Response> {
+function default_handler(status_code: number): Response {
 	return new Response(HTTP_STATUS_TEXT[status_code], { status: status_code });
 }
 
