@@ -4,16 +4,23 @@
 		<meta charset="utf-8">
 		<title>Where in Warcraft?</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<link rel="icon" type="image/png" href="/static/favicon-96x96.png" sizes="96x96">
-		<link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
-		<link rel="shortcut icon" href="/static/favicon.ico">
-		<link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
+		<link rel="icon" type="image/png" href="/{{cache_bust=static/favicon-96x96.png}}" sizes="96x96">
+		<link rel="icon" type="image/svg+xml" href="/{{cache_bust=static/favicon.svg}}">
+		<link rel="shortcut icon" href="/{{cache_bust=static/favicon.ico}}">
+		<link rel="apple-touch-icon" sizes="180x180" href="/{{cache_bust=static/apple-touch-icon.png}}">
 		<meta name="apple-mobile-web-app-title" content="W-in-W">
-		<link rel="manifest" href="/static/site.webmanifest">
-		<link href="static/css/style.css?v=5" type="text/css" rel="stylesheet"/>
-		<link rel="stylesheet" href="static/leaflet/leaflet.css"/>
-		<script src="static/leaflet/leaflet.js"></script>
-		<script src="static/js/game.js" type="module"></script>
+		<link rel="manifest" href="/{{cache_bust=static/site.webmanifest}}">
+		<link href="/{{cache_bust=static/css/style.css}}" type="text/css" rel="stylesheet"/>
+		<link rel="stylesheet" href="/{{cache_bust=static/leaflet/leaflet.css}}"/>
+		<script src="/{{cache_bust=static/leaflet/leaflet.js}}"></script>
+		<script type="importmap">
+			{
+				"imports": {
+					"vue": "/{{cache_bust=static/js/vue.esm.prod.js}}"
+				}
+			}
+		</script>
+		<script src="/{{cache_bust=static/js/game.js}}" type="module"></script>
 		<script type="text/javascript" async="async" data-noptimize="1" data-cfasync="false" src="//scripts.scriptwrapper.com/tags/bbe4182c-95a5-4d90-abbb-57cf9bbb6d7c.js"></script>
 	</head>
 	<body>
@@ -22,7 +29,7 @@
 			<div id="backdrop"></div>
 			<div id="main-menu" v-if="!in_game">
 				<div>
-					<img id="main-menu-logo" src="static/images/logo.png" alt="Where in Warcraft?">
+					<img id="main-menu-logo" src="/{{cache_bust=static/images/logo.png}}" alt="Where in Warcraft?">
 					<div id="main-menu-content">
 						<h1>How well do you know the world of Azeroth?</h1>
 						<h2>Can you accurately place all the locations on the map?</h2>
@@ -35,10 +42,10 @@
 				</div>
 				<div id="main-menu-right">
 					<div id="main-menu-images">
-						<img src="static/images/front-graphic-A.jpg" class="image" id="main-menu-image-a">
-						<img src="static/images/front-graphic-B.jpg" class="image" id="main-menu-image-b">
-						<img src="static/images/front-graphic-C.jpg" class="image" id="main-menu-image-c">
-						<img id="main-menu-ruffles" src="static/images/ruffles.png">
+						<img src="/{{cache_bust=static/images/front-graphic-A.jpg}}" class="image" id="main-menu-image-a">
+						<img src="/{{cache_bust=static/images/front-graphic-B.jpg}}" class="image" id="main-menu-image-b">
+						<img src="/{{cache_bust=static/images/front-graphic-C.jpg}}" class="image" id="main-menu-image-c">
+						<img id="main-menu-ruffles" src="/{{cache_bust=static/images/ruffles.png}}">
 					</div>
 				</div>
 			</div>
@@ -77,7 +84,7 @@
 					</div>
 					<div id="game-window" v-else>
 						<div class="loading" v-if="is_loading">
-							<img src="static/images/zeppy.png">
+							<img src="/{{cache_bust=static/images/zeppy.png}}">
 							<span>Loading, hold tight!</span>
 						</div>
 						<div>
@@ -138,7 +145,7 @@
 		<footer id="site-footer">
 			<div id="footer-container">
 				<div id="footer-left">
-					<img id="footer-logo" src="static/images/wiw_footer_logo.svg" alt="Where in Warcraft?">
+					<img id="footer-logo" src="/{{cache_bust=static/images/wiw_footer_logo.svg}}" alt="Where in Warcraft?">
 					<div id="footer-credits">
 						Created by <a href="http://kruithne.net/">Kruithne</a> and <a href="https://www.welshcorgileague.org/corgi-rescue/">Falerian</a>.<br>
 						Inspired by <a href="https://geoguessr.com/">geoguessr</a>.

@@ -1,6 +1,5 @@
-import { http_serve, caution, EXIT_CODE, HTTP_STATUS_CODE, HTTP_STATUS_TEXT } from 'spooder';
+import { http_serve, caution, cache_http, cache_bust, parse_template, EXIT_CODE, HTTP_STATUS_CODE, HTTP_STATUS_TEXT } from 'spooder';
 import path from 'node:path';
-import crypto from 'node:crypto';
 import { format } from 'node:util';
 import db from './db';
 
@@ -12,8 +11,16 @@ const SECURITY_HEADERS = {
 	'Referrer-Policy': 'strict-origin-when-cross-origin',
 	'X-Frame-Options': 'SAMEORIGIN'
 };
+const TEMPLATE_SUBS = { cache_bust };
 
 const server = http_serve(Number(process.env.SERVER_PORT), process.env.SERVER_LISTEN_HOST);
+
+const cache = cache_http({
+	use_etags: true,
+	use_canary_reporting: true,
+	headers: SECURITY_HEADERS,
+	enabled: process.env.SPOODER_ENV !== 'dev'
+});
 
 function log(message: string, ...args: unknown[]): void {
 	let formatted_message = format('[{info}] ' + message, ...args);
@@ -106,26 +113,18 @@ async function cleanup_old_sessions() {
 	setTimeout(cleanup_old_sessions, 24 * 60 * 60 * 1000); // 24 hours
 }
 
-let index: string|null = null;
-let index_hash: string|null = null;
+async function render_template(file_path: string): Promise<string> {
+	return await parse_template(await Bun.file(file_path).text(), TEMPLATE_SUBS, false);
+}
 
-server.route('/', async (req, _url) => {
-	if (index === null) {
-		index = await Bun.file('./html/index.html').text();
-		index_hash = crypto.createHash('sha256').update(index).digest('hex');
-	}
-	
-	const headers = {
-		'Content-Type': 'text/html',
-		...SECURITY_HEADERS,
-		'ETag': index_hash as string
-	} as Record<string, string>;
-	
-	if (req.headers.get('If-None-Match') === index_hash)
-		return new Response(null, { status: 304, headers }); // Not Modified
-	
-	return new Response(index, { status: 200, headers });
-});
+async function serve_template(req: Request, cache_key: string, file_path: string, content_type: string): Promise<Response> {
+	const res = await cache.request(req, cache_key, () => render_template(file_path));
+	res.headers.set('Content-Type', content_type);
+
+	return res;
+}
+
+server.route('/', async (req, _url) => serve_template(req, 'index', './html/index.html', 'text/html'));
 
 server.json('/api/resume', async (req, url, json) => {
 	if (typeof json.token !== 'string' || json.token.length !== 36)
@@ -357,9 +356,11 @@ server.route('/ads.txt', () => {
 	return new Response(Bun.file('./static/ads.txt'), { headers: SECURITY_HEADERS });
 });
 
-server.route('/privacy', () => {
-	return new Response(Bun.file('./html/privacy.html'), { headers: SECURITY_HEADERS });
-});
+server.route('/privacy', async (req, _url) => serve_template(req, 'privacy', './html/privacy.html', 'text/html'));
+
+server.route('/static/css/style.css', async (req, _url) => serve_template(req, 'style.css', './static/css/style.css', 'text/css'));
+
+server.route('/static/site.webmanifest', async (req, _url) => serve_template(req, 'site.webmanifest', './static/site.webmanifest', 'application/manifest+json'));
 
 server.dir('/static', './static', async (file_path, file, stat, _request) => {
 	// ignore hidden files

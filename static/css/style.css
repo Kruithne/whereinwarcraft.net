@@ -3,7 +3,7 @@
 	font-style: normal;
 	font-weight: 400;
 	font-display: swap;
-	src: url('/static/fonts/lato-latin-ext.woff2') format('woff2');
+	src: url('/{{cache_bust=static/fonts/lato-latin-ext.woff2}}') format('woff2');
 	unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 
@@ -12,7 +12,7 @@
 	font-style: normal;
 	font-weight: 400;
 	font-display: swap;
-	src: url('/static/fonts/lato-latin.woff2') format('woff2');
+	src: url('/{{cache_bust=static/fonts/lato-latin.woff2}}') format('woff2');
 	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
@@ -62,7 +62,7 @@ body {
 }
 
 #backdrop {
-	background-image: url(/static/images/background.jpg);
+	background-image: url(/{{cache_bust=static/images/background.jpg}});
 	background-size: cover;
 	filter: blur(8px);
 	position: fixed;
@@ -338,25 +338,25 @@ body {
 }
 
 #map-selector-cata {
-	background-image: url(/static/images/achievement_boss_madnessofdeathwing.png);
+	background-image: url(/{{cache_bust=static/images/achievement_boss_madnessofdeathwing.png}});
 }
 
 #map-selector-tbc {
-	background-image: url(/static/images/achievement_boss_illidan.png);
+	background-image: url(/{{cache_bust=static/images/achievement_boss_illidan.png}});
 }
 
 #map-selector-wod {
-	background-image: url(/static/images/achievement_thenighthold_guldan.png);
+	background-image: url(/{{cache_bust=static/images/achievement_thenighthold_guldan.png}});
 }
 
 #map-selector-bfa {
-	background-image: url(/static/images/achievement_boss_zuldazar_jaina.png);
+	background-image: url(/{{cache_bust=static/images/achievement_boss_zuldazar_jaina.png}});
 }
 
 .map-selector-icon-border {
 	position: absolute;
 	inset: 0;
-	background-image: url(/static/images/map-icon-border.png);
+	background-image: url(/{{cache_bust=static/images/map-icon-border.png}});
 	background-size: 200% 100%;
 	background-position: 0 0;
 	background-repeat: no-repeat;
@@ -419,7 +419,7 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-image: url(/static/images/spirit-healer.png);
+    background-image: url(/{{cache_bust=static/images/spirit-healer.png}});
     background-repeat: no-repeat;
     background-size: contain;
     width: 808px;

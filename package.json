@@ -7,7 +7,7 @@
 	},
 	"dependencies": {
 		"mysql2": "^3.14.1",
-		"spooder": "^6.2.9"
+		"spooder": "^6.2.10"
 	},
 	"spooder": {
 		"auto_restart": {

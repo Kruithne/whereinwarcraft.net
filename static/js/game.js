@@ -1,4 +1,4 @@
-import { createApp } from './vue.esm.prod.js';
+import { createApp } from 'vue';
 
 const MAX_LIVES = 3;
 const GUESS_THRESHOLD = 2.4;
