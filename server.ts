@@ -6,6 +6,7 @@ import db from './db';
 
 const GUESS_THRESHOLD = 2.4;
 const BOD_RADIUS = 0.8;
+const NAME_MAX_LENGTH = 20;
 
 const server = http_serve(Number(process.env.SERVER_PORT), process.env.SERVER_LISTEN_HOST);
 
@@ -16,6 +17,36 @@ function log(message: string, ...args: unknown[]): void {
 	formatted_message = formatted_message.replace(/\{([^}]+)\}/g, '\x1b[38;5;13m$1\x1b[0m');
 	
 	console.log(formatted_message);
+}
+
+function is_stripped_code_point(cp: number): boolean {
+	if (cp < 0x20 || (cp >= 0x7F && cp <= 0x9F))
+		return true;
+
+	if (cp >= 0x200B && cp <= 0x200F)
+		return true;
+
+	if (cp >= 0x202A && cp <= 0x202E)
+		return true;
+
+	if (cp >= 0x2060 && cp <= 0x206F)
+		return true;
+
+	return cp === 0xFEFF;
+}
+
+function sanitize_player_name(input: string): string {
+	let cleaned = '';
+	for (const ch of input) {
+		if (is_stripped_code_point(ch.codePointAt(0) as number))
+			continue;
+
+		cleaned += ch;
+	}
+
+	cleaned = cleaned.replace(/\s+/g, ' ').trim();
+
+	return Array.from(cleaned).slice(0, NAME_MAX_LENGTH).join('');
 }
 
 function point_distance(x1: number, y1: number, x2: number, y2: number): number {
@@ -95,9 +126,9 @@ server.json('/api/resume', async (req, url, json) => {
 	if (typeof json.token !== 'string' || json.token.length !== 36)
 		return status_response(400, 'Invalid token');
 
-	const session = await db.get_single('SELECT `gameMode`, `lives`, `score`, `currentID` FROM `sessions` WHERE `token` = ?', [json.token]);
-	
-	if (session !== null && session.lives > 0) {
+	const session = await db.get_single('SELECT `gameMode`, `lives`, `score`, `currentID`, `finished` FROM `sessions` WHERE `token` = ?', [json.token]);
+
+	if (session !== null && session.lives > 0 && !session.finished) {
 		log(`resumed game session {${json.token}} with mode {${session.gameMode}}`);
 
 		return {
@@ -164,11 +195,11 @@ server.json('/api/guess', async (_req, _url, json) => {
 	if (typeof json.lng !== 'number')
 		return status_response(400, 'Invalid pin longitude');
 	
-	const session = await db.get_single('SELECT `currentID`, `lives`, `gameMode`, `score` FROM `sessions` WHERE `token` = ?', [json.token]);
+	const session = await db.get_single('SELECT `currentID`, `lives`, `gameMode`, `score`, `finished` FROM `sessions` WHERE `token` = ?', [json.token]);
 	if (session === null)
 		return status_response(404, 'Game session has expired');
-	
-	if (session.lives <= 0)
+
+	if (session.lives <= 0 || session.finished)
 		return status_response(400, 'You get nothing! You lose! Good day, sir!');
 	
 	let location;
@@ -235,9 +266,11 @@ server.json('/api/guess', async (_req, _url, json) => {
 			new_location = await db.get_single('SELECT l.`ID` FROM `locations_classic` AS l WHERE `enabled` = 1 AND l.`ID` != ? AND NOT EXISTS (SELECT * FROM `guesses` AS g WHERE g.`token` = ? AND g.`locationID` = l.`ID`) ORDER BY RAND() LIMIT 1', [session.currentID, json.token]);
 	}
 
+	const finished = player_lives <= 0 || new_location === null;
+
 	const claimed = await db.execute(
-		'UPDATE `sessions` SET `score` = ?, `lives` = ?, `currentID` = ? WHERE `token` = ? AND `currentID` = ?',
-		[player_score, player_lives, new_location?.ID ?? session.currentID, json.token, session.currentID]
+		'UPDATE `sessions` SET `score` = ?, `lives` = ?, `currentID` = ?, `finished` = ? WHERE `token` = ? AND `currentID` = ?',
+		[player_score, player_lives, new_location?.ID ?? session.currentID, finished ? 1 : 0, json.token, session.currentID]
 	);
 
 	if (claimed < 1)
@@ -276,17 +309,23 @@ server.json('/api/submit', async (_req, _url, json) => {
 	if (typeof json.token !== 'string' || json.token.length !== 36)
 		return status_response(400, 'Invalid token');
 	
-	if (typeof json.name !== 'string' || json.name.trim().length === 0)
+	if (typeof json.name !== 'string')
 		return status_response(400, 'Invalid name');
-	
-	const session = await db.get_single('SELECT `gameMode`, `lives`, `score` FROM `sessions` WHERE `token` = ?', [json.token]);
+
+	const name = sanitize_player_name(json.name);
+	if (name.length === 0)
+		return status_response(400, 'Invalid name');
+
+	const session = await db.get_single('SELECT `gameMode`, `lives`, `score`, `finished` FROM `sessions` WHERE `token` = ?', [json.token]);
 	if (session === null)
 		return status_response(404, 'Game session not found');
-	
+
+	if (session.lives > 0 && !session.finished)
+		return status_response(400, 'Game session is still in progress');
+
 	if (session.score <= 0)
 		return status_response(400, 'Score must be greater than 0');
-	
-	const name = json.name.substring(0, 20);
+
 	const uid = Bun.randomUUIDv7();
 	const score = session.score;
 	
