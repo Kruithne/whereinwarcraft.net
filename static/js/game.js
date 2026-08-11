@@ -9,6 +9,16 @@ async function document_load() {
 		await new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve, { once: true }));
 }
 
+async function response_error(response, fallback) {
+	try {
+		const data = await response.json();
+		if (typeof data.error === 'string' && data.error.length > 0)
+			return data.error;
+	} catch {}
+
+	return fallback;
+}
+
 async function fetch_json_post(endpoint, payload) {
 	return await fetch(endpoint, {
 		method: 'POST',
@@ -289,7 +299,7 @@ async function fetch_json_post(endpoint, payload) {
 					}
 
 					if (!response.ok)
-						throw new Error(response.statusText || 'Failed to submit guess');
+						throw new Error(await response_error(response, 'Failed to submit guess'));
 					
 					const data = await response.json();
 					
@@ -501,9 +511,11 @@ async function fetch_json_post(endpoint, payload) {
 					};
 					
 					const response = await fetch_json_post('/api/submit', payload);
-					if (!response.ok)
-						throw new Error(response.statusText || 'Failed to submit score');
-					
+					if (!response.ok) {
+						this.show_error_toast(await response_error(response, 'Failed to submit score'));
+						return;
+					}
+
 					this.score_submitted = true;
 					this.score_has_been_submitted = true;
 					
@@ -653,7 +665,7 @@ async function fetch_json_post(endpoint, payload) {
 						
 					const response = await fetch(endpoint);
 					if (!response.ok)
-						throw new Error(response.statusText);
+						throw new Error(await response_error(response, 'Failed to fetch leaderboard'));
 
 					const data = await response.json();
 					
@@ -677,7 +689,7 @@ async function fetch_json_post(endpoint, payload) {
 					
 					const response = await fetch_json_post(endpoint, payload);
 					if (!response.ok)
-						throw new Error(response.statusText);
+						throw new Error(await response_error(response, 'Failed to initialize session'));
 			
 					const data = await response.json();
 					
@@ -703,7 +715,7 @@ async function fetch_json_post(endpoint, payload) {
 				try {
 					const response = await fetch_json_post('/api/resume', { token: this.token });
 					if (!response.ok)
-						throw new Error(response.statusText);
+						throw new Error(await response_error(response, 'Failed to resume session'));
 
 					data = await response.json();
 				} catch (error) {
