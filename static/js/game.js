@@ -309,36 +309,14 @@ async function fetch_json_post(endpoint, payload) {
 					this.player_guesses.push(data.distPct);
 					localStorage.setItem('wiw-local-guesses', JSON.stringify(this.player_guesses));
 					
-					// Check if we need to change the map
-					let map_changed = false;
 					if (data.mapID !== undefined) {
 						const new_map = Object.keys(this.maps).find(
 							key => this.maps[key].mapID === data.mapID
 						);
 						
 						if (new_map && new_map !== this.selected_map) {
-							// Clear existing map elements
-							this.clear_map();
-							
-							// Change selected map
-							this.selected_map = new_map;
-							map_changed = true;
-							
-							// Update the map tiles without reinitializing the map object
-							if (this.map) {
-								// Remove existing tile layer
-								this.map.eachLayer(layer => {
-									if (layer instanceof L.TileLayer)
-										this.map.removeLayer(layer);
-								});
-								
-								// Add new tile layer
-								L.tileLayer('static/images/' + this.tiles_dir + '/{z}/{x}/{y}.png', {
-									maxZoom: this.map_max_zoom
-								}).addTo(this.map);
-								
-								await this.$nextTick();
-							}
+							this.set_selected_map(new_map);
+							await this.$nextTick();
 						}
 					}
 					
