@@ -179,28 +179,69 @@ body {
 	position: absolute;
 	inset: 0;
 	display: grid;
-	grid-template-rows: 80px 1fr;
+	grid-template-rows: 1fr;
 }
 
-#game-header {
+#game-frame {
 	display: flex;
-	align-items: center;
-	justify-content: center;
-	gap: 70px;
-	font-size: 1.7em;
-	position: relative;
-	z-index: 1;
-	background: var(--color-panel);
-	border-bottom: 1px solid var(--color-border);
-	box-shadow: var(--shadow-panel);
+	flex-direction: column;
+	width: 80%;
+	height: 60%;
+	filter: drop-shadow(black 0 0 20px);
 }
 
 #game-window {
 	border: 1px solid var(--color-border-light);
-	box-shadow: var(--shadow-panel);
-	width: 80%;
-	height: 60%;
+	border-bottom: 0;
+	width: 100%;
+	flex: 1;
+	min-height: 0;
 	background: var(--color-window);
+}
+
+#game-stats {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 60px;
+	padding: 10px 20px;
+	font-size: 1.4em;
+	background: black;
+	border: 1px solid var(--color-border-light);
+	border-radius: 0 0 var(--radius-panel) var(--radius-panel);
+}
+
+.game-stat {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	white-space: nowrap;
+}
+
+.game-stat::before {
+	content: '';
+	width: 28px;
+	height: 28px;
+	flex-shrink: 0;
+	background-image: url(/{{cache_bust=static/images/game-icons.webp}});
+	background-size: 84px 28px;
+	background-repeat: no-repeat;
+}
+
+#game-stat-lives::before {
+	background-position: 0 0;
+}
+
+#game-stat-score::before {
+	background-position: -28px 0;
+}
+
+#game-stat-accuracy::before {
+	background-position: -56px 0;
+}
+
+.game-stat-label {
+	color: var(--color-text-muted);
 }
 
 #game-window > div {
@@ -543,5 +584,44 @@ body {
 	#footer-right {
 		align-items: center;
 		text-align: center;
+	}
+
+	#game-frame {
+		width: 95%;
+		height: 70%;
+	}
+
+	#game-stats {
+		gap: 20px;
+		padding: 8px 12px;
+		font-size: 1.1em;
+	}
+
+	.game-stat {
+		gap: 8px;
+	}
+
+	.game-stat::before {
+		width: 22px;
+		height: 22px;
+		background-size: 66px 22px;
+	}
+
+	#game-stat-score::before {
+		background-position: -22px 0;
+	}
+
+	#game-stat-accuracy::before {
+		background-position: -44px 0;
+	}
+}
+
+@media (max-width: 560px) {
+	#game-stats {
+		gap: 14px;
+	}
+
+	.game-stat-label {
+		display: none;
 	}
 }
