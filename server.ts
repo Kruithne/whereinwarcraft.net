@@ -6,6 +6,7 @@ import db from './db';
 const GUESS_THRESHOLD = 2.4;
 const BOD_RADIUS = 0.8;
 const NAME_MAX_LENGTH = 20;
+const TOKEN_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const SECURITY_HEADERS = {
 	'X-Content-Type-Options': 'nosniff',
 	'Referrer-Policy': 'strict-origin-when-cross-origin',
@@ -61,6 +62,10 @@ function sanitize_player_name(input: string): string {
 	return Array.from(cleaned).slice(0, NAME_MAX_LENGTH).join('');
 }
 
+function is_valid_token(token: any): token is string {
+	return typeof token === 'string' && TOKEN_PATTERN.test(token);
+}
+
 function point_distance(x1: number, y1: number, x2: number, y2: number): number {
 	const delta_x = x1 - x2;
 	const delta_y = y1 - y2;
@@ -77,7 +82,7 @@ async function get_random_start_location_classic() {
 }
 
 async function clear_token(clear_token: any) {
-	if (typeof clear_token === 'string' && clear_token.length === 36) {
+	if (is_valid_token(clear_token)) {
 		log(`cleared game session {${clear_token}}`);
 		await db.execute('DELETE FROM `sessions` WHERE `token` = ?', [clear_token]);
 		await db.execute('DELETE FROM `guesses` WHERE `token` = ?', [clear_token]);
@@ -127,7 +132,7 @@ async function serve_template(req: Request, cache_key: string, file_path: string
 server.route('/', async (req, _url) => serve_template(req, 'index', './html/index.html', 'text/html'));
 
 server.json('/api/resume', async (req, url, json) => {
-	if (typeof json.token !== 'string' || json.token.length !== 36)
+	if (!is_valid_token(json.token))
 		return status_response(400, 'Invalid token');
 
 	const session = await db.get_single('SELECT `gameMode`, `lives`, `score`, `currentID`, `finished` FROM `sessions` WHERE `token` = ?', [json.token]);
@@ -190,7 +195,7 @@ server.json('/api/init/classic', async (_req, _url, json) => {
 }, 'POST');
 
 server.json('/api/guess', async (_req, _url, json) => {
-	if (typeof json.token !== 'string' || json.token.length !== 36)
+	if (!is_valid_token(json.token))
 		return status_response(400, 'Invalid token');
 	
 	if (typeof json.lat !== 'number')
@@ -310,7 +315,7 @@ server.route('/api/leaderboard/retail', async (req, url) => {
 });
 
 server.json('/api/submit', async (_req, _url, json) => {
-	if (typeof json.token !== 'string' || json.token.length !== 36)
+	if (!is_valid_token(json.token))
 		return status_response(400, 'Invalid token');
 	
 	if (typeof json.name !== 'string')
