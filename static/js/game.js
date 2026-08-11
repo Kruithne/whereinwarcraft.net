@@ -63,8 +63,6 @@ async function fetch_json_post(endpoint, payload) {
 				map_path: null,
 				can_place_marker: true,
 
-				map_circle_data: null,
-				map_path_data: null,
 				map_info: {
 					zone_name: '',
 					location_name: '',
@@ -218,8 +216,6 @@ async function fetch_json_post(endpoint, payload) {
 			async load_panorama_smooth(url) {
 				if (!await this.preload_image(url))
 					this.show_error_toast('The image for this location could not be loaded. You can still make a guess!');
-
-				return url;
 			},
 
 			// #region game logic
@@ -573,9 +569,6 @@ async function fetch_json_post(endpoint, payload) {
 
 				this.map_circle?.remove();
 				this.map_circle = null;
-				
-				this.map_circle_data = null;
-				this.map_path_data = null;
 			},
 
 			set_selected_map(map_id) {

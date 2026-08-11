@@ -58,14 +58,10 @@ class DatabaseInterface {
 
 	/**
 	 * Executes a query and returns the LAST_INSERT_ID.
-	 * 
-	 * 
+	 *
 	 * In the event of an error or the resulting query does not provide a LAST_INSERT_ID, -1 is returned.
-	 * 
+	 *
 	 * Does not throw. Errors are internally raised as a canary caution.
-	 * @param sql 
-	 * @param values 
-	 * @returns 
 	 */
 	async insert(sql: string, values: any = []): Promise<number> {
 		try {
@@ -222,7 +218,7 @@ class DatabaseInterface {
 	 * 
 	 * Returns 0 in the event of an error.
 	 * 
-	 * Does now throw. Errors are internally raised as a canary caution.
+	 * Does not throw. Errors are internally raised as a canary caution.
 	 */
 	async count_table(table_name: string): Promise<number> {
 		return await this.count('SELECT COUNT(*) AS `count` FROM `' + table_name + '`');
