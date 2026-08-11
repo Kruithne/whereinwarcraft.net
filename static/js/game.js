@@ -3,6 +3,7 @@ import { createApp } from 'vue';
 const MAX_LIVES = 3;
 const GUESS_THRESHOLD = 2.4;
 const BENEFIT_OF_DOUBT_RADIUS = 0.8;
+const PANORAMA_LOAD_TIMEOUT = 15000;
 
 async function document_load() {
 	if (document.readyState === 'loading')
@@ -195,17 +196,29 @@ async function fetch_json_post(endpoint, payload) {
 			preload_image(url) {
 				return new Promise(resolve => {
 					const temp_img = document.createElement('img');
+					let timeout_id = null;
+
+					const settle = loaded => {
+						clearTimeout(timeout_id);
+						resolve(loaded);
+					};
+
+					temp_img.addEventListener('load', () => settle(true), { once: true });
+					temp_img.addEventListener('error', () => settle(false), { once: true });
+
 					temp_img.src = url;
-					
+
 					if (temp_img.complete)
-						resolve();
+						settle(temp_img.naturalWidth > 0);
 					else
-						temp_img.addEventListener('load', resolve, { once: true });
+						timeout_id = setTimeout(() => settle(false), PANORAMA_LOAD_TIMEOUT);
 				});
 			},
-		
+
 			async load_panorama_smooth(url) {
-				await this.preload_image(url);
+				if (!await this.preload_image(url))
+					this.show_error_toast('The image for this location could not be loaded. You can still make a guess!');
+
 				return url;
 			},
 
