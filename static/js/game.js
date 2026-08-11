@@ -247,8 +247,6 @@ async function fetch_json_post(endpoint, payload) {
 				this.can_place_marker = true;
 				
 				if (await this.initialize_session()) {
-					this.current_round = 0;
-					
 					// Preload the initial panorama
 					if (this.current_location) {
 						const panorama_url = this.current_location_background;
@@ -269,6 +267,9 @@ async function fetch_json_post(endpoint, payload) {
 				this.guess_result_state = 'playing';
 				this.player_guesses.length = 0;
 				this.viewing_map = false;
+
+				this.show_score_submission = false;
+				this.score_submitted = false;
 
 				this.map_marker?.remove();
 				this.map_marker = null;
@@ -504,8 +505,7 @@ async function fetch_json_post(endpoint, payload) {
 					}
 
 					this.score_submitted = true;
-					this.score_has_been_submitted = true;
-					
+
 					setTimeout(() => {
 						this.hide_score_submission_form();
 					}, 2000);
