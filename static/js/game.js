@@ -283,6 +283,11 @@ async function fetch_json_post(endpoint, payload) {
 						payload.mapID = this.maps[this.selected_map].mapID;
 					
 					const response = await fetch_json_post('/api/guess', payload);
+					if (response.status === 404) {
+						this.handle_session_expired();
+						return;
+					}
+
 					if (!response.ok)
 						throw new Error(response.statusText || 'Failed to submit guess');
 					
@@ -428,6 +433,28 @@ async function fetch_json_post(endpoint, payload) {
 				
 				// Hide loading state
 				this.is_loading = false;
+			},
+
+			handle_session_expired() {
+				localStorage.removeItem('wiw-token');
+				localStorage.removeItem('wiw-local-guesses');
+				this.token = null;
+
+				this.clear_map();
+
+				this.map_info = {
+					zone_name: '',
+					location_name: '',
+					visible: false
+				};
+
+				this.viewing_map = false;
+				this.guess_result_state = 'playing';
+				this.is_loading = false;
+				this.can_place_marker = true;
+				this.in_game = false;
+
+				this.show_error_toast('Your game session has expired. Start a new game to play again.');
 			},
 
 			show_game_over() {
