@@ -212,11 +212,7 @@ server.json('/api/guess', async (_req, _url, json) => {
 	}
 	
 	const dist_pct = dist_factor * 100;
-	await db.execute(
-		'INSERT INTO `guesses` (`token`, `locationID`, `distPct`) VALUES(?, ?, ?)', 
-		[json.token, session.currentID, dist_pct]
-	);
-	
+
 	const response: any = {
 		distPct: dist_pct,
 		lives: player_lives,
@@ -231,38 +227,34 @@ server.json('/api/guess', async (_req, _url, json) => {
 	if (map_id !== null)
 		response.mapID = map_id;
 	
+	let new_location = null;
 	if (player_lives > 0) {
-		let new_location;
-		
 		if (session.gameMode === 1)
-			new_location = await db.get_single('SELECT l.`ID` FROM `locations` AS l WHERE `enabled` = 1 AND NOT EXISTS (SELECT * FROM `guesses` AS g WHERE g.`token` = ? AND g.`locationID` = l.`ID`) ORDER BY RAND() LIMIT 1', [json.token]);
+			new_location = await db.get_single('SELECT l.`ID` FROM `locations` AS l WHERE `enabled` = 1 AND l.`ID` != ? AND NOT EXISTS (SELECT * FROM `guesses` AS g WHERE g.`token` = ? AND g.`locationID` = l.`ID`) ORDER BY RAND() LIMIT 1', [session.currentID, json.token]);
 		else
-			new_location = await db.get_single('SELECT l.`ID` FROM `locations_classic` AS l WHERE `enabled` = 1 AND NOT EXISTS (SELECT * FROM `guesses` AS g WHERE g.`token` = ? AND g.`locationID` = l.`ID`) ORDER BY RAND() LIMIT 1', [json.token]);
-		
-		if (new_location !== null) {
-			response.location = new_location.ID;
-			await db.execute(
-				'UPDATE `sessions` SET `score` = ?, `lives` = ?, `currentID` = ? WHERE `token` = ?', 
-				[player_score, player_lives, new_location.ID, json.token]
-			);
-			
-			log(`game session {${json.token}} updated with new location {${new_location.ID}}, score: {${player_score}}, lives: {${player_lives}}`);
-		} else {
-			// No more locations available
-			await db.execute(
-				'UPDATE `sessions` SET `score` = ?, `lives` = ? WHERE `token` = ?', 
-				[player_score, player_lives, json.token]
-			);
-			
-			log(`game session {${json.token}} updated (no more locations), score: {${player_score}}, lives: {${player_lives}}`);
-		}
-	} else {
-		await db.execute(
-			'UPDATE `sessions` SET `score` = ?, `lives` = ? WHERE `token` = ?', 
-			[player_score, player_lives, json.token]
-		);
-		
+			new_location = await db.get_single('SELECT l.`ID` FROM `locations_classic` AS l WHERE `enabled` = 1 AND l.`ID` != ? AND NOT EXISTS (SELECT * FROM `guesses` AS g WHERE g.`token` = ? AND g.`locationID` = l.`ID`) ORDER BY RAND() LIMIT 1', [session.currentID, json.token]);
+	}
+
+	const claimed = await db.execute(
+		'UPDATE `sessions` SET `score` = ?, `lives` = ?, `currentID` = ? WHERE `token` = ? AND `currentID` = ?',
+		[player_score, player_lives, new_location?.ID ?? session.currentID, json.token, session.currentID]
+	);
+
+	if (claimed < 1)
+		return status_response(409, 'Guess already resolved for this location');
+
+	await db.execute(
+		'INSERT INTO `guesses` (`token`, `locationID`, `distPct`) VALUES(?, ?, ?)',
+		[json.token, session.currentID, dist_pct]
+	);
+
+	if (player_lives <= 0) {
 		log(`game session {${json.token}} ended, final score: {${player_score}}`);
+	} else if (new_location !== null) {
+		response.location = new_location.ID;
+		log(`game session {${json.token}} updated with new location {${new_location.ID}}, score: {${player_score}}, lives: {${player_lives}}`);
+	} else {
+		log(`game session {${json.token}} updated (no more locations), score: {${player_score}}, lives: {${player_lives}}`);
 	}
 
 	return response;
