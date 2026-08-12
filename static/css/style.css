@@ -27,6 +27,10 @@
 	--color-window: #00000057;
 	--shadow-panel: black 0 0 20px;
 	--radius-panel: 10px;
+	--dropdown-gap: 8px;
+	--dropdown-bleed-x: 9px;
+	--dropdown-bleed-top: 6px;
+	--dropdown-bleed-bottom: 12px;
 }
 
 * {
@@ -231,24 +235,35 @@ body.page {
 }
 
 #header-account-menu {
-	position: absolute;
-	top: calc(100% + 8px);
+	top: 100%;
 	right: 0;
-	min-width: 100%;
-	padding: 6px;
-	background: var(--color-panel-solid);
-	border: 1px solid var(--color-border);
-	border-radius: var(--radius-panel);
-	box-shadow: var(--shadow-panel);
-	z-index: 2;
+	min-width: calc(100% + var(--dropdown-bleed-x) * 2);
 }
 
-#header-account-menu button {
+#header-auth-error {
+	top: 100%;
+	right: 0;
+	max-width: 280px;
+	font-size: 0.9rem;
+}
+
+/* dropdown */
+
+.dropdown {
+	position: absolute;
+	z-index: 2;
+	margin: calc(var(--dropdown-gap) - var(--dropdown-bleed-top)) calc(var(--dropdown-bleed-x) * -1) calc(var(--dropdown-bleed-bottom) * -1);
+	border: solid transparent;
+	border-width: 14px 17px 20px;
+	border-image: url('/{{cache_bust=static/images/dropdown-bg.webp}}') 28 34 40 fill / 14px 17px 20px stretch;
+}
+
+.dropdown button {
+	position: relative;
 	display: block;
 	width: 100%;
-	padding: 8px 14px;
+	padding: 7px 10px;
 	border: none;
-	border-radius: 6px;
 	background: none;
 	color: var(--color-text);
 	font-size: 0.95rem;
@@ -257,23 +272,19 @@ body.page {
 	cursor: pointer;
 }
 
-#header-account-menu button:hover {
-	background: #ffffff1f;
-	color: var(--color-link);
+.dropdown button::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	background: url('/{{cache_bust=static/images/dropdown-highlight.webp}}') 0 0 / 100% 100% no-repeat;
+	mix-blend-mode: screen;
+	opacity: 0;
+	transition: opacity 0.1s;
 }
 
-#header-auth-error {
-	position: absolute;
-	top: calc(100% + 8px);
-	right: 0;
-	max-width: 280px;
-	padding: 10px 14px;
-	background: var(--color-panel-solid);
-	border: 1px solid var(--color-border);
-	border-radius: var(--radius-panel);
-	box-shadow: var(--shadow-panel);
-	font-size: 0.9rem;
-	z-index: 2;
+.dropdown button:hover::before {
+	opacity: 1;
 }
 
 /* main menu */

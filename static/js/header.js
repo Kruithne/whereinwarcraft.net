@@ -51,6 +51,7 @@ function show_auth_error() {
 
 	const element = document.createElement('div');
 	element.id = 'header-auth-error';
+	element.className = 'dropdown';
 	element.textContent = AUTH_ERRORS[error] ?? AUTH_ERRORS.failed;
 
 	user_container.appendChild(element);
