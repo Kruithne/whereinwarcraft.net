@@ -4,6 +4,40 @@ const MAX_LIVES = 3;
 const GUESS_THRESHOLD = 2.4;
 const BENEFIT_OF_DOUBT_RADIUS = 0.8;
 const PANORAMA_LOAD_TIMEOUT = 15000;
+const LEAFLET_ASSETS = window.wiw_leaflet_assets ?? { css: '/static/leaflet/leaflet.css', js: '/static/leaflet/leaflet.js' };
+
+let leaflet_promise = null;
+
+function load_asset(node) {
+	return new Promise((resolve, reject) => {
+		node.addEventListener('load', resolve, { once: true });
+		node.addEventListener('error', () => reject(new Error('failed to load ' + (node.href ?? node.src))), { once: true });
+
+		document.head.appendChild(node);
+	});
+}
+
+function load_leaflet() {
+	if (leaflet_promise)
+		return leaflet_promise;
+
+	const css = document.createElement('link');
+	css.rel = 'stylesheet';
+	css.href = LEAFLET_ASSETS.css;
+
+	const script = document.createElement('script');
+	script.src = LEAFLET_ASSETS.js;
+
+	leaflet_promise = Promise.all([load_asset(css), load_asset(script)]).catch(error => {
+		leaflet_promise = null;
+		css.remove();
+		script.remove();
+
+		throw error;
+	});
+
+	return leaflet_promise;
+}
 
 async function document_load() {
 	if (document.readyState === 'loading')
@@ -223,7 +257,9 @@ async function fetch_json_post(endpoint, payload) {
 				this.is_classic = is_classic;
 				this.in_game = true;
 				this.is_loading = true;
-				
+
+				load_leaflet().catch(() => {});
+
 				this.setup_panorama_events();
 				this.reset_game_state();
 				
@@ -520,10 +556,18 @@ async function fetch_json_post(endpoint, payload) {
 			// #endregion
 
 			// #region map
-			initialize_map() {
+			async initialize_map() {
 				if (this.initialized_map && this.map)
-					return Promise.resolve();
-				
+					return;
+
+				try {
+					await load_leaflet();
+				} catch (error) {
+					console.error('Failed to load leaflet:', error);
+					this.show_error_toast('The map could not be loaded. Please try again.');
+					return;
+				}
+
 				return new Promise(resolve => {
 					this.$nextTick(() => {
 						this.map = L.map('game-map', {
@@ -735,6 +779,8 @@ async function fetch_json_post(endpoint, payload) {
 				}
 
 				this.in_game = true;
+				load_leaflet().catch(() => {});
+
 				this.setup_panorama_events();
 				this.guess_result_state = 'playing';
 				this.selected_map = this.is_classic ? 'classic' : 'cata';
