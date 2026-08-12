@@ -72,7 +72,7 @@ export async function start_user_session(req: Request, user_id: number, battleta
 
 	const cookies = cookies_get(req);
 	cookies.set(COOKIE_SESSION, session_id, COOKIE_OPTIONS);
-	cookies.set(COOKIE_BATTLETAG, encodeURIComponent(battletag), COOKIE_OPTIONS_VISIBLE);
+	cookies.set(COOKIE_BATTLETAG, battletag, COOKIE_OPTIONS_VISIBLE);
 
 	log`started session for user ${user_id}`;
 }
