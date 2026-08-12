@@ -18,6 +18,8 @@
 		{{head}}
 		<t-for items="scripts" as="script"><script src="/{{script}}" type="module"></script></t-for>
 		<script src="/{{cache_bust=static/js/header.js}}" type="module"></script>
+		<link rel="preconnect" href="//scripts.scriptwrapper.com" crossorigin>
+		<link rel="dns-prefetch" href="//scripts.scriptwrapper.com">
 		<script type="text/javascript" async="async" data-noptimize="1" data-cfasync="false" src="//scripts.scriptwrapper.com/tags/bbe4182c-95a5-4d90-abbb-57cf9bbb6d7c.js"></script>
 	</head>
 	<body class="{{body_class}}">
