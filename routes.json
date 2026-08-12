@@ -3,7 +3,7 @@
 		"content": "./html/index.html",
 		"head": "./html/index_head.html",
 		"description": "Test your knowledge of Azeroth. Guess the location of screenshots from World of Warcraft on the map, in Retail and Classic modes.",
-		"scripts": ["static/js/game.js"]
+		"scripts": ["static/js/menu.js"]
 	},
 
 	"/privacy": {

@@ -1,4 +1,5 @@
 import { createApp } from 'vue';
+import { show_error_toast } from 'toast';
 
 const MAX_LIVES = 3;
 const GUESS_THRESHOLD = 2.4;
@@ -39,11 +40,6 @@ function load_leaflet() {
 	return leaflet_promise;
 }
 
-async function document_load() {
-	if (document.readyState === 'loading')
-		await new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve, { once: true }));
-}
-
 async function response_error(response, fallback) {
 	try {
 		const data = await response.json();
@@ -64,13 +60,15 @@ async function fetch_json_post(endpoint, payload) {
 	});
 }
 
-(async () => {
-	await document_load();
+let app_state = null;
+let exit_handler = null;
 
-	const state = createApp({
+const game_root = document.getElementById('game-root');
+
+function create_game_app() {
+	return createApp({
 		data() {
 			return {
-				in_game: false,
 				is_loading: true,
 				is_classic: false,
 
@@ -110,9 +108,6 @@ async function fetch_json_post(endpoint, payload) {
 
 				guess_result_state: 'playing', // playing, next_round, game_over
 				token: null,
-
-				error_toast_text: null,
-				error_toast_timeout: null,
 
 				selected_map: 'cata',
 				maps: {
@@ -215,14 +210,9 @@ async function fetch_json_post(endpoint, payload) {
 		},
 
 		methods: {
-			show_error_toast(text) {
-				if (this.error_toast_timeout) 
-					clearTimeout(this.error_toast_timeout);
-				
-				this.error_toast_text = text;
-				this.error_toast_timeout = setTimeout(() => {
-					this.error_toast_text = null;
-				}, 7000);
+			exit_to_menu() {
+				game_root.hidden = true;
+				exit_handler?.();
 			},
 
 			preload_image(url) {
@@ -249,13 +239,12 @@ async function fetch_json_post(endpoint, payload) {
 
 			async load_panorama_smooth(url) {
 				if (!await this.preload_image(url))
-					this.show_error_toast('The image for this location could not be loaded. You can still make a guess!');
+					show_error_toast('The image for this location could not be loaded. You can still make a guess!');
 			},
 
 			// #region game logic
 			async play(is_classic = false) {
 				this.is_classic = is_classic;
-				this.in_game = true;
 				this.is_loading = true;
 
 				load_leaflet().catch(() => {});
@@ -291,8 +280,8 @@ async function fetch_json_post(endpoint, payload) {
 					
 					this.is_loading = false;
 				} else {
-					this.show_error_toast('Sorry, there\'s a murloc in the engine right now. Please try again later!');
-					this.in_game = false;
+					show_error_toast('Sorry, there\'s a murloc in the engine right now. Please try again later!');
+					this.exit_to_menu();
 				}
 			},
 
@@ -424,7 +413,7 @@ async function fetch_json_post(endpoint, payload) {
 					
 				} catch (error) {
 					console.error('Error submitting guess:', error);
-					this.show_error_toast(error.message || 'Failed to submit guess');
+					show_error_toast(error.message || 'Failed to submit guess');
 					this.can_place_marker = true;
 				}
 			},
@@ -486,9 +475,9 @@ async function fetch_json_post(endpoint, payload) {
 				this.guess_result_state = 'playing';
 				this.is_loading = false;
 				this.can_place_marker = true;
-				this.in_game = false;
+				this.exit_to_menu();
 
-				this.show_error_toast('Your game session has expired. Start a new game to play again.');
+				show_error_toast('Your game session has expired. Start a new game to play again.');
 			},
 
 			show_game_over() {
@@ -536,7 +525,7 @@ async function fetch_json_post(endpoint, payload) {
 					
 					const response = await fetch_json_post('/api/submit', payload);
 					if (!response.ok) {
-						this.show_error_toast(await response_error(response, 'Failed to submit score'));
+						show_error_toast(await response_error(response, 'Failed to submit score'));
 						return;
 					}
 
@@ -548,7 +537,7 @@ async function fetch_json_post(endpoint, payload) {
 					
 				} catch (error) {
 					console.error('Error submitting score:', error);
-					this.show_error_toast('Failed to submit score');
+					show_error_toast('Failed to submit score');
 				} finally {
 					this.submitting_score = false;
 				}
@@ -564,7 +553,7 @@ async function fetch_json_post(endpoint, payload) {
 					await load_leaflet();
 				} catch (error) {
 					console.error('Failed to load leaflet:', error);
-					this.show_error_toast('The map could not be loaded. Please try again.');
+					show_error_toast('The map could not be loaded. Please try again.');
 					return;
 				}
 
@@ -738,10 +727,11 @@ async function fetch_json_post(endpoint, payload) {
 			
 			async continue_session() {
 				if (!this.token) {
-					this.show_error_toast('No session found');
+					show_error_toast('No session found');
+					this.exit_to_menu();
 					return;
 				}
-				
+
 				let data;
 				try {
 					const response = await fetch_json_post('/api/resume', { token: this.token });
@@ -751,15 +741,17 @@ async function fetch_json_post(endpoint, payload) {
 					data = await response.json();
 				} catch (error) {
 					console.error('Failed to reach server to resume session:', error);
-					this.show_error_toast('Could not reach server, try again');
+					show_error_toast('Could not reach server, try again');
+					this.exit_to_menu();
 					return;
 				}
 
 				if (!data.resume) {
-					this.show_error_toast('Session expired');
+					show_error_toast('Session expired');
 					localStorage.removeItem('wiw-token');
 					localStorage.removeItem('wiw-local-guesses');
 					this.token = null;
+					this.exit_to_menu();
 					return;
 				}
 
@@ -781,7 +773,6 @@ async function fetch_json_post(endpoint, payload) {
 					this.player_guesses = [];
 				}
 
-				this.in_game = true;
 				load_leaflet().catch(() => {});
 
 				this.setup_panorama_events();
@@ -790,7 +781,22 @@ async function fetch_json_post(endpoint, payload) {
 				this.is_loading = false;
 			}
 		}
-	}).mount('#container');
+	});
+}
 
-	state.token = localStorage.getItem('wiw-token') ?? null;
-})();
+export async function start(options) {
+	exit_handler = options.on_exit;
+
+	if (!app_state)
+		app_state = create_game_app().mount('#game-root');
+
+	app_state.token = localStorage.getItem('wiw-token') ?? null;
+	app_state.is_loading = true;
+
+	game_root.hidden = false;
+
+	if (options.resume)
+		await app_state.continue_session();
+	else
+		await app_state.play(options.is_classic);
+}

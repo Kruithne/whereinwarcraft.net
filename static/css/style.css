@@ -44,10 +44,6 @@
 	outline: 0;
 }
 
-[v-cloak] {
-	display: none;
-}
-
 [hidden] {
 	display: none !important;
 }
