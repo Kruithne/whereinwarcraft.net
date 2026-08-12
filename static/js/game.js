@@ -673,6 +673,9 @@ async function fetch_json_post(endpoint, payload) {
 			},
 			
 			panorama_mouse_up(e) {
+				if (!this.panorama_is_dragging)
+					return;
+
 				this.panorama_is_dragging = false;
 				e.preventDefault();
 			},
