@@ -82,27 +82,49 @@ body {
 }
 
 .btn {
-    padding: 13px 20px;
-    font-size: 1.3em;
-    background: #dfb33a;
-    border: 0;
-    color: var(--color-text);
-    border-radius: 15px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	padding: 12px 22px;
+	border: none;
+	border-radius: 6px;
+	background: linear-gradient(to bottom, #e5ac33, #b8801a);
+	color: var(--color-text);
+	font-size: 1.2rem;
+	text-decoration: none;
+	text-shadow: 0 1px 2px #00000080;
 	cursor: pointer;
+	transition: background 0.2s;
 }
 
 .btn:hover {
-	background: #44c944;
+	background: linear-gradient(to bottom, #ffc64d, #d29527);
+	text-decoration: none;
+}
+
+.btn-compact {
+	gap: 10px;
+	padding: 9px 16px;
+	font-size: 0.95rem;
+}
+
+.btn-bnet {
+	background: linear-gradient(to bottom, #00aeff, #0088cc);
+}
+
+.btn-bnet:hover {
+	background: linear-gradient(to bottom, #00c4ff, #009ee0);
 }
 
 .btn.disabled {
-    background: #808080;
-    color: #ccc;
-    cursor: not-allowed;
+	background: linear-gradient(to bottom, #8f8f8f, #6b6b6b);
+	color: #ccc;
+	cursor: not-allowed;
 }
 
 .btn.disabled:hover {
-    background: #808080;
+	background: linear-gradient(to bottom, #8f8f8f, #6b6b6b);
 }
 
 /* page */
@@ -204,29 +226,6 @@ body.page #layout {
 	margin-left: auto;
 	display: flex;
 	align-items: center;
-}
-
-#header-login,
-#header-account-button {
-	display: flex;
-	align-items: center;
-	gap: 10px;
-	padding: 9px 16px;
-	border: none;
-	border-radius: 6px;
-	background: linear-gradient(to bottom, #00aeff, #0088cc);
-	color: var(--color-text);
-	font-size: 0.95rem;
-	text-decoration: none;
-	text-shadow: 0 1px 2px #00000080;
-	cursor: pointer;
-	transition: background 0.2s;
-}
-
-#header-login:hover,
-#header-account-button:hover {
-	background: linear-gradient(to bottom, #00c4ff, #009ee0);
-	text-decoration: none;
 }
 
 .header-bnet-icon {
@@ -770,8 +769,12 @@ body.page #layout {
 		display: none;
 	}
 
-	#header-login,
-	#header-account-button {
+	.btn {
+		padding: 10px 18px;
+		font-size: 1.05rem;
+	}
+
+	.btn-compact {
 		padding: 8px 12px;
 		font-size: 0.85rem;
 	}
