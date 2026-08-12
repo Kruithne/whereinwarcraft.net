@@ -19,12 +19,15 @@ const SITE_TITLE = 'Where in Warcraft - WoW GeoGuessr';
 const SITE_URL = 'https://whereinwarcraft.net';
 const SITE_DESCRIPTION = 'Test your knowledge of Azeroth. Guess the location of screenshots from World of Warcraft on the map, in Retail and Classic modes.';
 const BASE_TEMPLATE = './html/base_template.html';
+const SITEMAP_ROOT_PRIORITY = 1.0;
+const SITEMAP_PAGE_PRIORITY = 0.5;
 
 type PageRoute = {
 	content: string;
 	title?: string;
 	description?: string;
 	noindex?: boolean;
+	priority?: number;
 	head?: string;
 	body_class?: string;
 	stylesheets?: string[];
@@ -171,10 +174,33 @@ async function serve_page(req: Request, route_path: string, route: PageRoute): P
 	return res;
 }
 
+function build_sitemap(routes: Record<string, PageRoute>): string {
+	const parts = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'];
+
+	for (const [route_path, route] of Object.entries(routes)) {
+		if (route.noindex)
+			continue;
+
+		const priority = route.priority ?? (route_path === '/' ? SITEMAP_ROOT_PRIORITY : SITEMAP_PAGE_PRIORITY);
+		parts.push(`\t<url><loc>${escape_attribute(SITE_URL + route_path)}</loc><priority>${priority.toFixed(1)}</priority></url>`);
+	}
+
+	parts.push('</urlset>');
+
+	return parts.join('\n') + '\n';
+}
+
 const page_routes = await Bun.file('./routes.json').json() as Record<string, PageRoute>;
 
 for (const [route_path, route] of Object.entries(page_routes))
 	server.route(route_path, async (req, _url) => serve_page(req, route_path, route));
+
+const sitemap_xml = build_sitemap(page_routes);
+log(`generated sitemap with {${sitemap_xml.split('<url>').length - 1}} urls`);
+
+server.route('/sitemap.xml', () => {
+	return new Response(sitemap_xml, { headers: { ...SECURITY_HEADERS, 'Content-Type': 'application/xml; charset=utf-8' } });
+});
 
 server.json('/api/resume', async (req, url, json) => {
 	if (!is_valid_token(json.token))
@@ -460,6 +486,10 @@ server.route('/api/user', async (req, _url) => {
 	const payload = session === null ? { logged_in: false } : { logged_in: true, battletag: session.battletag };
 
 	return Response.json(payload, { headers: { 'Cache-Control': 'no-store' } });
+});
+
+server.route('/robots.txt', () => {
+	return new Response(Bun.file('./static/robots.txt'), { headers: SECURITY_HEADERS });
 });
 
 server.route('/ads.txt', () => {
