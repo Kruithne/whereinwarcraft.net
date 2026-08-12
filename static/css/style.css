@@ -710,8 +710,12 @@ body.page #layout {
 	gap: 20px;
 }
 
-#footer-logo {
+#footer-logo-link {
 	flex: none;
+	display: flex;
+}
+
+#footer-logo {
 	width: 140px;
 	height: auto;
 	opacity: 0.5;
