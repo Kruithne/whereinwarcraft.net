@@ -14,10 +14,10 @@
 					</div>
 					<div id="main-menu-right">
 						<div id="main-menu-images">
-							<img src="/{{cache_bust=static/images/front-graphic-A.webp}}" class="image" id="main-menu-image-a" width="362" height="199">
-							<img src="/{{cache_bust=static/images/front-graphic-B.webp}}" class="image" id="main-menu-image-b" width="362" height="199">
-							<img src="/{{cache_bust=static/images/front-graphic-C.webp}}" class="image" id="main-menu-image-c" width="362" height="199">
-							<img id="main-menu-ruffles" src="/{{cache_bust=static/images/ruffles.webp}}" width="223" height="223" loading="lazy">
+							<img src="/{{cache_bust=static/images/front-graphic-A.webp}}" class="image" id="main-menu-image-a" width="362" height="199" alt="">
+							<img src="/{{cache_bust=static/images/front-graphic-B.webp}}" class="image" id="main-menu-image-b" width="362" height="199" alt="">
+							<img src="/{{cache_bust=static/images/front-graphic-C.webp}}" class="image" id="main-menu-image-c" width="362" height="199" alt="">
+							<img id="main-menu-ruffles" src="/{{cache_bust=static/images/ruffles.webp}}" width="223" height="223" loading="lazy" alt="">
 						</div>
 					</div>
 				</div>
@@ -51,8 +51,8 @@
 						</div>
 						<div id="game-frame" v-else>
 							<div id="game-window">
-								<div class="loading" v-if="is_loading">
-									<img src="/{{cache_bust=static/images/zeppy.webp}}" width="149" height="140">
+								<div class="loading" v-if="is_loading" role="status" aria-live="polite">
+									<img src="/{{cache_bust=static/images/zeppy.webp}}" width="149" height="140" alt="">
 									<span>Loading, hold tight!</span>
 								</div>
 								<div>
@@ -60,17 +60,17 @@
 									<div id="game-map-info" v-if="!is_loading && map_info.visible">
 										<span>{{ map_info.zone_name }} - {{ map_info.location_name }}</span>
 									</div>
-									<div id="map-selector" v-if="!is_loading && !is_classic && viewing_map">
-										<div id="map-selector-cata" title="Azeroth" class="map-selector-icon" :class="{ selected: selected_map === 'cata' }" @click="set_selected_map('cata')">
+									<div id="map-selector" role="group" aria-label="Select map" v-if="!is_loading && !is_classic && viewing_map">
+										<div id="map-selector-cata" title="Azeroth" aria-label="Azeroth" role="button" tabindex="0" class="map-selector-icon" :class="{ selected: selected_map === 'cata' }" :aria-pressed="selected_map === 'cata'" @click="set_selected_map('cata')" @keydown.enter="set_selected_map('cata')" @keydown.space.prevent="set_selected_map('cata')">
 											<div class="map-selector-icon-border"></div>
 										</div>
-										<div id="map-selector-tbc" title="Outland" class="map-selector-icon" :class="{ selected: selected_map === 'tbc' }" @click="set_selected_map('tbc')">
+										<div id="map-selector-tbc" title="Outland" aria-label="Outland" role="button" tabindex="0" class="map-selector-icon" :class="{ selected: selected_map === 'tbc' }" :aria-pressed="selected_map === 'tbc'" @click="set_selected_map('tbc')" @keydown.enter="set_selected_map('tbc')" @keydown.space.prevent="set_selected_map('tbc')">
 											<div class="map-selector-icon-border"></div>
 										</div>
-										<div id="map-selector-wod" title="Draenor" class="map-selector-icon" :class="{ selected: selected_map === 'wod' }" @click="set_selected_map('wod')">
+										<div id="map-selector-wod" title="Draenor" aria-label="Draenor" role="button" tabindex="0" class="map-selector-icon" :class="{ selected: selected_map === 'wod' }" :aria-pressed="selected_map === 'wod'" @click="set_selected_map('wod')" @keydown.enter="set_selected_map('wod')" @keydown.space.prevent="set_selected_map('wod')">
 											<div class="map-selector-icon-border"></div>
 										</div>
-										<div id="map-selector-bfa" title="Battle for Azeroth" class="map-selector-icon" :class="{ selected: selected_map === 'bfa' }" @click="set_selected_map('bfa')">
+										<div id="map-selector-bfa" title="Battle for Azeroth" aria-label="Battle for Azeroth" role="button" tabindex="0" class="map-selector-icon" :class="{ selected: selected_map === 'bfa' }" :aria-pressed="selected_map === 'bfa'" @click="set_selected_map('bfa')" @keydown.enter="set_selected_map('bfa')" @keydown.space.prevent="set_selected_map('bfa')">
 											<div class="map-selector-icon-border"></div>
 										</div>
 									</div>
