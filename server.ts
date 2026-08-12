@@ -16,11 +16,15 @@ const SECURITY_HEADERS = {
 };
 const TEMPLATE_SUBS = { cache_bust };
 const SITE_TITLE = 'Where in Warcraft - WoW GeoGuessr';
+const SITE_URL = 'https://whereinwarcraft.net';
+const SITE_DESCRIPTION = 'Test your knowledge of Azeroth. Guess the location of screenshots from World of Warcraft on the map, in Retail and Classic modes.';
 const BASE_TEMPLATE = './html/base_template.html';
 
 type PageRoute = {
 	content: string;
 	title?: string;
+	description?: string;
+	noindex?: boolean;
 	head?: string;
 	body_class?: string;
 	stylesheets?: string[];
@@ -139,10 +143,17 @@ async function serve_template(req: Request, cache_key: string, file_path: string
 	return res;
 }
 
-async function render_page(route: PageRoute): Promise<string> {
+function escape_attribute(value: string): string {
+	return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+async function render_page(route_path: string, route: PageRoute): Promise<string> {
 	const subs = {
 		...TEMPLATE_SUBS,
 		title: route.title === undefined ? SITE_TITLE : route.title + ' - ' + SITE_TITLE,
+		description: escape_attribute(route.description ?? SITE_DESCRIPTION),
+		canonical: SITE_URL + route_path,
+		noindex: route.noindex ? '1' : '',
 		head: route.head === undefined ? '' : await Bun.file(route.head).text(),
 		body_class: route.body_class ?? '',
 		stylesheets: route.stylesheets === undefined ? [] : cache_bust(route.stylesheets),
@@ -153,8 +164,8 @@ async function render_page(route: PageRoute): Promise<string> {
 	return await parse_template(await Bun.file(BASE_TEMPLATE).text(), subs, false);
 }
 
-async function serve_page(req: Request, cache_key: string, route: PageRoute): Promise<Response> {
-	const res = await cache.request(req, cache_key, () => render_page(route));
+async function serve_page(req: Request, route_path: string, route: PageRoute): Promise<Response> {
+	const res = await cache.request(req, route_path, () => render_page(route_path, route));
 	res.headers.set('Content-Type', 'text/html');
 
 	return res;

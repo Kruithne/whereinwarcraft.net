@@ -1,28 +1,5 @@
-<div id="layout">
-			<header id="site-header">
-				<div id="header-container">
-					<img id="header-logo" src="/{{cache_bust=static/images/wiw_footer_logo.svg}}" alt="Where in Warcraft?">
-					<div id="header-user">
-						<a id="header-login" class="btn btn-compact btn-bnet" href="/auth/login" hidden>
-							<img class="header-bnet-icon" src="/{{cache_bust=static/images/logo-battlenet.svg}}" alt="">
-							<span>Login with Battle.net</span>
-						</a>
-						<div id="header-account" hidden>
-							<button id="header-account-button" class="btn btn-compact btn-bnet" type="button" aria-expanded="false">
-								<img class="header-bnet-icon" src="/{{cache_bust=static/images/logo-battlenet.svg}}" alt="">
-								<span id="header-account-name"></span>
-								<span id="header-account-caret">▾</span>
-							</button>
-							<div id="header-account-menu" class="dropdown" hidden>
-								<button id="header-logout" type="button">Logout</button>
-							</div>
-						</div>
-					</div>
-				</div>
-			</header>
 			<div id="container" v-cloak>
 				<div id="error-toast" v-if="error_toast_text">{{ error_toast_text }}</div>
-				<div id="backdrop"></div>
 				<div id="main-menu" v-if="!in_game">
 					<div>
 						<div id="main-menu-content">
@@ -148,23 +125,3 @@
 					</div>
 				</div>
 			</div>
-			<footer id="site-footer">
-				<div id="footer-container">
-					<div id="footer-left">
-						<img id="footer-logo" src="/{{cache_bust=static/images/wiw_footer_logo.svg}}" alt="Where in Warcraft?">
-						<div id="footer-credits">
-							Created by <a href="http://kruithne.net/">Kruithne</a> and <a href="https://www.welshcorgileague.org/corgi-rescue/">Falerian</a>.<br>
-							Inspired by <a href="https://geoguessr.com/">geoguessr</a>.
-						</div>
-					</div>
-					<div id="footer-right">
-						<div id="footer-support">
-							Enjoyed playing? Consider <a href="https://www.paypal.me/kruithne">donating</a> or <a href="https://www.patreon.com/kruithne">supporting on Patreon</a>!
-						</div>
-						<div id="footer-links">
-							<a href="/privacy">Privacy Policy</a>
-						</div>
-					</div>
-				</div>
-			</footer>
-		</div>

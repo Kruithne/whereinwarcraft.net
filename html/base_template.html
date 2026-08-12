@@ -4,6 +4,9 @@
 		<meta charset="utf-8">
 		<title>{{title}}</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="description" content="{{description}}">
+		<link rel="canonical" href="{{canonical}}">
+		<t-if test="noindex"><meta name="robots" content="noindex, follow"></t-if>
 		<link rel="icon" type="image/png" href="/{{cache_bust=static/favicon-96x96.png}}" sizes="96x96">
 		<link rel="icon" type="image/svg+xml" href="/{{cache_bust=static/favicon.svg}}">
 		<link rel="shortcut icon" href="/{{cache_bust=static/favicon.ico}}">
@@ -18,6 +21,49 @@
 		<script type="text/javascript" async="async" data-noptimize="1" data-cfasync="false" src="//scripts.scriptwrapper.com/tags/bbe4182c-95a5-4d90-abbb-57cf9bbb6d7c.js"></script>
 	</head>
 	<body class="{{body_class}}">
-		{{content}}
+		<div id="backdrop"></div>
+		<div id="layout">
+			<header id="site-header">
+				<div id="header-container">
+					<a href="/"><img id="header-logo" src="/{{cache_bust=static/images/wiw_footer_logo.svg}}" alt="Where in Warcraft?"></a>
+					<div id="header-user">
+						<a id="header-login" class="btn btn-compact btn-bnet" href="/auth/login" hidden>
+							<img class="header-bnet-icon" src="/{{cache_bust=static/images/logo-battlenet.svg}}" alt="">
+							<span>Login with Battle.net</span>
+						</a>
+						<div id="header-account" hidden>
+							<button id="header-account-button" class="btn btn-compact btn-bnet" type="button" aria-expanded="false">
+								<img class="header-bnet-icon" src="/{{cache_bust=static/images/logo-battlenet.svg}}" alt="">
+								<span id="header-account-name"></span>
+								<span id="header-account-caret">▾</span>
+							</button>
+							<div id="header-account-menu" class="dropdown" hidden>
+								<button id="header-logout" type="button">Logout</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</header>
+			{{content}}
+			<footer id="site-footer">
+				<div id="footer-container">
+					<div id="footer-left">
+						<img id="footer-logo" src="/{{cache_bust=static/images/wiw_footer_logo.svg}}" alt="Where in Warcraft?">
+						<div id="footer-credits">
+							Created by <a href="http://kruithne.net/">Kruithne</a> and <a href="https://www.welshcorgileague.org/corgi-rescue/">Falerian</a>.<br>
+							Inspired by <a href="https://geoguessr.com/">geoguessr</a>.
+						</div>
+					</div>
+					<div id="footer-right">
+						<div id="footer-support">
+							Enjoyed playing? Consider <a href="https://www.paypal.me/kruithne">donating</a> or <a href="https://www.patreon.com/kruithne">supporting on Patreon</a>!
+						</div>
+						<div id="footer-links">
+							<a href="/privacy">Privacy Policy</a>
+						</div>
+					</div>
+				</div>
+			</footer>
+		</div>
 	</body>
 </html>
