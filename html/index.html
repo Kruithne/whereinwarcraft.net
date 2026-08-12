@@ -25,173 +25,175 @@
 		<script type="text/javascript" async="async" data-noptimize="1" data-cfasync="false" src="//scripts.scriptwrapper.com/tags/bbe4182c-95a5-4d90-abbb-57cf9bbb6d7c.js"></script>
 	</head>
 	<body>
-		<header id="site-header">
-			<div id="header-container">
-				<img id="header-logo" src="/{{cache_bust=static/images/wiw_footer_logo.svg}}" alt="Where in Warcraft?">
-				<div id="header-user">
-					<a id="header-login" href="/auth/login" hidden>
-						<img class="header-bnet-icon" src="/{{cache_bust=static/images/logo-battlenet.svg}}" alt="">
-						<span>Login with Battle.net</span>
-					</a>
-					<div id="header-account" hidden>
-						<button id="header-account-button" type="button" aria-expanded="false">
+		<div id="layout">
+			<header id="site-header">
+				<div id="header-container">
+					<img id="header-logo" src="/{{cache_bust=static/images/wiw_footer_logo.svg}}" alt="Where in Warcraft?">
+					<div id="header-user">
+						<a id="header-login" href="/auth/login" hidden>
 							<img class="header-bnet-icon" src="/{{cache_bust=static/images/logo-battlenet.svg}}" alt="">
-							<span id="header-account-name"></span>
-							<span id="header-account-caret">▾</span>
-						</button>
-						<div id="header-account-menu" class="dropdown" hidden>
-							<button id="header-logout" type="button">Logout</button>
+							<span>Login with Battle.net</span>
+						</a>
+						<div id="header-account" hidden>
+							<button id="header-account-button" type="button" aria-expanded="false">
+								<img class="header-bnet-icon" src="/{{cache_bust=static/images/logo-battlenet.svg}}" alt="">
+								<span id="header-account-name"></span>
+								<span id="header-account-caret">▾</span>
+							</button>
+							<div id="header-account-menu" class="dropdown" hidden>
+								<button id="header-logout" type="button">Logout</button>
+							</div>
 						</div>
 					</div>
 				</div>
-			</div>
-		</header>
-		<div id="container" v-cloak>
-			<div id="error-toast" v-if="error_toast_text">{{ error_toast_text }}</div>
-			<div id="backdrop"></div>
-			<div id="main-menu" v-if="!in_game">
-				<div>
-					<div id="main-menu-content">
-						<h1>How well do you know the world of Azeroth?</h1>
-						<h2>Can you accurately place all the locations on the map?</h2>
-						<div id="main-menu-button-tray">
-							<input class="btn" type="button" value="Play Retail" @click="play(false)">
-							<input class="btn" type="button" value="Play Classic" @click="play(true)">
+			</header>
+			<div id="container" v-cloak>
+				<div id="error-toast" v-if="error_toast_text">{{ error_toast_text }}</div>
+				<div id="backdrop"></div>
+				<div id="main-menu" v-if="!in_game">
+					<div>
+						<div id="main-menu-content">
+							<h1>How well do you know the world of Azeroth?</h1>
+							<h2>Can you accurately place all the locations on the map?</h2>
+							<div id="main-menu-button-tray">
+								<input class="btn" type="button" value="Play Retail" @click="play(false)">
+								<input class="btn" type="button" value="Play Classic" @click="play(true)">
+							</div>
+							<a id="main-menu-last-session" v-if="token" @click="continue_session">Continue last session</a>
 						</div>
-						<a id="main-menu-last-session" v-if="token" @click="continue_session">Continue last session</a>
+					</div>
+					<div id="main-menu-right">
+						<div id="main-menu-images">
+							<img src="/{{cache_bust=static/images/front-graphic-A.jpg}}" class="image" id="main-menu-image-a">
+							<img src="/{{cache_bust=static/images/front-graphic-B.jpg}}" class="image" id="main-menu-image-b">
+							<img src="/{{cache_bust=static/images/front-graphic-C.jpg}}" class="image" id="main-menu-image-c">
+							<img id="main-menu-ruffles" src="/{{cache_bust=static/images/ruffles.png}}">
+						</div>
 					</div>
 				</div>
-				<div id="main-menu-right">
-					<div id="main-menu-images">
-						<img src="/{{cache_bust=static/images/front-graphic-A.jpg}}" class="image" id="main-menu-image-a">
-						<img src="/{{cache_bust=static/images/front-graphic-B.jpg}}" class="image" id="main-menu-image-b">
-						<img src="/{{cache_bust=static/images/front-graphic-C.jpg}}" class="image" id="main-menu-image-c">
-						<img id="main-menu-ruffles" src="/{{cache_bust=static/images/ruffles.png}}">
-					</div>
-				</div>
-			</div>
-			<div id="game" v-else>
-				<div id="game-content">
-					<div v-if="guess_result_state === 'game_over'">
-						<div id="game-over-spirit"></div>
-						<div id="game-over-ui">
-							<h2>Game Over!</h2>
-							<p v-if="is_alive">You completed every location!</p>
-							<p v-else>You ran out of lives!</p>
-							<p>Your final score: {{ player_score }}</p>
-							<p>Your accuracy: {{ player_accuracy }}%</p>
-							<input class="btn" type="button" value="Play Again" @click="play(false)">
-							<input class="btn" type="button" value="Submit Score" :class="{ disabled: player_score <= 0 }" @click="show_score_submission_form" v-if="!show_score_submission && !score_submitted">
-							<div v-if="show_score_submission" style="margin-top: 20px;">
-								<input type="text" 
-									v-model="player_name" 
-									placeholder="Enter your name..." 
-									maxlength="20" 
-									style="padding: 10px; margin-bottom: 10px; width: 200px; border: 1px solid #ccc; border-radius: 5px;">
+				<div id="game" v-else>
+					<div id="game-content">
+						<div v-if="guess_result_state === 'game_over'">
+							<div id="game-over-spirit"></div>
+							<div id="game-over-ui">
+								<h2>Game Over!</h2>
+								<p v-if="is_alive">You completed every location!</p>
+								<p v-else>You ran out of lives!</p>
+								<p>Your final score: {{ player_score }}</p>
+								<p>Your accuracy: {{ player_accuracy }}%</p>
+								<input class="btn" type="button" value="Play Again" @click="play(false)">
+								<input class="btn" type="button" value="Submit Score" :class="{ disabled: player_score <= 0 }" @click="show_score_submission_form" v-if="!show_score_submission && !score_submitted">
+								<div v-if="show_score_submission" style="margin-top: 20px;">
+									<input type="text" 
+										v-model="player_name" 
+										placeholder="Enter your name..." 
+										maxlength="20" 
+										style="padding: 10px; margin-bottom: 10px; width: 200px; border: 1px solid #ccc; border-radius: 5px;">
+									<div>
+										<input class="btn" type="button" 
+											:value="score_submitted ? 'Score Sent!' : (submitting_score ? 'Sending...' : 'Send')" 
+											:class="{ disabled: submitting_score || score_submitted || player_name.trim().length === 0 }" 
+											@click="submit_score">
+										<input class="btn" type="button" value="Cancel" @click="hide_score_submission_form" v-if="!score_submitted">
+									</div>
+								</div>
+							</div>
+						</div>
+						<div id="game-frame" v-else>
+							<div id="game-window">
+								<div class="loading" v-if="is_loading">
+									<img src="/{{cache_bust=static/images/zeppy.png}}">
+									<span>Loading, hold tight!</span>
+								</div>
 								<div>
-									<input class="btn" type="button" 
-										:value="score_submitted ? 'Score Sent!' : (submitting_score ? 'Sending...' : 'Send')" 
-										:class="{ disabled: submitting_score || score_submitted || player_name.trim().length === 0 }" 
-										@click="submit_score">
-									<input class="btn" type="button" value="Cancel" @click="hide_score_submission_form" v-if="!score_submitted">
-								</div>
-							</div>
-						</div>
-					</div>
-					<div id="game-frame" v-else>
-						<div id="game-window">
-							<div class="loading" v-if="is_loading">
-								<img src="/{{cache_bust=static/images/zeppy.png}}">
-								<span>Loading, hold tight!</span>
-							</div>
-							<div>
-								<div id="game-map" ref="game_map" :style="{ display: !is_loading && viewing_map ? 'block' : 'none', background: map_background }"></div>
-								<div id="game-map-info" v-if="!is_loading && map_info.visible">
-									<span>{{ map_info.zone_name }} - {{ map_info.location_name }}</span>
-								</div>
-								<div id="map-selector" v-if="!is_loading && !is_classic && viewing_map">
-									<div id="map-selector-cata" title="Azeroth" class="map-selector-icon" :class="{ selected: selected_map === 'cata' }" @click="set_selected_map('cata')">
-										<div class="map-selector-icon-border"></div>
+									<div id="game-map" ref="game_map" :style="{ display: !is_loading && viewing_map ? 'block' : 'none', background: map_background }"></div>
+									<div id="game-map-info" v-if="!is_loading && map_info.visible">
+										<span>{{ map_info.zone_name }} - {{ map_info.location_name }}</span>
 									</div>
-									<div id="map-selector-tbc" title="Outland" class="map-selector-icon" :class="{ selected: selected_map === 'tbc' }" @click="set_selected_map('tbc')">
-										<div class="map-selector-icon-border"></div>
+									<div id="map-selector" v-if="!is_loading && !is_classic && viewing_map">
+										<div id="map-selector-cata" title="Azeroth" class="map-selector-icon" :class="{ selected: selected_map === 'cata' }" @click="set_selected_map('cata')">
+											<div class="map-selector-icon-border"></div>
+										</div>
+										<div id="map-selector-tbc" title="Outland" class="map-selector-icon" :class="{ selected: selected_map === 'tbc' }" @click="set_selected_map('tbc')">
+											<div class="map-selector-icon-border"></div>
+										</div>
+										<div id="map-selector-wod" title="Draenor" class="map-selector-icon" :class="{ selected: selected_map === 'wod' }" @click="set_selected_map('wod')">
+											<div class="map-selector-icon-border"></div>
+										</div>
+										<div id="map-selector-bfa" title="Battle for Azeroth" class="map-selector-icon" :class="{ selected: selected_map === 'bfa' }" @click="set_selected_map('bfa')">
+											<div class="map-selector-icon-border"></div>
+										</div>
 									</div>
-									<div id="map-selector-wod" title="Draenor" class="map-selector-icon" :class="{ selected: selected_map === 'wod' }" @click="set_selected_map('wod')">
-										<div class="map-selector-icon-border"></div>
+									<div id="game-map-buttons" v-show="!is_loading && viewing_map && guess_result_state === 'playing'">
+										<input class="btn" type="button" value="Re-view Location" @click="viewing_map = false">
+										<input class="btn" type="button" value="Confirm Guess" :class="{ disabled: !map_marker }" @click="confirm_guess">
 									</div>
-									<div id="map-selector-bfa" title="Battle for Azeroth" class="map-selector-icon" :class="{ selected: selected_map === 'bfa' }" @click="set_selected_map('bfa')">
-										<div class="map-selector-icon-border"></div>
+									<div id="next-round-button" v-show="!is_loading && guess_result_state === 'next_round'">
+										<input class="btn" type="button" value="Next Round" @click="next_round">
 									</div>
-								</div>
-								<div id="game-map-buttons" v-show="!is_loading && viewing_map && guess_result_state === 'playing'">
-									<input class="btn" type="button" value="Re-view Location" @click="viewing_map = false">
-									<input class="btn" type="button" value="Confirm Guess" :class="{ disabled: !map_marker }" @click="confirm_guess">
-								</div>
-								<div id="next-round-button" v-show="!is_loading && guess_result_state === 'next_round'">
-									<input class="btn" type="button" value="Next Round" @click="next_round">
-								</div>
-								<div id="game-view-panorama" v-show="!is_loading" :style="{ display: !viewing_map ? 'block' : 'none' }">
-									<div id="game-panorama"
-										:style="{
-											backgroundImage: 'url(' + current_location_background + ')',
-											backgroundPosition: panorama_background_position
-										}"
-										@mousedown="panorama_mouse_down"
-										@touchstart="panorama_mouse_down">
-									</div>
-									<div id="leaderboard" v-show="is_leaderboard_shown">
-										<div v-if="leaderboard_loading">Loading...</div>
-										<div v-else-if="leaderboard_data.length === 0">No scores yet!</div>
-										<template v-else>
-											<div v-for="(player, index) in leaderboard_data" :key="index">
-												{{ index + 1 }}. {{ player.name }}
-												<span>{{ player.score }} ({{ Math.round(player.accuracy) }}%)</span>
-											</div>
-										</template>
-									</div>
-									<div id="game-panorama-buttons" v-show="!viewing_map && guess_result_state === 'playing'">
-										<input class="btn" type="button" value="Make Guess" @click="viewing_map = true">
-										<input class="btn" type="button" value="Leaderboard" @click="toggle_leaderboard">
+									<div id="game-view-panorama" v-show="!is_loading" :style="{ display: !viewing_map ? 'block' : 'none' }">
+										<div id="game-panorama"
+											:style="{
+												backgroundImage: 'url(' + current_location_background + ')',
+												backgroundPosition: panorama_background_position
+											}"
+											@mousedown="panorama_mouse_down"
+											@touchstart="panorama_mouse_down">
+										</div>
+										<div id="leaderboard" v-show="is_leaderboard_shown">
+											<div v-if="leaderboard_loading">Loading...</div>
+											<div v-else-if="leaderboard_data.length === 0">No scores yet!</div>
+											<template v-else>
+												<div v-for="(player, index) in leaderboard_data" :key="index">
+													{{ index + 1 }}. {{ player.name }}
+													<span>{{ player.score }} ({{ Math.round(player.accuracy) }}%)</span>
+												</div>
+											</template>
+										</div>
+										<div id="game-panorama-buttons" v-show="!viewing_map && guess_result_state === 'playing'">
+											<input class="btn" type="button" value="Make Guess" @click="viewing_map = true">
+											<input class="btn" type="button" value="Leaderboard" @click="toggle_leaderboard">
+										</div>
 									</div>
 								</div>
 							</div>
-						</div>
-						<div id="game-stats">
-							<span class="game-stat" id="game-stat-lives">
-								<span class="game-stat-label">Lives</span>
-								<span class="game-stat-value">{{ remaining_lives }}</span>
-							</span>
-							<span class="game-stat" id="game-stat-score">
-								<span class="game-stat-label">Score</span>
-								<span class="game-stat-value">{{ player_score }}</span>
-							</span>
-							<span class="game-stat" id="game-stat-accuracy">
-								<span class="game-stat-label">Accuracy</span>
-								<span class="game-stat-value">{{ player_accuracy }}%</span>
-							</span>
+							<div id="game-stats">
+								<span class="game-stat" id="game-stat-lives">
+									<span class="game-stat-label">Lives</span>
+									<span class="game-stat-value">{{ remaining_lives }}</span>
+								</span>
+								<span class="game-stat" id="game-stat-score">
+									<span class="game-stat-label">Score</span>
+									<span class="game-stat-value">{{ player_score }}</span>
+								</span>
+								<span class="game-stat" id="game-stat-accuracy">
+									<span class="game-stat-label">Accuracy</span>
+									<span class="game-stat-value">{{ player_accuracy }}%</span>
+								</span>
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
+			<footer id="site-footer">
+				<div id="footer-container">
+					<div id="footer-left">
+						<img id="footer-logo" src="/{{cache_bust=static/images/wiw_footer_logo.svg}}" alt="Where in Warcraft?">
+						<div id="footer-credits">
+							Created by <a href="http://kruithne.net/">Kruithne</a> and <a href="https://www.welshcorgileague.org/corgi-rescue/">Falerian</a>.<br>
+							Inspired by <a href="https://geoguessr.com/">geoguessr</a>.
+						</div>
+					</div>
+					<div id="footer-right">
+						<div id="footer-support">
+							Enjoyed playing? Consider <a href="https://www.paypal.me/kruithne">donating</a> or <a href="https://www.patreon.com/kruithne">supporting on Patreon</a>!
+						</div>
+						<div id="footer-links">
+							<a href="/privacy">Privacy Policy</a>
+						</div>
+					</div>
+				</div>
+			</footer>
 		</div>
-		<footer id="site-footer">
-			<div id="footer-container">
-				<div id="footer-left">
-					<img id="footer-logo" src="/{{cache_bust=static/images/wiw_footer_logo.svg}}" alt="Where in Warcraft?">
-					<div id="footer-credits">
-						Created by <a href="http://kruithne.net/">Kruithne</a> and <a href="https://www.welshcorgileague.org/corgi-rescue/">Falerian</a>.<br>
-						Inspired by <a href="https://geoguessr.com/">geoguessr</a>.
-					</div>
-				</div>
-				<div id="footer-right">
-					<div id="footer-support">
-						Enjoyed playing? Consider <a href="https://www.paypal.me/kruithne">donating</a> or <a href="https://www.patreon.com/kruithne">supporting on Patreon</a>!
-					</div>
-					<div id="footer-links">
-						<a href="/privacy">Privacy Policy</a>
-					</div>
-				</div>
-			</div>
-		</footer>
 	</body>
 </html>
