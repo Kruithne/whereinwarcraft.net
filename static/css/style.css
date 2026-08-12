@@ -593,7 +593,7 @@ body.page #layout {
 .map-selector-icon-border {
 	position: absolute;
 	inset: 0;
-	background-image: url(/{{cache_bust=static/images/map-icon-border.png}});
+	background-image: url(/{{cache_bust=static/images/map-icon-border.webp}});
 	background-size: 200% 100%;
 	background-position: 0 0;
 	background-repeat: no-repeat;
@@ -656,7 +656,7 @@ body.page #layout {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-image: url(/{{cache_bust=static/images/spirit-healer.png}});
+    background-image: url(/{{cache_bust=static/images/spirit-healer.webp}});
     background-repeat: no-repeat;
     background-size: contain;
     width: 808px;
