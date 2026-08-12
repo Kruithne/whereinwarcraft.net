@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>{{title}}</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="icon" type="image/png" href="/{{cache_bust=static/favicon-96x96.png}}" sizes="96x96">
+		<link rel="icon" type="image/svg+xml" href="/{{cache_bust=static/favicon.svg}}">
+		<link rel="shortcut icon" href="/{{cache_bust=static/favicon.ico}}">
+		<link rel="apple-touch-icon" sizes="180x180" href="/{{cache_bust=static/apple-touch-icon.png}}">
+		<meta name="apple-mobile-web-app-title" content="W-in-W">
+		<link rel="manifest" href="/{{cache_bust=static/site.webmanifest}}">
+		<link href="/{{cache_bust=static/css/style.css}}" type="text/css" rel="stylesheet"/>
+		<t-for items="stylesheets" as="stylesheet"><link href="/{{stylesheet}}" type="text/css" rel="stylesheet"/></t-for>
+		{{head}}
+		<t-for items="scripts" as="script"><script src="/{{script}}" type="module"></script></t-for>
+		<script src="/{{cache_bust=static/js/header.js}}" type="module"></script>
+		<script type="text/javascript" async="async" data-noptimize="1" data-cfasync="false" src="//scripts.scriptwrapper.com/tags/bbe4182c-95a5-4d90-abbb-57cf9bbb6d7c.js"></script>
+	</head>
+	<body class="{{body_class}}">
+		{{content}}
+	</body>
+</html>

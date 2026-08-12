@@ -15,6 +15,17 @@ const SECURITY_HEADERS = {
 	'X-Frame-Options': 'SAMEORIGIN'
 };
 const TEMPLATE_SUBS = { cache_bust };
+const SITE_TITLE = 'Where in Warcraft - WoW GeoGuessr';
+const BASE_TEMPLATE = './html/base_template.html';
+
+type PageRoute = {
+	content: string;
+	title?: string;
+	head?: string;
+	body_class?: string;
+	stylesheets?: string[];
+	scripts?: string[];
+};
 
 const server = http_serve(Number(process.env.SERVER_PORT), process.env.SERVER_LISTEN_HOST);
 
@@ -128,7 +139,31 @@ async function serve_template(req: Request, cache_key: string, file_path: string
 	return res;
 }
 
-server.route('/', async (req, _url) => serve_template(req, 'index', './html/index.html', 'text/html'));
+async function render_page(route: PageRoute): Promise<string> {
+	const subs = {
+		...TEMPLATE_SUBS,
+		title: route.title === undefined ? SITE_TITLE : route.title + ' - ' + SITE_TITLE,
+		head: route.head === undefined ? '' : await Bun.file(route.head).text(),
+		body_class: route.body_class ?? '',
+		stylesheets: route.stylesheets === undefined ? [] : cache_bust(route.stylesheets),
+		scripts: route.scripts === undefined ? [] : cache_bust(route.scripts),
+		content: await Bun.file(route.content).text()
+	};
+
+	return await parse_template(await Bun.file(BASE_TEMPLATE).text(), subs, false);
+}
+
+async function serve_page(req: Request, cache_key: string, route: PageRoute): Promise<Response> {
+	const res = await cache.request(req, cache_key, () => render_page(route));
+	res.headers.set('Content-Type', 'text/html');
+
+	return res;
+}
+
+const page_routes = await Bun.file('./routes.json').json() as Record<string, PageRoute>;
+
+for (const [route_path, route] of Object.entries(page_routes))
+	server.route(route_path, async (req, _url) => serve_page(req, route_path, route));
 
 server.json('/api/resume', async (req, url, json) => {
 	if (!is_valid_token(json.token))
@@ -419,8 +454,6 @@ server.route('/api/user', async (req, _url) => {
 server.route('/ads.txt', () => {
 	return new Response(Bun.file('./static/ads.txt'), { headers: SECURITY_HEADERS });
 });
-
-server.route('/privacy', async (req, _url) => serve_template(req, 'privacy', './html/privacy.html', 'text/html'));
 
 server.route('/static/css/style.css', async (req, _url) => serve_template(req, 'style.css', './static/css/style.css', 'text/css'));
 

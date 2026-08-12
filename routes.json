@@ -1,0 +1,13 @@
+{
+	"/": {
+		"content": "./html/index.html",
+		"head": "./html/index_head.html",
+		"scripts": ["static/js/game.js"]
+	},
+
+	"/privacy": {
+		"content": "./html/privacy.html",
+		"title": "Privacy Policy",
+		"body_class": "page"
+	}
+}
