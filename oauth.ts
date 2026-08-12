@@ -1,5 +1,5 @@
 import { log_create_logger } from 'spooder';
-import db from './db';
+import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
 
 const AUTH_ENDPOINT = 'https://oauth.battle.net/authorize';
 const TOKEN_ENDPOINT = 'https://oauth.battle.net/token';
@@ -18,9 +18,21 @@ export function is_configured(): boolean {
 	return !!process.env.BNET_CLIENT_ID && !!process.env.BNET_CLIENT_SECRET && !!process.env.BNET_CALLBACK_URL;
 }
 
-export async function build_authorization_url(): Promise<string> {
-	const state = crypto.randomUUID();
-	await db.insert_object('oauth_state_tokens', { state, created: Date.now() });
+function sign_state(payload: string): string {
+	const hmac = createHmac('sha256', process.env.BNET_CLIENT_SECRET as string);
+	hmac.update(payload);
+
+	return hmac.digest('base64url');
+}
+
+function create_state_token(): string {
+	const payload = randomBytes(16).toString('hex') + '.' + Date.now();
+
+	return payload + '.' + sign_state(payload);
+}
+
+export function build_authorization_url(): string {
+	const state = create_state_token();
 
 	const params = new URLSearchParams({
 		client_id: process.env.BNET_CLIENT_ID as string,
@@ -33,18 +45,25 @@ export async function build_authorization_url(): Promise<string> {
 	return AUTH_ENDPOINT + '?' + params.toString();
 }
 
-export async function consume_state_token(state: string): Promise<boolean> {
-	const row = await db.get_single('SELECT `created` FROM `oauth_state_tokens` WHERE `state` = ?', [state]);
-	if (row === null)
+export function consume_state_token(state: string): boolean {
+	const parts = state.split('.');
+	if (parts.length !== 3)
 		return false;
 
-	await db.execute('DELETE FROM `oauth_state_tokens` WHERE `state` = ?', [state]);
+	const [nonce, created, signature] = parts;
+	const expected = Buffer.from(sign_state(nonce + '.' + created));
+	const provided = Buffer.from(signature);
 
-	return Date.now() - Number(row.created) <= STATE_TOKEN_TTL;
-}
+	if (expected.length !== provided.length || !timingSafeEqual(expected, provided))
+		return false;
 
-export async function cleanup_expired_state_tokens(): Promise<void> {
-	await db.execute('DELETE FROM `oauth_state_tokens` WHERE `created` < ?', [Date.now() - STATE_TOKEN_TTL]);
+	const created_at = Number(created);
+	if (!Number.isSafeInteger(created_at))
+		return false;
+
+	const age = Date.now() - created_at;
+
+	return age >= 0 && age <= STATE_TOKEN_TTL;
 }
 
 export async function exchange_code_for_token(code: string): Promise<string|null> {

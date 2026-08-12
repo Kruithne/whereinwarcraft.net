@@ -441,7 +441,7 @@ server.route('/auth/login', async (_req, _url) => {
 		return redirect('/?auth_error=unavailable');
 	}
 
-	return redirect(await oauth.build_authorization_url());
+	return redirect(oauth.build_authorization_url());
 });
 
 server.route('/auth/callback', async (req, url) => {
@@ -454,7 +454,7 @@ server.route('/auth/callback', async (req, url) => {
 	if (code === null || state === null)
 		return redirect('/?auth_error=invalid');
 
-	if (!await oauth.consume_state_token(state))
+	if (!oauth.consume_state_token(state))
 		return redirect('/?auth_error=expired');
 
 	const access_token = await oauth.exchange_code_for_token(code);
@@ -542,7 +542,6 @@ if (typeof process.env.GH_WEBHOOK_SECRET === 'string') {
 async function cleanup_user_sessions() {
 	users.prune_session_cache();
 	await users.cleanup_expired_sessions();
-	await oauth.cleanup_expired_state_tokens();
 
 	setTimeout(cleanup_user_sessions, 60 * 60 * 1000); // 1 hour
 }
