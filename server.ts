@@ -2,6 +2,8 @@ import { http_serve, caution, cache_http, cache_bust, parse_template, EXIT_CODE,
 import path from 'node:path';
 import { format } from 'node:util';
 import db from './db';
+import * as oauth from './oauth';
+import * as users from './users';
 
 const GUESS_THRESHOLD = 2.4;
 const BOD_RADIUS = 0.8;
@@ -354,6 +356,66 @@ server.json('/api/submit', async (_req, _url, json) => {
 	return { success: true };
 }, 'POST');
 
+function redirect(location: string): Response {
+	return new Response(null, {
+		status: HTTP_STATUS_CODE.Found_302,
+		headers: { Location: location }
+	});
+}
+
+server.route('/auth/login', async (_req, _url) => {
+	if (!oauth.is_configured()) {
+		caution('battle.net oauth is not configured');
+		return redirect('/?auth_error=unavailable');
+	}
+
+	return redirect(await oauth.build_authorization_url());
+});
+
+server.route('/auth/callback', async (req, url) => {
+	if (url.searchParams.get('error') !== null)
+		return redirect('/?auth_error=denied');
+
+	const code = url.searchParams.get('code');
+	const state = url.searchParams.get('state');
+
+	if (code === null || state === null)
+		return redirect('/?auth_error=invalid');
+
+	if (!await oauth.consume_state_token(state))
+		return redirect('/?auth_error=expired');
+
+	const access_token = await oauth.exchange_code_for_token(code);
+	if (access_token === null)
+		return redirect('/?auth_error=failed');
+
+	const user_info = await oauth.get_user_info(access_token);
+	if (user_info === null)
+		return redirect('/?auth_error=failed');
+
+	const user_id = await users.get_or_create_user(user_info.id, user_info.battletag);
+	if (user_id === null)
+		return redirect('/?auth_error=failed');
+
+	await users.start_user_session(req, user_id, user_info.battletag);
+	log(`user {${user_info.battletag}} logged in`);
+
+	return redirect('/');
+});
+
+server.json('/api/logout', async (req, _url, _json) => {
+	await users.end_user_session(req);
+	return { success: true };
+}, 'POST');
+
+server.route('/api/user', async (req, _url) => {
+	const session = await users.get_user_session(req);
+
+	const payload = session === null ? { logged_in: false } : { logged_in: true, battletag: session.battletag };
+
+	return Response.json(payload, { headers: { 'Cache-Control': 'no-store' } });
+});
+
 server.route('/ads.txt', () => {
 	return new Response(Bun.file('./static/ads.txt'), { headers: SECURITY_HEADERS });
 });
@@ -403,4 +465,16 @@ if (typeof process.env.GH_WEBHOOK_SECRET === 'string') {
 	caution('GH_WEBHOOK_SECRET environment variable not configured');
 }
 
+async function cleanup_user_sessions() {
+	users.prune_session_cache();
+	await users.cleanup_expired_sessions();
+	await oauth.cleanup_expired_state_tokens();
+
+	setTimeout(cleanup_user_sessions, 60 * 60 * 1000); // 1 hour
+}
+
+if (!oauth.is_configured())
+	caution('battle.net oauth environment variables not configured');
+
 cleanup_old_sessions();
+cleanup_user_sessions();

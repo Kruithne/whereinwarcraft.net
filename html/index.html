@@ -21,12 +21,29 @@
 			}
 		</script>
 		<script src="/{{cache_bust=static/js/game.js}}" type="module"></script>
+		<script src="/{{cache_bust=static/js/header.js}}" type="module"></script>
 		<script type="text/javascript" async="async" data-noptimize="1" data-cfasync="false" src="//scripts.scriptwrapper.com/tags/bbe4182c-95a5-4d90-abbb-57cf9bbb6d7c.js"></script>
 	</head>
 	<body>
 		<header id="site-header">
 			<div id="header-container">
 				<img id="header-logo" src="/{{cache_bust=static/images/wiw_footer_logo.svg}}" alt="Where in Warcraft?">
+				<div id="header-user">
+					<a id="header-login" href="/auth/login" hidden>
+						<img class="header-bnet-icon" src="/{{cache_bust=static/images/logo-battlenet.svg}}" alt="">
+						<span>Login with Battle.net</span>
+					</a>
+					<div id="header-account" hidden>
+						<button id="header-account-button" type="button" aria-expanded="false">
+							<img class="header-bnet-icon" src="/{{cache_bust=static/images/logo-battlenet.svg}}" alt="">
+							<span id="header-account-name"></span>
+							<span id="header-account-caret">▾</span>
+						</button>
+						<div id="header-account-menu" hidden>
+							<button id="header-logout" type="button">Logout</button>
+						</div>
+					</div>
+				</div>
 			</div>
 		</header>
 		<div id="container" v-cloak>

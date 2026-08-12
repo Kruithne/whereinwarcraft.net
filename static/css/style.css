@@ -185,6 +185,93 @@ body.page {
 	height: auto;
 }
 
+#header-user {
+	position: relative;
+	margin-left: auto;
+	display: flex;
+	align-items: center;
+}
+
+#header-login,
+#header-account-button {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 9px 16px;
+	border: none;
+	border-radius: 6px;
+	background: linear-gradient(to bottom, #00aeff, #0088cc);
+	color: var(--color-text);
+	font-size: 0.95rem;
+	text-decoration: none;
+	text-shadow: 0 1px 2px #00000080;
+	cursor: pointer;
+	transition: background 0.2s;
+}
+
+#header-login:hover,
+#header-account-button:hover {
+	background: linear-gradient(to bottom, #00c4ff, #009ee0);
+	text-decoration: none;
+}
+
+.header-bnet-icon {
+	flex: none;
+	width: 20px;
+	height: 20px;
+}
+
+#header-account-caret {
+	font-size: 0.75rem;
+	opacity: 0.85;
+}
+
+#header-account-menu {
+	position: absolute;
+	top: calc(100% + 8px);
+	right: 0;
+	min-width: 100%;
+	padding: 6px;
+	background: var(--color-panel-solid);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-panel);
+	box-shadow: var(--shadow-panel);
+	z-index: 2;
+}
+
+#header-account-menu button {
+	display: block;
+	width: 100%;
+	padding: 8px 14px;
+	border: none;
+	border-radius: 6px;
+	background: none;
+	color: var(--color-text);
+	font-size: 0.95rem;
+	text-align: left;
+	white-space: nowrap;
+	cursor: pointer;
+}
+
+#header-account-menu button:hover {
+	background: #ffffff1f;
+	color: var(--color-link);
+}
+
+#header-auth-error {
+	position: absolute;
+	top: calc(100% + 8px);
+	right: 0;
+	max-width: 280px;
+	padding: 10px 14px;
+	background: var(--color-panel-solid);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-panel);
+	box-shadow: var(--shadow-panel);
+	font-size: 0.9rem;
+	z-index: 2;
+}
+
 /* main menu */
 #main-menu {
 	display: grid;
@@ -649,12 +736,29 @@ body.page {
 
 @media (max-width: 900px) {
 	#header-container {
-		justify-content: center;
+		justify-content: space-between;
 		padding: 12px 20px;
 	}
 
 	#header-logo {
 		width: 120px;
+	}
+
+	#header-login span {
+		display: none;
+	}
+
+	#header-login,
+	#header-account-button {
+		padding: 8px 12px;
+		font-size: 0.85rem;
+	}
+
+	#header-account-name {
+		max-width: 120px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
 
 	#footer-container {

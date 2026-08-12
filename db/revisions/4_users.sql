@@ -1,0 +1,27 @@
+CREATE TABLE IF NOT EXISTS `users` (
+	`ID` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+	`bnet_id` BIGINT UNSIGNED NOT NULL,
+	`battletag` VARCHAR(64) NOT NULL,
+	`created` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	`last_login` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	`flags` INT UNSIGNED NOT NULL DEFAULT 0,
+	PRIMARY KEY (`ID`),
+	UNIQUE KEY `bnet_id` (`bnet_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE IF NOT EXISTS `user_sessions` (
+	`session_id` VARCHAR(36) NOT NULL,
+	`user_id` BIGINT UNSIGNED NOT NULL,
+	`created` BIGINT UNSIGNED NOT NULL,
+	`last_seen` BIGINT UNSIGNED NOT NULL,
+	PRIMARY KEY (`session_id`),
+	KEY `user_id` (`user_id`),
+	CONSTRAINT `fk_user_sessions_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`ID`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE IF NOT EXISTS `oauth_state_tokens` (
+	`state` VARCHAR(36) NOT NULL,
+	`created` BIGINT UNSIGNED NOT NULL,
+	PRIMARY KEY (`state`),
+	KEY `created` (`created`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
