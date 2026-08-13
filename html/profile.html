@@ -3,14 +3,14 @@
 
 				<section id="profile-progress">
 					<h2>Overall Progress</h2>
-					<p>Progress shows how many locations you have guessed correctly in each game mode.</p>
+					<p>Progress shows how many locations you have guessed correctly in each era. Normal and Hardcore games both add to your progress.</p>
 					<div id="profile-overall">
 						<div class="profile-card-title mode-tag"><svg class="mode-icon mode-icon-overall" aria-hidden="true"><use href="#icon-wow"></use></svg><span>Overall</span></div>
 						<div class="profile-card-percent">{{overall_percent}}%</div>
 						<div class="profile-card-detail">{{overall_correct}} / {{overall_total}} locations</div>
 					</div>
 					<div id="profile-cards">
-						<t-for items="mode_cards" as="card"><div class="profile-card">
+						<t-for items="era_cards" as="card"><div class="profile-card">
 							<div class="profile-card-title mode-tag"><svg class="mode-icon {{card.icon}}" aria-hidden="true"><use href="#icon-wow"></use></svg><span>{{card.label}}</span></div>
 							<div class="profile-card-percent">{{card.percent}}%</div>
 							<div class="profile-card-detail">{{card.correct}} / {{card.total}} locations</div>
@@ -25,6 +25,7 @@
 							<thead>
 								<tr>
 									<th scope="col">Mode</th>
+									<th scope="col">Era</th>
 									<th scope="col">Date</th>
 									<th scope="col">Score</th>
 									<th scope="col">Status</th>
@@ -32,7 +33,7 @@
 								</tr>
 							</thead>
 							<tbody>
-								<t-for items="recent_games" as="game"><tr><td><span class="mode-tag"><svg class="mode-icon {{game.mode_icon}}" aria-hidden="true"><use href="#icon-wow"></use></svg><span>{{game.mode_label}}</span></span></td><td>{{game.played}}</td><td>{{game.score}}</td><td>{{game.status}}</td><td class="recent-games-actions">{{game.actions}}</td></tr></t-for>
+								<t-for items="recent_games" as="game"><tr><td><span class="mode-tag"><svg class="mode-icon {{game.mode_icon}}" aria-hidden="true"><use href="#icon-wow"></use></svg><span>{{game.mode_label}}</span></span></td><td><span class="mode-tag"><svg class="mode-icon {{game.era_icon}}" aria-hidden="true"><use href="#icon-wow"></use></svg><span>{{game.era_label}}</span></span></td><td>{{game.played}}</td><td>{{game.score}}</td><td>{{game.status}}</td><td class="recent-games-actions">{{game.actions}}</td></tr></t-for>
 							</tbody>
 						</table>
 					</t-if>

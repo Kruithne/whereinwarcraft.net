@@ -1,8 +1,14 @@
 			<main id="page-content">
 				<h1>{{leaderboard_heading}}</h1>
 
-				<nav id="leaderboard-modes" aria-label="Game modes">
-					<t-for items="mode_links" as="link"><a class="leaderboard-mode {{link.class}}" href="{{link.href}}"><svg class="mode-icon {{link.icon}}" aria-hidden="true"><use href="#icon-wow"></use></svg><span>{{link.label}}</span></a></t-for>
+				<t-if test="has_game_modes">
+					<nav class="leaderboard-switch" aria-label="Game mode">
+						<t-for items="game_mode_links" as="link"><a class="leaderboard-mode {{link.class}}" href="{{link.href}}"><svg class="mode-icon {{link.icon}}" aria-hidden="true"><use href="#icon-wow"></use></svg><span>{{link.label}}</span></a></t-for>
+					</nav>
+				</t-if>
+
+				<nav class="leaderboard-switch" aria-label="Era">
+					<t-for items="era_links" as="link"><a class="leaderboard-mode {{link.class}}" href="{{link.href}}"><svg class="mode-icon {{link.icon}}" aria-hidden="true"><use href="#icon-wow"></use></svg><span>{{link.label}}</span></a></t-for>
 				</nav>
 
 				<p>{{leaderboard_intro}}</p>

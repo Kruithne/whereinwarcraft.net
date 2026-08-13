@@ -125,7 +125,7 @@ body {
 	filter: grayscale(1) brightness(0.7);
 }
 
-/* game mode icons */
+/* game mode and era icons */
 .mode-icon {
 	flex: none;
 	width: 1.2em;
@@ -136,6 +136,14 @@ body {
 
 .mode-icon-overall {
 	color: #d9d2c4;
+}
+
+.mode-icon-normal {
+	color: #d9d2c4;
+}
+
+.mode-icon-hardcore {
+	color: #d62425;
 }
 
 .mode-icon-retail {
@@ -409,19 +417,72 @@ body.page #layout {
 	height: 100%;
 }
 
-#main-menu-button-tray {
-	margin-bottom: 10px;
+#main-menu-selectors {
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: center;
-	gap: 8px;
-	max-width: 600px;
-	margin-left: auto;
-	margin-right: auto;
+	gap: 16px;
+	margin-bottom: 12px;
 }
 
-.btn-mode {
-	flex: 0 1 auto;
+.menu-select {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 4px;
+}
+
+.menu-select-label {
+	color: var(--color-text-muted);
+	font-size: 0.8rem;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+.menu-select-button {
+	box-sizing: border-box;
+	width: 260px;
+	justify-content: flex-start;
+}
+
+.menu-select-value {
+	flex: 1;
+	text-align: left;
+}
+
+.menu-select-caret {
+	font-size: 0.75rem;
+	opacity: 0.85;
+}
+
+.menu-select-menu {
+	top: 100%;
+	left: 0;
+	min-width: calc(100% + var(--dropdown-bleed-x) * 2);
+	max-height: 320px;
+	overflow-y: auto;
+}
+
+.menu-select-menu button.selected {
+	color: var(--color-link);
+}
+
+.dropdown button .mode-icon {
+	margin-right: 8px;
+}
+
+#main-menu-mode-description {
+	margin-bottom: 16px;
+	color: var(--color-text-muted);
+	font-size: 0.95rem;
+}
+
+#main-menu-play {
+	box-sizing: border-box;
+	display: flex;
+	width: 200px;
+	margin: 0 auto 10px;
 }
 
 #main-menu-last-session {
@@ -466,7 +527,7 @@ body.page #layout {
 	text-shadow: 0 0 10px black, 0 0 20px black;
 }
 
-#game-mode-label {
+.game-banner-label {
 	color: var(--color-text-muted);
 }
 
@@ -607,10 +668,14 @@ body.page #layout {
 }
 
 /* leaderboard page */
-#leaderboard-modes {
+.leaderboard-switch {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 10px;
+	margin-bottom: 10px;
+}
+
+.leaderboard-switch:last-of-type {
 	margin-bottom: 20px;
 }
 

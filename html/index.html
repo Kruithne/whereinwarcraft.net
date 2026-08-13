@@ -1,14 +1,30 @@
 			<div id="container">
-				<script type="application/json" id="wiw-modes">{{modes_json}}</script>
+				<script type="application/json" id="wiw-eras">{{eras_json}}</script>
+				<script type="application/json" id="wiw-game-modes">{{game_modes_json}}</script>
 				<div id="error-toast" hidden></div>
 				<div id="main-menu">
 					<div>
 						<div id="main-menu-content">
 							<h1>How well do you know the world of Azeroth?</h1>
 							<h2>Can you accurately place all the locations on the map?</h2>
-							<div id="main-menu-button-tray">
-								<t-for items="mode_buttons" as="mode"><button class="btn btn-mode" type="button" data-mode="{{mode.slug}}"><svg class="mode-icon {{mode.icon}}" aria-hidden="true"><use href="#icon-wow"></use></svg><span>{{mode.label}}</span></button></t-for>
+							<div id="main-menu-selectors">
+								<div class="menu-select" id="main-menu-mode-select">
+									<span class="menu-select-label" id="main-menu-mode-select-label">Game Mode</span>
+									<button class="btn menu-select-button" type="button" aria-haspopup="true" aria-expanded="false" aria-labelledby="main-menu-mode-select-label main-menu-mode-select-value"><svg class="mode-icon {{default_mode_icon}}" aria-hidden="true"><use href="#icon-wow"></use></svg><span class="menu-select-value" id="main-menu-mode-select-value">{{default_mode_label}}</span><span class="menu-select-caret" aria-hidden="true">▾</span></button>
+									<div class="dropdown menu-select-menu" hidden>
+										<t-for items="game_mode_options" as="option"><button type="button" data-value="{{option.slug}}"><svg class="mode-icon {{option.icon}}" aria-hidden="true"><use href="#icon-wow"></use></svg><span>{{option.label}}</span></button></t-for>
+									</div>
+								</div>
+								<div class="menu-select" id="main-menu-era-select">
+									<span class="menu-select-label" id="main-menu-era-select-label">Era</span>
+									<button class="btn menu-select-button" type="button" aria-haspopup="true" aria-expanded="false" aria-labelledby="main-menu-era-select-label main-menu-era-select-value"><svg class="mode-icon {{default_era_icon}}" aria-hidden="true"><use href="#icon-wow"></use></svg><span class="menu-select-value" id="main-menu-era-select-value">{{default_era_label}}</span><span class="menu-select-caret" aria-hidden="true">▾</span></button>
+									<div class="dropdown menu-select-menu" hidden>
+										<t-for items="era_options" as="option"><button type="button" data-value="{{option.slug}}"><svg class="mode-icon {{option.icon}}" aria-hidden="true"><use href="#icon-wow"></use></svg><span>{{option.label}}</span></button></t-for>
+									</div>
+								</div>
 							</div>
+							<p id="main-menu-mode-description">{{default_mode_description}}</p>
+							<button class="btn" id="main-menu-play" type="button">Play</button>
 							<a id="main-menu-last-session" hidden>Continue last session</a>
 						</div>
 					</div>
@@ -29,7 +45,7 @@
 								<div id="game-over-ui">
 									<h2>Game Over!</h2>
 									<p v-if="is_alive">You completed every location!</p>
-									<p v-else>You ran out of lives!</p>
+									<p v-else>{{ game_over_message }}</p>
 									<p>Your final score: {{ player_score }}</p>
 									<p>Your accuracy: {{ player_accuracy }}%</p>
 									<input class="btn" type="button" value="Play Again" @click="play(false)">
@@ -40,14 +56,16 @@
 										v-if="!score_submitted">
 									<p id="game-over-score-message" v-if="score_submitted">{{ score_message }}</p>
 									<div>
-										<a class="btn" :href="'/leaderboard/' + mode_tag">View Leaderboard</a>
+										<a class="btn" :href="leaderboard_href">View Leaderboard</a>
 									</div>
 								</div>
 							</div>
 							<div id="game-play" v-else>
 								<div id="game-mode-banner">
-									<span id="game-mode-label">Mode:</span>
-									<span class="mode-tag"><svg class="mode-icon" :class="'mode-icon-' + mode_tag" aria-hidden="true"><use href="#icon-wow"></use></svg><span>{{ mode_label }}</span></span>
+									<span class="game-banner-label">Mode:</span>
+									<span class="mode-tag"><svg class="mode-icon" :class="'mode-icon-' + game_mode_tag" aria-hidden="true"><use href="#icon-wow"></use></svg><span>{{ game_mode_label }}</span></span>
+									<span class="game-banner-label">Era:</span>
+									<span class="mode-tag"><svg class="mode-icon" :class="'mode-icon-' + era_tag" aria-hidden="true"><use href="#icon-wow"></use></svg><span>{{ era_label }}</span></span>
 								</div>
 								<div id="game-frame">
 									<div id="game-window">

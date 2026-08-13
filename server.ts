@@ -4,7 +4,7 @@ import { format } from 'node:util';
 import db from './db';
 import * as oauth from './oauth';
 import * as users from './users';
-import { GAME_MODES, get_game_mode_by_id, get_location_sources, mode_location_filter, build_mode_client_config, type GameMode } from './game_modes';
+import { ERAS, GAME_MODES, get_era_by_id, get_game_mode_by_id, is_hardcore, build_leaderboard_page, get_location_sources, era_location_filter, build_era_client_config, build_game_mode_client_config, type Era, type GameMode } from './game_modes';
 
 const GUESS_THRESHOLD = 2.4;
 const BOD_RADIUS = 0.8;
@@ -92,8 +92,8 @@ function point_distance(x1: number, y1: number, x2: number, y2: number): number 
 	return Math.sqrt(delta_x * delta_x + delta_y * delta_y);
 }
 
-async function get_random_location(mode: GameMode) {
-	return await db.get_single('SELECT `l`.`ID` FROM `' + mode.location_table + '` AS `l` WHERE `l`.`enabled` = 1' + mode_location_filter(mode, 'l') + ' ORDER BY RAND() LIMIT 1');
+async function get_random_location(era: Era) {
+	return await db.get_single('SELECT `l`.`ID` FROM `' + era.location_table + '` AS `l` WHERE `l`.`enabled` = 1' + era_location_filter(era, 'l') + ' ORDER BY RAND() LIMIT 1');
 }
 
 async function clear_token(clear_token: any) {
@@ -147,9 +147,9 @@ async function get_progress_totals(): Promise<ProgressTotals> {
 
 	const totals = new Map<number, number>();
 
-	for (const mode of GAME_MODES) {
-		const count = await db.count('SELECT COUNT(*) AS `count` FROM `' + mode.location_table + '` AS `l` WHERE `l`.`enabled` = 1' + mode_location_filter(mode, 'l'));
-		totals.set(mode.id, count);
+	for (const era of ERAS) {
+		const count = await db.count('SELECT COUNT(*) AS `count` FROM `' + era.location_table + '` AS `l` WHERE `l`.`enabled` = 1' + era_location_filter(era, 'l'));
+		totals.set(era.id, count);
 	}
 
 	let total_all = 0;
@@ -166,21 +166,21 @@ function progress_percent(correct: number, total: number): number {
 	return total > 0 ? Math.floor((correct / total) * 100) : 0;
 }
 
-async function get_user_mode_progress(user_id: number, mode: GameMode): Promise<number> {
-	return await db.count('SELECT COUNT(*) AS `count` FROM `user_location_progress` AS p JOIN `' + mode.location_table + '` AS l ON (l.`ID` = p.`location_id`) WHERE p.`user_id` = ? AND p.`game_mode` = ? AND l.`enabled` = 1' + mode_location_filter(mode, 'l'), [user_id, mode.id]);
+async function get_user_era_progress(user_id: number, era: Era): Promise<number> {
+	return await db.count('SELECT COUNT(*) AS `count` FROM `user_location_progress` AS p JOIN `' + era.location_table + '` AS l ON (l.`ID` = p.`location_id`) WHERE p.`user_id` = ? AND p.`era` = ? AND l.`enabled` = 1' + era_location_filter(era, 'l'), [user_id, era.id]);
 }
 
 async function get_user_overall_progress(user_id: number): Promise<number> {
 	let total = 0;
 
 	for (const source of LOCATION_SOURCES)
-		total += await db.count('SELECT COUNT(DISTINCT p.`location_id`) AS `count` FROM `user_location_progress` AS p JOIN `' + source.table + '` AS l ON (l.`ID` = p.`location_id`) WHERE p.`user_id` = ? AND p.`game_mode` IN (' + source.mode_ids.join(', ') + ') AND l.`enabled` = 1', [user_id]);
+		total += await db.count('SELECT COUNT(DISTINCT p.`location_id`) AS `count` FROM `user_location_progress` AS p JOIN `' + source.table + '` AS l ON (l.`ID` = p.`location_id`) WHERE p.`user_id` = ? AND p.`era` IN (' + source.era_ids.join(', ') + ') AND l.`enabled` = 1', [user_id]);
 
 	return total;
 }
 
-async function record_location_progress(user_id: number, game_mode: number, location_id: string): Promise<void> {
-	await db.execute('INSERT IGNORE INTO `user_location_progress` (`user_id`, `game_mode`, `location_id`) VALUES(?, ?, ?)', [user_id, game_mode, location_id]);
+async function record_location_progress(user_id: number, era: number, location_id: string): Promise<void> {
+	await db.execute('INSERT IGNORE INTO `user_location_progress` (`user_id`, `era`, `location_id`) VALUES(?, ?, ?)', [user_id, era, location_id]);
 }
 
 async function prune_user_history(user_id: number): Promise<void> {
@@ -306,34 +306,47 @@ async function serve_page(req: Request, route_path: string, route: PageRoute, ex
 	return res;
 }
 
-function mode_icon_class(slug: string): string {
+function icon_class(slug: string): string {
 	return 'mode-icon-' + slug;
 }
 
-function build_mode_links(current_slug: string): object[] {
+function leaderboard_path(mode: GameMode, era_slug: string): string {
+	return LEADERBOARD_ROOT + (is_hardcore(mode) ? '/hardcore' : '') + '/' + era_slug;
+}
+
+function build_game_mode_links(mode: GameMode, era: Era): object[] {
+	return GAME_MODES.map(entry => ({
+		href: leaderboard_path(entry, era.slug),
+		label: entry.label,
+		icon: icon_class(entry.slug),
+		class: entry.id === mode.id ? 'selected' : ''
+	}));
+}
+
+function build_era_links(mode: GameMode, current_slug: string): object[] {
 	const links = [{
 		href: LEADERBOARD_ROOT,
 		label: 'Overall',
-		icon: mode_icon_class('overall'),
+		icon: icon_class('overall'),
 		class: current_slug === '' ? 'selected' : ''
 	}];
 
-	for (const mode of GAME_MODES) {
+	for (const era of ERAS) {
 		links.push({
-			href: LEADERBOARD_ROOT + '/' + mode.slug,
-			label: mode.label,
-			icon: mode_icon_class(mode.slug),
-			class: mode.slug === current_slug ? 'selected' : ''
+			href: leaderboard_path(mode, era.slug),
+			label: era.label,
+			icon: icon_class(era.slug),
+			class: era.slug === current_slug ? 'selected' : ''
 		});
 	}
 
 	return links;
 }
 
-async function render_leaderboard(route_path: string, route: PageRoute, mode: GameMode): Promise<string> {
+async function render_leaderboard(route_path: string, route: PageRoute, era: Era, mode: GameMode): Promise<string> {
 	const rows = await db.get_all(
-		'SELECT u.`display_name`, l.`score`, l.`accuracy` FROM `leaderboard` AS l JOIN `users` AS u ON (u.`ID` = l.`user_id`) WHERE l.`game_mode` = ? ORDER BY l.`score` DESC, l.`accuracy` DESC LIMIT ' + LEADERBOARD_LIMIT,
-		[mode.id]
+		'SELECT u.`display_name`, l.`score`, l.`accuracy` FROM `leaderboard` AS l JOIN `users` AS u ON (u.`ID` = l.`user_id`) WHERE l.`era` = ? AND l.`hardcore` = ? ORDER BY l.`score` DESC, l.`accuracy` DESC LIMIT ' + LEADERBOARD_LIMIT,
+		[era.id, mode.id]
 	);
 
 	const entries = rows.map((row, index) => ({
@@ -343,25 +356,29 @@ async function render_leaderboard(route_path: string, route: PageRoute, mode: Ga
 		accuracy: Math.round(Number(row.accuracy))
 	}));
 
+	const page = build_leaderboard_page(era, mode);
+
 	return await render_page(route_path, route, {
-		leaderboard_heading: mode.page_title,
-		leaderboard_intro: mode.page_intro,
-		mode_links: build_mode_links(mode.slug),
+		leaderboard_heading: page.title,
+		leaderboard_intro: page.intro,
+		game_mode_links: build_game_mode_links(mode, era),
+		era_links: build_era_links(mode, era.slug),
+		has_game_modes: '1',
 		entries,
 		has_entries: entries.length > 0 ? '1' : '',
 		is_empty: entries.length > 0 ? '' : '1'
 	});
 }
 
-async function serve_leaderboard(req: Request, route_path: string, route: PageRoute, mode: GameMode): Promise<Response> {
-	const res = await leaderboard_cache.request(req, route_path, () => render_leaderboard(route_path, route, mode));
+async function serve_leaderboard(req: Request, route_path: string, route: PageRoute, era: Era, mode: GameMode): Promise<Response> {
+	const res = await leaderboard_cache.request(req, route_path, () => render_leaderboard(route_path, route, era, mode));
 	res.headers.set('Content-Type', 'text/html');
 
 	return res;
 }
 
-function invalidate_leaderboard_cache(mode: GameMode): void {
-	leaderboard_cache.entries.delete(LEADERBOARD_ROOT + '/' + mode.slug);
+function invalidate_leaderboard_cache(era: Era, mode: GameMode): void {
+	leaderboard_cache.entries.delete(leaderboard_path(mode, era.slug));
 }
 
 function build_sitemap(routes: Record<string, PageRoute>): string {
@@ -381,12 +398,23 @@ function build_sitemap(routes: Record<string, PageRoute>): string {
 }
 
 const menu_subs = {
-	mode_buttons: GAME_MODES.map(mode => ({
+	era_options: ERAS.map(era => ({
+		slug: era.slug,
+		label: era.label,
+		icon: icon_class(era.slug)
+	})),
+	game_mode_options: GAME_MODES.map(mode => ({
 		slug: mode.slug,
 		label: mode.label,
-		icon: mode_icon_class(mode.slug)
+		icon: icon_class(mode.slug)
 	})),
-	modes_json: JSON.stringify(build_mode_client_config()).replace(/</g, '\\u003c')
+	default_era_label: ERAS[0].label,
+	default_era_icon: icon_class(ERAS[0].slug),
+	default_mode_label: GAME_MODES[0].label,
+	default_mode_icon: icon_class(GAME_MODES[0].slug),
+	default_mode_description: GAME_MODES[0].description,
+	eras_json: JSON.stringify(build_era_client_config()).replace(/</g, '\\u003c'),
+	game_modes_json: JSON.stringify(build_game_mode_client_config()).replace(/</g, '\\u003c')
 };
 
 const page_routes = await Bun.file('./routes.json').json() as Record<string, PageRoute>;
@@ -397,7 +425,7 @@ for (const [route_path, route] of Object.entries(page_routes))
 const leaderboard_index_route: PageRoute = {
 	content: LEADERBOARD_INDEX_TEMPLATE,
 	title: 'Leaderboards',
-	description: 'Where in Warcraft leaderboards. See the global progress leaderboard and the top players for each game mode.',
+	description: 'Where in Warcraft leaderboards. See the global progress leaderboard and the top players for each game mode and era.',
 	body_class: 'page',
 	noindex: true,
 	breadcrumbs: [
@@ -409,7 +437,7 @@ const leaderboard_index_route: PageRoute = {
 async function render_leaderboard_index(): Promise<string> {
 	const { total_all } = await get_progress_totals();
 
-	const union = LOCATION_SOURCES.map(source => '(SELECT DISTINCT p.`user_id`, p.`location_id` FROM `user_location_progress` AS p JOIN `' + source.table + '` AS l ON (l.`ID` = p.`location_id`) WHERE p.`game_mode` IN (' + source.mode_ids.join(', ') + ') AND l.`enabled` = 1)').join(' UNION ALL ');
+	const union = LOCATION_SOURCES.map(source => '(SELECT DISTINCT p.`user_id`, p.`location_id` FROM `user_location_progress` AS p JOIN `' + source.table + '` AS l ON (l.`ID` = p.`location_id`) WHERE p.`era` IN (' + source.era_ids.join(', ') + ') AND l.`enabled` = 1)').join(' UNION ALL ');
 	const rows = await db.get_all('SELECT u.`display_name`, t.`correct` FROM (SELECT `user_id`, COUNT(*) AS `correct` FROM (' + union + ') AS c GROUP BY `user_id` ORDER BY `correct` DESC LIMIT ' + LEADERBOARD_LIMIT + ') AS t JOIN `users` AS u ON (u.`ID` = t.`user_id`) ORDER BY t.`correct` DESC');
 
 	const entries = rows.map((row, index) => ({
@@ -421,7 +449,7 @@ async function render_leaderboard_index(): Promise<string> {
 	}));
 
 	return await render_page(LEADERBOARD_ROOT, leaderboard_index_route, {
-		mode_links: build_mode_links(''),
+		era_links: build_era_links(GAME_MODES[0], ''),
 		entries,
 		has_entries: entries.length > 0 ? '1' : '',
 		is_empty: entries.length > 0 ? '' : '1'
@@ -438,23 +466,26 @@ server.route(LEADERBOARD_ROOT, async (req, _url) => {
 const leaderboard_routes: Record<string, PageRoute> = {};
 
 for (const mode of GAME_MODES) {
-	const route_path = LEADERBOARD_ROOT + '/' + mode.slug;
+	for (const era of ERAS) {
+		const route_path = leaderboard_path(mode, era.slug);
+		const page = build_leaderboard_page(era, mode);
 
-	const route: PageRoute = {
-		content: LEADERBOARD_TEMPLATE,
-		title: mode.page_title,
-		description: mode.page_description,
-		body_class: 'page',
-		priority: LEADERBOARD_PAGE_PRIORITY,
-		breadcrumbs: [
-			{ name: 'Home', path: '/' },
-			{ name: 'Leaderboards', path: LEADERBOARD_ROOT },
-			{ name: mode.label, path: route_path }
-		]
-	};
+		const route: PageRoute = {
+			content: LEADERBOARD_TEMPLATE,
+			title: page.title,
+			description: page.description,
+			body_class: 'page',
+			priority: LEADERBOARD_PAGE_PRIORITY,
+			breadcrumbs: [
+				{ name: 'Home', path: '/' },
+				{ name: 'Leaderboards', path: LEADERBOARD_ROOT },
+				{ name: is_hardcore(mode) ? era.label + ' ' + mode.label : era.label, path: route_path }
+			]
+		};
 
-	leaderboard_routes[route_path] = route;
-	server.route(route_path, async (req, _url) => serve_leaderboard(req, route_path, route, mode));
+		leaderboard_routes[route_path] = route;
+		server.route(route_path, async (req, _url) => serve_leaderboard(req, route_path, route, era, mode));
+	}
 }
 
 const sitemap_xml = build_sitemap({ ...page_routes, ...leaderboard_routes });
@@ -468,7 +499,7 @@ server.json('/api/resume', async (req, url, json) => {
 	if (!is_valid_token(json.token))
 		return status_response(400, 'Invalid token');
 
-	const session = await db.get_single('SELECT `gameMode`, `lives`, `score`, `currentID`, `finished`, `user_id` FROM `sessions` WHERE `token` = ?', [json.token]);
+	const session = await db.get_single('SELECT `era`, `hardcore`, `lives`, `score`, `currentID`, `finished`, `user_id` FROM `sessions` WHERE `token` = ?', [json.token]);
 
 	if (session !== null && session.lives > 0 && !session.finished) {
 		if (session.user_id === null) {
@@ -477,10 +508,11 @@ server.json('/api/resume', async (req, url, json) => {
 				await db.execute('UPDATE `sessions` SET `user_id` = ? WHERE `token` = ? AND `user_id` IS NULL', [user_session.user_id, json.token]);
 		}
 
-		log(`resumed game session {${json.token}} with mode {${session.gameMode}}`);
+		log(`resumed game session {${json.token}} with era {${session.era}} and mode {${session.hardcore}}`);
 
 		return {
-			mode: session.gameMode,
+			era: session.era,
+			game_mode: session.hardcore,
 			resume: true,
 			lives: session.lives,
 			score: session.score,
@@ -494,30 +526,32 @@ server.json('/api/resume', async (req, url, json) => {
 }, 'POST');
 
 for (const mode of GAME_MODES) {
-	server.json('/api/init/' + mode.slug, async (req, _url, json) => {
-		const token = Bun.randomUUIDv7();
-		const location = await get_random_location(mode);
+	for (const era of ERAS) {
+		server.json('/api/init/' + mode.slug + '/' + era.slug, async (req, _url, json) => {
+			const token = Bun.randomUUIDv7();
+			const location = await get_random_location(era);
 
-		if (location === null) {
-			caution('get_random_location(): failed to get start location', { mode: mode.slug });
-			return status_response(500, 'Failed to get start location');
-		}
+			if (location === null) {
+				caution('get_random_location(): failed to get start location', { era: era.slug });
+				return status_response(500, 'Failed to get start location');
+			}
 
-		const user_session = await users.get_user_session(req);
+			const user_session = await users.get_user_session(req);
 
-		await db.execute('INSERT INTO `sessions` (`token`, `currentID`, `gameMode`, `user_id`) VALUES(?, ?, ?, ?)', [token, location.ID, mode.id, user_session?.user_id ?? null]);
-		log(`started new {${mode.slug}} game session {${token}} with location {${location.ID}}`);
+			await db.execute('INSERT INTO `sessions` (`token`, `currentID`, `era`, `hardcore`, `lives`, `user_id`) VALUES(?, ?, ?, ?, ?, ?)', [token, location.ID, era.id, mode.id, mode.lives, user_session?.user_id ?? null]);
+			log(`started new {${mode.slug}} {${era.slug}} game session {${token}} with location {${location.ID}}`);
 
-		if (user_session !== null)
-			await prune_user_history(user_session.user_id);
+			if (user_session !== null)
+				await prune_user_history(user_session.user_id);
 
-		await clear_token(json.clear_token);
+			await clear_token(json.clear_token);
 
-		return {
-			token: token,
-			location: location.ID
-		};
-	}, 'POST');
+			return {
+				token: token,
+				location: location.ID
+			};
+		}, 'POST');
+	}
 }
 
 server.json('/api/guess', async (_req, _url, json) => {
@@ -530,19 +564,19 @@ server.json('/api/guess', async (_req, _url, json) => {
 	if (typeof json.lng !== 'number')
 		return status_response(400, 'Invalid pin longitude');
 	
-	const session = await db.get_single('SELECT `currentID`, `lives`, `gameMode`, `score`, `finished`, `user_id` FROM `sessions` WHERE `token` = ?', [json.token]);
+	const session = await db.get_single('SELECT `currentID`, `lives`, `era`, `score`, `finished`, `user_id` FROM `sessions` WHERE `token` = ?', [json.token]);
 	if (session === null)
 		return status_response(404, 'Game session has expired');
 
 	if (session.lives <= 0 || session.finished)
 		return status_response(400, 'You get nothing! You lose! Good day, sir!');
-	
-	const mode = get_game_mode_by_id(Number(session.gameMode));
-	if (mode === undefined)
-		return status_response(400, 'Unknown game mode');
 
-	const map_column = mode.has_map ? 'l.`map`, ' : '';
-	const location = await db.get_single('SELECT l.`name`, l.`lat`, l.`lng`, ' + map_column + 'z.`name` as `zoneName` FROM `' + mode.location_table + '` AS l JOIN `' + mode.zone_table + '` AS z ON (z.`ID` = l.`zone`) WHERE l.`ID` = ?', [session.currentID]);
+	const era = get_era_by_id(Number(session.era));
+	if (era === undefined)
+		return status_response(400, 'Unknown era');
+
+	const map_column = era.has_map ? 'l.`map`, ' : '';
+	const location = await db.get_single('SELECT l.`name`, l.`lat`, l.`lng`, ' + map_column + 'z.`name` as `zoneName` FROM `' + era.location_table + '` AS l JOIN `' + era.zone_table + '` AS z ON (z.`ID` = l.`zone`) WHERE l.`ID` = ?', [session.currentID]);
 
 	if (location === null)
 		return status_response(500, 'Invalid location in session');
@@ -594,7 +628,7 @@ server.json('/api/guess', async (_req, _url, json) => {
 	
 	let new_location = null;
 	if (player_lives > 0)
-		new_location = await db.get_single('SELECT l.`ID` FROM `' + mode.location_table + '` AS l WHERE l.`enabled` = 1 AND l.`ID` != ?' + mode_location_filter(mode, 'l') + ' AND NOT EXISTS (SELECT * FROM `guesses` AS g WHERE g.`token` = ? AND g.`locationID` = l.`ID`) ORDER BY RAND() LIMIT 1', [session.currentID, json.token]);
+		new_location = await db.get_single('SELECT l.`ID` FROM `' + era.location_table + '` AS l WHERE l.`enabled` = 1 AND l.`ID` != ?' + era_location_filter(era, 'l') + ' AND NOT EXISTS (SELECT * FROM `guesses` AS g WHERE g.`token` = ? AND g.`locationID` = l.`ID`) ORDER BY RAND() LIMIT 1', [session.currentID, json.token]);
 
 	const finished = player_lives <= 0 || new_location === null;
 
@@ -612,7 +646,7 @@ server.json('/api/guess', async (_req, _url, json) => {
 	);
 
 	if (session.user_id !== null && result > 0)
-		await record_location_progress(Number(session.user_id), Number(session.gameMode), session.currentID);
+		await record_location_progress(Number(session.user_id), era.id, session.currentID);
 
 	if (player_lives <= 0) {
 		log(`game session {${json.token}} ended, final score: {${player_score}}`);
@@ -634,7 +668,7 @@ type SubmitResult = {
 };
 
 async function submit_score(user_id: number, token: string): Promise<SubmitResult> {
-	const session = await db.get_single('SELECT `gameMode`, `lives`, `score`, `finished`, `submitted` FROM `sessions` WHERE `token` = ?', [token]);
+	const session = await db.get_single('SELECT `era`, `hardcore`, `lives`, `score`, `finished`, `submitted` FROM `sessions` WHERE `token` = ?', [token]);
 	if (session === null)
 		return { ok: false, improved: false, code: 404, error: 'Game session not found' };
 
@@ -648,7 +682,11 @@ async function submit_score(user_id: number, token: string): Promise<SubmitResul
 	if (score <= 0)
 		return { ok: false, improved: false, code: 400, error: 'Score must be greater than 0' };
 
-	const mode = get_game_mode_by_id(Number(session.gameMode));
+	const era = get_era_by_id(Number(session.era));
+	if (era === undefined)
+		return { ok: false, improved: false, code: 400, error: 'Unknown era' };
+
+	const mode = get_game_mode_by_id(Number(session.hardcore));
 	if (mode === undefined)
 		return { ok: false, improved: false, code: 400, error: 'Unknown game mode' };
 
@@ -656,7 +694,7 @@ async function submit_score(user_id: number, token: string): Promise<SubmitResul
 	const accuracy = guesses.length > 0 ?
 		Math.ceil(guesses.reduce((sum, guess) => sum + guess.distPct, 0) / guesses.length) : 0;
 
-	const existing = await db.get_single('SELECT `score`, `accuracy` FROM `leaderboard` WHERE `user_id` = ? AND `game_mode` = ?', [user_id, mode.id]);
+	const existing = await db.get_single('SELECT `score`, `accuracy` FROM `leaderboard` WHERE `user_id` = ? AND `era` = ? AND `hardcore` = ?', [user_id, era.id, mode.id]);
 
 	const existing_score = existing === null ? 0 : Number(existing.score);
 	const existing_accuracy = existing === null ? 0 : Number(existing.accuracy);
@@ -664,14 +702,14 @@ async function submit_score(user_id: number, token: string): Promise<SubmitResul
 
 	if (improved) {
 		if (existing === null)
-			await db.insert_object('leaderboard', { user_id, game_mode: mode.id, score, accuracy });
+			await db.insert_object('leaderboard', { user_id, era: era.id, hardcore: mode.id, score, accuracy });
 		else
-			await db.execute('UPDATE `leaderboard` SET `score` = ?, `accuracy` = ?, `submitted` = NOW() WHERE `user_id` = ? AND `game_mode` = ?', [score, accuracy, user_id, mode.id]);
+			await db.execute('UPDATE `leaderboard` SET `score` = ?, `accuracy` = ?, `submitted` = NOW() WHERE `user_id` = ? AND `era` = ? AND `hardcore` = ?', [score, accuracy, user_id, era.id, mode.id]);
 
-		invalidate_leaderboard_cache(mode);
+		invalidate_leaderboard_cache(era, mode);
 	}
 
-	await db.execute('INSERT IGNORE INTO `user_location_progress` (`user_id`, `game_mode`, `location_id`) SELECT ?, ?, `locationID` FROM `guesses` WHERE `token` = ? AND `distPct` > 0', [user_id, mode.id, token]);
+	await db.execute('INSERT IGNORE INTO `user_location_progress` (`user_id`, `era`, `location_id`) SELECT ?, ?, `locationID` FROM `guesses` WHERE `token` = ? AND `distPct` > 0', [user_id, era.id, token]);
 	await db.execute('UPDATE `sessions` SET `user_id` = ?, `submitted` = 1 WHERE `token` = ?', [user_id, token]);
 	await db.execute('DELETE FROM `guesses` WHERE `token` = ?', [token]);
 	await prune_user_history(user_id);
@@ -774,7 +812,7 @@ server.route('/api/user', async (req, _url) => {
 const profile_route: PageRoute = {
 	content: PROFILE_TEMPLATE,
 	title: 'Profile',
-	description: 'Your Where in Warcraft profile. See your progress for each game mode and your recent games.',
+	description: 'Your Where in Warcraft profile. See your progress for each era and your recent games.',
 	body_class: 'page',
 	noindex: true,
 	scripts: ['static/js/profile.js']
@@ -797,25 +835,26 @@ server.route('/profile', async (req, _url) => {
 	const { totals, total_all } = await get_progress_totals();
 
 	const total_correct = await get_user_overall_progress(user_session.user_id);
-	const mode_cards = [];
+	const era_cards = [];
 
-	for (const mode of GAME_MODES) {
-		const correct = await get_user_mode_progress(user_session.user_id, mode);
-		const total = totals.get(mode.id) ?? 0;
+	for (const era of ERAS) {
+		const correct = await get_user_era_progress(user_session.user_id, era);
+		const total = totals.get(era.id) ?? 0;
 
-		mode_cards.push({
-			label: mode.label,
-			icon: mode_icon_class(mode.slug),
+		era_cards.push({
+			label: era.label,
+			icon: icon_class(era.slug),
 			percent: progress_percent(correct, total),
 			correct,
 			total
 		});
 	}
 
-	const games = await db.get_all('SELECT `token`, `gameMode`, `lives`, `score`, `finished`, `submitted`, `created` FROM `sessions` WHERE `user_id` = ? ORDER BY `created` DESC LIMIT ' + HISTORY_LIMIT, [user_session.user_id]);
+	const games = await db.get_all('SELECT `token`, `era`, `hardcore`, `lives`, `score`, `finished`, `submitted`, `created` FROM `sessions` WHERE `user_id` = ? ORDER BY `created` DESC LIMIT ' + HISTORY_LIMIT, [user_session.user_id]);
 
 	const recent_games = games.map(game => {
-		const mode = get_game_mode_by_id(Number(game.gameMode));
+		const era = get_era_by_id(Number(game.era));
+		const mode = get_game_mode_by_id(Number(game.hardcore));
 		const active = Number(game.lives) > 0 && !game.finished;
 		const submitted = Boolean(game.submitted);
 		const can_submit = !active && !submitted && Number(game.score) > 0;
@@ -834,7 +873,9 @@ server.route('/profile', async (req, _url) => {
 
 		return {
 			mode_label: mode?.label ?? 'Unknown',
-			mode_icon: mode_icon_class(mode?.slug ?? 'unknown'),
+			mode_icon: icon_class(mode?.slug ?? 'unknown'),
+			era_label: era?.label ?? 'Unknown',
+			era_icon: icon_class(era?.slug ?? 'unknown'),
 			played: format_game_date(game.created),
 			score: Number(game.score),
 			status,
@@ -846,7 +887,7 @@ server.route('/profile', async (req, _url) => {
 		overall_percent: progress_percent(total_correct, total_all),
 		overall_correct: total_correct,
 		overall_total: total_all,
-		mode_cards,
+		era_cards,
 		recent_games,
 		has_games: recent_games.length > 0 ? '1' : '',
 		no_games: recent_games.length > 0 ? '' : '1'

@@ -1,13 +1,15 @@
 import { createApp } from 'vue';
 import { show_error_toast } from 'toast';
 
-const MAX_LIVES = 3;
+const GAME_MODE_NORMAL = 0;
 const GUESS_THRESHOLD = 2.4;
 const BENEFIT_OF_DOUBT_RADIUS = 0.8;
 const PANORAMA_LOAD_TIMEOUT = 15000;
 const LEAFLET_ASSETS = window.wiw_leaflet_assets ?? { css: '/static/leaflet/leaflet.css', js: '/static/leaflet/leaflet.js' };
 const SCORE_SUBMITTED_MESSAGE = 'Your score was submitted to the leaderboard!';
 const SCORE_UNCHANGED_MESSAGE = 'Score submitted, but your existing record is better.';
+const GAME_OVER_NORMAL_MESSAGE = 'You ran out of lives!';
+const GAME_OVER_HARDCORE_MESSAGE = 'You made a mistake. Your run is over!';
 const MAPS = {
 	'cata': {
 		label: 'Azeroth',
@@ -49,7 +51,8 @@ const MAPS = {
 		mapID: null
 	}
 };
-const MODES = JSON.parse(document.getElementById('wiw-modes').textContent);
+const ERAS = JSON.parse(document.getElementById('wiw-eras').textContent);
+const GAME_MODES = JSON.parse(document.getElementById('wiw-game-modes').textContent);
 
 let leaflet_promise = null;
 
@@ -114,12 +117,13 @@ function create_game_app() {
 		data() {
 			return {
 				is_loading: true,
-				mode: MODES[0],
+				era: ERAS[0],
+				game_mode: GAME_MODES[0],
 
 				initialized_map: false,
 
 				player_score: 0,
-				remaining_lives: MAX_LIVES,
+				remaining_lives: GAME_MODES[0].lives,
 				player_guesses: [],
 				current_location: null,
 
@@ -147,7 +151,7 @@ function create_game_app() {
 				guess_result_state: 'playing', // playing, next_round, game_over
 				token: null,
 
-				selected_map: MODES[0].maps[0]
+				selected_map: ERAS[0].maps[0]
 			}
 		},
 
@@ -172,11 +176,11 @@ function create_game_app() {
 			},
 
 			location_dir() {
-				return this.mode.location_dir;
+				return this.era.location_dir;
 			},
 
 			available_maps() {
-				return this.mode.maps.map(key => ({ key, ...MAPS[key] }));
+				return this.era.maps.map(key => ({ key, ...MAPS[key] }));
 			},
 
 			show_map_selector() {
@@ -184,7 +188,7 @@ function create_game_app() {
 			},
 
 			active_map() {
-				return MAPS[this.selected_map] ?? MAPS[this.mode.maps[0]];
+				return MAPS[this.selected_map] ?? MAPS[this.era.maps[0]];
 			},
 
 			tiles_dir() {
@@ -203,12 +207,32 @@ function create_game_app() {
 				return `${this.panorama_offset}px 0`;
 			},
 
-			mode_tag() {
-				return this.mode.slug;
+			era_tag() {
+				return this.era.slug;
 			},
 
-			mode_label() {
-				return this.mode.label;
+			era_label() {
+				return this.era.label;
+			},
+
+			game_mode_tag() {
+				return this.game_mode.slug;
+			},
+
+			game_mode_label() {
+				return this.game_mode.label;
+			},
+
+			is_hardcore() {
+				return this.game_mode.id !== GAME_MODE_NORMAL;
+			},
+
+			leaderboard_href() {
+				return '/leaderboard' + (this.is_hardcore ? '/' + this.game_mode.slug : '') + '/' + this.era.slug;
+			},
+
+			game_over_message() {
+				return this.is_hardcore ? GAME_OVER_HARDCORE_MESSAGE : GAME_OVER_NORMAL_MESSAGE;
 			},
 
 			score_message() {
@@ -266,8 +290,9 @@ function create_game_app() {
 			},
 
 			// #region game logic
-			async play(mode) {
-				this.mode = mode ?? MODES[0];
+			async play(era, game_mode) {
+				this.era = era ?? ERAS[0];
+				this.game_mode = game_mode ?? GAME_MODES[0];
 				this.is_loading = true;
 
 				load_leaflet().catch(() => {});
@@ -283,7 +308,7 @@ function create_game_app() {
 				};
 				
 				this.guess_result_state = 'playing';
-				this.selected_map = this.mode.maps[0];
+				this.selected_map = this.era.maps[0];
 
 				// Clear any existing session data
 				localStorage.removeItem('wiw-token');
@@ -310,7 +335,7 @@ function create_game_app() {
 
 			reset_game_state() {
 				this.player_score = 0;
-				this.remaining_lives = MAX_LIVES;
+				this.remaining_lives = this.game_mode.lives;
 				
 				this.guess_result_state = 'playing';
 				this.player_guesses.length = 0;
@@ -370,7 +395,7 @@ function create_game_app() {
 					localStorage.setItem('wiw-local-guesses', JSON.stringify(this.player_guesses));
 					
 					if (data.mapID !== undefined) {
-						const new_map = this.mode.maps.find(
+						const new_map = this.era.maps.find(
 							key => MAPS[key].mapID === data.mapID
 						);
 
@@ -682,7 +707,7 @@ function create_game_app() {
 			// #region session
 			async initialize_session() {
 				try {
-					const endpoint = `/api/init/${this.mode_tag}`;
+					const endpoint = `/api/init/${this.game_mode_tag}/${this.era_tag}`;
 					const payload = { 
 						...(this.token && { clear_token: this.token })
 					};
@@ -735,7 +760,8 @@ function create_game_app() {
 					return;
 				}
 
-				this.mode = MODES.find(entry => entry.id === data.mode) ?? MODES[0];
+				this.era = ERAS.find(entry => entry.id === data.era) ?? ERAS[0];
+				this.game_mode = GAME_MODES.find(entry => entry.id === data.game_mode) ?? GAME_MODES[0];
 				this.remaining_lives = data.lives;
 				this.player_score = data.score;
 				this.current_location = data.location;
@@ -757,7 +783,7 @@ function create_game_app() {
 
 				this.setup_panorama_events();
 				this.guess_result_state = 'playing';
-				this.selected_map = this.mode.maps[0];
+				this.selected_map = this.era.maps[0];
 				this.is_loading = false;
 			}
 		}
@@ -778,5 +804,5 @@ export async function start(options) {
 	if (options.resume)
 		await app_state.continue_session();
 	else
-		await app_state.play(options.mode);
+		await app_state.play(options.era, options.game_mode);
 }

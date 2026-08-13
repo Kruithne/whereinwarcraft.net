@@ -2,6 +2,9 @@ const RETAIL_LOCATION_TABLE = 'locations';
 const RETAIL_ZONE_TABLE = 'zones';
 const RETAIL_LOCATION_DIR = 'locations';
 
+const RETAIL_SUBJECT = 'modern World of Warcraft locations';
+const CLASSIC_SUBJECT = 'classic World of Warcraft locations';
+
 const EXPANSION_TBC = 1;
 const EXPANSION_WRATH = 2;
 const EXPANSION_CATACLYSM = 3;
@@ -10,22 +13,31 @@ const EXPANSION_WARLORDS = 5;
 const EXPANSION_LEGION = 6;
 const EXPANSION_BFA = 7;
 
-export type GameMode = {
+export const GAME_MODE_NORMAL = 0;
+export const GAME_MODE_HARDCORE = 1;
+
+export type Era = {
 	id: number;
 	slug: string;
 	label: string;
+	subject: string;
 	location_table: string;
 	zone_table: string;
 	location_dir: string;
 	has_map: boolean;
 	maps: string[];
 	expansion?: number;
-	page_title: string;
-	page_description: string;
-	page_intro: string;
 };
 
-type ExpansionMode = {
+export type GameMode = {
+	id: number;
+	slug: string;
+	label: string;
+	lives: number;
+	description: string;
+};
+
+type ExpansionEra = {
 	id: number;
 	slug: string;
 	label: string;
@@ -33,94 +45,105 @@ type ExpansionMode = {
 	expansion: number;
 };
 
-function build_expansion_mode(mode: ExpansionMode): GameMode {
+function build_expansion_era(era: ExpansionEra): Era {
 	return {
-		id: mode.id,
-		slug: mode.slug,
-		label: mode.label,
+		id: era.id,
+		slug: era.slug,
+		label: era.label,
+		subject: era.label + ' locations',
 		location_table: RETAIL_LOCATION_TABLE,
 		zone_table: RETAIL_ZONE_TABLE,
 		location_dir: RETAIL_LOCATION_DIR,
 		has_map: true,
-		maps: mode.maps,
-		expansion: mode.expansion,
-		page_title: mode.label + ' Leaderboard',
-		page_description: 'The top 100 Where in Warcraft players in ' + mode.label + ' mode. Compare the best scores and accuracy for ' + mode.label + ' locations.',
-		page_intro: 'The best 100 players in ' + mode.label + ' mode, ranked by score, then by accuracy.'
+		maps: era.maps,
+		expansion: era.expansion
 	};
 }
 
 export const GAME_MODES: GameMode[] = [
 	{
+		id: GAME_MODE_NORMAL,
+		slug: 'normal',
+		label: 'Normal',
+		lives: 3,
+		description: 'You get three lives. Wrong guesses cost a life.'
+	},
+	{
+		id: GAME_MODE_HARDCORE,
+		slug: 'hardcore',
+		label: 'Hardcore',
+		lives: 1,
+		description: 'You get one life. One wrong guess ends the game.'
+	}
+];
+
+export const ERAS: Era[] = [
+	{
 		id: 1,
 		slug: 'retail',
 		label: 'Retail',
+		subject: RETAIL_SUBJECT,
 		location_table: RETAIL_LOCATION_TABLE,
 		zone_table: RETAIL_ZONE_TABLE,
 		location_dir: RETAIL_LOCATION_DIR,
 		has_map: true,
-		maps: ['cata', 'tbc', 'wod', 'bfa'],
-		page_title: 'Retail Leaderboard',
-		page_description: 'The top 100 Where in Warcraft players in Retail mode. Compare the best scores and accuracy for modern World of Warcraft locations.',
-		page_intro: 'The best 100 players in Retail mode, ranked by score, then by accuracy.'
+		maps: ['cata', 'tbc', 'wod', 'bfa']
 	},
 	{
 		id: 2,
 		slug: 'classic',
 		label: 'Classic Era',
+		subject: CLASSIC_SUBJECT,
 		location_table: 'locations_classic',
 		zone_table: 'zones_classic',
 		location_dir: 'locations_classic',
 		has_map: false,
-		maps: ['classic'],
-		page_title: 'Classic Era Leaderboard',
-		page_description: 'The top 100 Where in Warcraft players in Classic Era mode. Compare the best scores and accuracy for classic World of Warcraft locations.',
-		page_intro: 'The best 100 players in Classic Era mode, ranked by score, then by accuracy.'
+		maps: ['classic']
 	},
 
-	build_expansion_mode({
+	build_expansion_era({
 		id: 3,
 		slug: 'tbc',
 		label: 'Burning Crusade',
 		maps: ['tbc', 'cata'],
 		expansion: EXPANSION_TBC
 	}),
-	build_expansion_mode({
+	build_expansion_era({
 		id: 4,
 		slug: 'wrath',
 		label: 'Wrath of the Lich King',
 		maps: ['cata'],
 		expansion: EXPANSION_WRATH
 	}),
-	build_expansion_mode({
+	build_expansion_era({
 		id: 5,
 		slug: 'cataclysm',
 		label: 'Cataclysm',
 		maps: ['cata'],
 		expansion: EXPANSION_CATACLYSM
 	}),
-	build_expansion_mode({
+	build_expansion_era({
 		id: 6,
 		slug: 'mists',
 		label: 'Mists of Pandaria',
 		maps: ['cata'],
 		expansion: EXPANSION_MISTS
 	}),
-	build_expansion_mode({
+	build_expansion_era({
 		id: 7,
 		slug: 'warlords',
 		label: 'Warlords of Draenor',
 		maps: ['wod'],
 		expansion: EXPANSION_WARLORDS
 	}),
-	build_expansion_mode({
+	build_expansion_era({
 		id: 8,
 		slug: 'legion',
 		label: 'Legion',
 		maps: ['cata'],
 		expansion: EXPANSION_LEGION
 	}),
-	build_expansion_mode({
+	build_expansion_era({
 		id: 9,
 		slug: 'bfa',
 		label: 'Battle for Azeroth',
@@ -129,45 +152,83 @@ export const GAME_MODES: GameMode[] = [
 	})
 ];
 
+const ERAS_BY_ID = new Map(ERAS.map(era => [era.id, era]));
 const GAME_MODES_BY_ID = new Map(GAME_MODES.map(mode => [mode.id, mode]));
+
+export function get_era_by_id(id: number): Era|undefined {
+	return ERAS_BY_ID.get(id);
+}
 
 export function get_game_mode_by_id(id: number): GameMode|undefined {
 	return GAME_MODES_BY_ID.get(id);
 }
 
+export function is_hardcore(mode: GameMode): boolean {
+	return mode.id === GAME_MODE_HARDCORE;
+}
+
+export type LeaderboardPage = {
+	title: string;
+	description: string;
+	intro: string;
+};
+
+export function build_leaderboard_page(era: Era, mode: GameMode): LeaderboardPage {
+	const hardcore = is_hardcore(mode);
+	const name = hardcore ? era.label + ' Hardcore' : era.label;
+
+	const rules = hardcore ? ' Hardcore gives you one life.' : '';
+
+	return {
+		title: name + ' Leaderboard',
+		description: 'The top 100 Where in Warcraft players in ' + name + '.' + rules + ' Compare the best scores and accuracy for ' + era.subject + '.',
+		intro: 'The best 100 players in ' + name + ', ranked by score, then by accuracy.' + rules
+	};
+}
+
 export type LocationSource = {
 	table: string;
-	mode_ids: number[];
+	era_ids: number[];
 };
 
 export function get_location_sources(): LocationSource[] {
 	const sources = new Map<string, LocationSource>();
 
-	for (const mode of GAME_MODES) {
-		const source = sources.get(mode.location_table);
+	for (const era of ERAS) {
+		const source = sources.get(era.location_table);
 
 		if (source === undefined)
-			sources.set(mode.location_table, { table: mode.location_table, mode_ids: [mode.id] });
+			sources.set(era.location_table, { table: era.location_table, era_ids: [era.id] });
 		else
-			source.mode_ids.push(mode.id);
+			source.era_ids.push(era.id);
 	}
 
 	return [...sources.values()];
 }
 
-export function mode_location_filter(mode: GameMode, alias: string): string {
-	if (!Number.isInteger(mode.expansion))
+export function era_location_filter(era: Era, alias: string): string {
+	if (!Number.isInteger(era.expansion))
 		return '';
 
-	return ' AND `' + alias + '`.`expansion` = ' + mode.expansion;
+	return ' AND `' + alias + '`.`expansion` = ' + era.expansion;
 }
 
-export function build_mode_client_config(): object[] {
+export function build_era_client_config(): object[] {
+	return ERAS.map(era => ({
+		id: era.id,
+		slug: era.slug,
+		label: era.label,
+		location_dir: era.location_dir,
+		maps: era.maps
+	}));
+}
+
+export function build_game_mode_client_config(): object[] {
 	return GAME_MODES.map(mode => ({
 		id: mode.id,
 		slug: mode.slug,
 		label: mode.label,
-		location_dir: mode.location_dir,
-		maps: mode.maps
+		lives: mode.lives,
+		description: mode.description
 	}));
 }
