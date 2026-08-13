@@ -1,0 +1,31 @@
+			<main id="page-content">
+				<h1>{{leaderboard_heading}}</h1>
+
+				<nav id="leaderboard-modes" aria-label="Game modes">
+					<t-for items="mode_links" as="link"><a class="leaderboard-mode {{link.class}}" href="{{link.href}}">{{link.label}}</a></t-for>
+				</nav>
+
+				<p>{{leaderboard_intro}}</p>
+
+				<t-if test="has_entries">
+					<table id="leaderboard-table">
+						<thead>
+							<tr>
+								<th scope="col">Rank</th>
+								<th scope="col">Player</th>
+								<th scope="col">Score</th>
+								<th scope="col">Accuracy</th>
+							</tr>
+						</thead>
+						<tbody>
+							<t-for items="entries" as="entry"><tr><td>{{entry.rank}}</td><td>{{entry.name}}</td><td>{{entry.score}}</td><td>{{entry.accuracy}}%</td></tr></t-for>
+						</tbody>
+					</table>
+				</t-if>
+
+				<t-if test="is_empty">
+					<p>No scores yet. <a href="/">Play a game</a> and be the first!</p>
+				</t-if>
+
+				<p><a href="/">Play Where in Warcraft</a> to get your name on the board.</p>
+			</main>

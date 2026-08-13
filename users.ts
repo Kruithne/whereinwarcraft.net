@@ -3,7 +3,9 @@ import db from './db';
 
 const COOKIE_SESSION = 'session_id';
 const COOKIE_BATTLETAG = 'battletag';
+const COOKIE_PENDING_SCORE = 'pending_score';
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
+const PENDING_SCORE_MAX_AGE = 60 * 15;
 const SESSION_CACHE_TTL = 60 * 60 * 1000;
 const SESSION_EXPIRY = 1000 * 60 * 60 * 24 * 365;
 
@@ -28,6 +30,12 @@ export type UserSession = {
 
 const session_cache = new Map<string, UserSession>();
 
+function get_display_name(battletag: string): string {
+	const display_name = battletag.split('#')[0].trim();
+
+	return display_name.length > 0 ? display_name : battletag;
+}
+
 export async function get_or_create_user(bnet_id: number, battletag: string): Promise<number|null> {
 	const existing = await db.get_single('SELECT `ID`, `battletag` FROM `users` WHERE `bnet_id` = ?', [bnet_id]);
 
@@ -35,7 +43,7 @@ export async function get_or_create_user(bnet_id: number, battletag: string): Pr
 		const user_id = Number(existing.ID);
 
 		if (existing.battletag !== battletag) {
-			await db.execute('UPDATE `users` SET `battletag` = ? WHERE `ID` = ?', [battletag, user_id]);
+			await db.execute('UPDATE `users` SET `battletag` = ?, `display_name` = ? WHERE `ID` = ?', [battletag, get_display_name(battletag), user_id]);
 
 			for (const session of session_cache.values()) {
 				if (session.user_id === user_id)
@@ -48,7 +56,7 @@ export async function get_or_create_user(bnet_id: number, battletag: string): Pr
 		return user_id;
 	}
 
-	const user_id = await db.insert_object('users', { bnet_id, battletag });
+	const user_id = await db.insert_object('users', { bnet_id, battletag, display_name: get_display_name(battletag) });
 	if (user_id < 1)
 		return null;
 
@@ -117,6 +125,20 @@ export async function get_user_session(req: Request): Promise<UserSession|null> 
 	await db.execute('UPDATE `user_sessions` SET `last_seen` = ? WHERE `session_id` = ?', [now, session_id]);
 
 	return session;
+}
+
+export function set_pending_score(req: Request, token: string): void {
+	cookies_get(req).set(COOKIE_PENDING_SCORE, token, { ...COOKIE_OPTIONS, maxAge: PENDING_SCORE_MAX_AGE });
+}
+
+export function take_pending_score(req: Request): string|null {
+	const cookies = cookies_get(req);
+	const token = cookies.get(COOKIE_PENDING_SCORE);
+
+	if (token !== null)
+		cookies.set(COOKIE_PENDING_SCORE, '', { ...COOKIE_OPTIONS, maxAge: 0 });
+
+	return token;
 }
 
 export function prune_session_cache(): void {

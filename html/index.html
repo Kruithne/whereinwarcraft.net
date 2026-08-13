@@ -33,20 +33,14 @@
 									<p>Your final score: {{ player_score }}</p>
 									<p>Your accuracy: {{ player_accuracy }}%</p>
 									<input class="btn" type="button" value="Play Again" @click="play(false)">
-									<input class="btn" type="button" value="Submit Score" :class="{ disabled: player_score <= 0 }" @click="show_score_submission_form" v-if="!show_score_submission && !score_submitted">
-									<div v-if="show_score_submission" style="margin-top: 20px;">
-										<input type="text"
-											v-model="player_name"
-											placeholder="Enter your name..."
-											maxlength="20"
-											style="padding: 10px; margin-bottom: 10px; width: 200px; border: 1px solid #ccc; border-radius: 5px;">
-										<div>
-											<input class="btn" type="button"
-												:value="score_submitted ? 'Score Sent!' : (submitting_score ? 'Sending...' : 'Send')"
-												:class="{ disabled: submitting_score || score_submitted || player_name.trim().length === 0 }"
-												@click="submit_score">
-											<input class="btn" type="button" value="Cancel" @click="hide_score_submission_form" v-if="!score_submitted">
-										</div>
+									<input class="btn" type="button"
+										:value="submitting_score ? 'Submitting...' : 'Submit Score'"
+										:class="{ disabled: player_score <= 0 || submitting_score }"
+										@click="submit_score"
+										v-if="!score_submitted">
+									<p id="game-over-score-message" v-if="score_submitted">{{ score_message }}</p>
+									<div>
+										<a class="btn" :href="'/leaderboard/' + mode_tag">View Leaderboard</a>
 									</div>
 								</div>
 							</div>
@@ -91,19 +85,8 @@
 												@mousedown="panorama_mouse_down"
 												@touchstart="panorama_mouse_down">
 											</div>
-											<div id="leaderboard" v-show="is_leaderboard_shown">
-												<div v-if="leaderboard_loading">Loading...</div>
-												<div v-else-if="leaderboard_data.length === 0">No scores yet!</div>
-												<template v-else>
-													<div v-for="(player, index) in leaderboard_data" :key="index">
-														{{ index + 1 }}. {{ player.name }}
-														<span>{{ player.score }} ({{ Math.round(player.accuracy) }}%)</span>
-													</div>
-												</template>
-											</div>
 											<div id="game-panorama-buttons" v-show="!viewing_map && guess_result_state === 'playing'">
 												<input class="btn" type="button" value="Make Guess" @click="viewing_map = true">
-												<input class="btn" type="button" value="Leaderboard" @click="toggle_leaderboard">
 											</div>
 										</div>
 									</div>

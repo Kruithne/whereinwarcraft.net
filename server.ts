@@ -4,10 +4,10 @@ import { format } from 'node:util';
 import db from './db';
 import * as oauth from './oauth';
 import * as users from './users';
+import { GAME_MODES, get_game_mode_by_id, type GameMode } from './game_modes';
 
 const GUESS_THRESHOLD = 2.4;
 const BOD_RADIUS = 0.8;
-const NAME_MAX_LENGTH = 20;
 const TOKEN_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const SECURITY_HEADERS = {
 	'X-Content-Type-Options': 'nosniff',
@@ -26,6 +26,12 @@ const SITE_LD_IMAGES = ['static/images/social_embed.png', 'static/icon_full.png'
 const BASE_TEMPLATE = './html/base_template.html';
 const SITEMAP_ROOT_PRIORITY = 1.0;
 const SITEMAP_PAGE_PRIORITY = 0.5;
+const LEADERBOARD_ROOT = '/leaderboard';
+const LEADERBOARD_LIMIT = 100;
+const LEADERBOARD_CACHE_TTL = 60 * 1000;
+const LEADERBOARD_PAGE_PRIORITY = 0.8;
+const LEADERBOARD_TEMPLATE = './html/leaderboard.html';
+const LEADERBOARD_INDEX_TEMPLATE = './html/leaderboard_index.html';
 
 type PageRoute = {
 	content: string;
@@ -37,11 +43,25 @@ type PageRoute = {
 	body_class?: string;
 	stylesheets?: string[];
 	scripts?: string[];
+	breadcrumbs?: Breadcrumb[];
+};
+
+type Breadcrumb = {
+	name: string;
+	path: string;
 };
 
 const server = http_serve(Number(process.env.SERVER_PORT), process.env.SERVER_LISTEN_HOST);
 
 const cache = cache_http({
+	use_etags: true,
+	use_canary_reporting: true,
+	headers: SECURITY_HEADERS,
+	enabled: process.env.SPOODER_ENV !== 'dev'
+});
+
+const leaderboard_cache = cache_http({
+	ttl: LEADERBOARD_CACHE_TTL,
 	use_etags: true,
 	use_canary_reporting: true,
 	headers: SECURITY_HEADERS,
@@ -55,36 +75,6 @@ function log(message: string, ...args: unknown[]): void {
 	formatted_message = formatted_message.replace(/\{([^}]+)\}/g, '\x1b[38;5;13m$1\x1b[0m');
 	
 	console.log(formatted_message);
-}
-
-function is_stripped_code_point(cp: number): boolean {
-	if (cp < 0x20 || (cp >= 0x7F && cp <= 0x9F))
-		return true;
-
-	if (cp >= 0x200B && cp <= 0x200F)
-		return true;
-
-	if (cp >= 0x202A && cp <= 0x202E)
-		return true;
-
-	if (cp >= 0x2060 && cp <= 0x206F)
-		return true;
-
-	return cp === 0xFEFF;
-}
-
-function sanitize_player_name(input: string): string {
-	let cleaned = '';
-	for (const ch of input) {
-		if (is_stripped_code_point(ch.codePointAt(0) as number))
-			continue;
-
-		cleaned += ch;
-	}
-
-	cleaned = cleaned.replace(/\s+/g, ' ').trim();
-
-	return Array.from(cleaned).slice(0, NAME_MAX_LENGTH).join('');
 }
 
 function is_valid_token(token: any): token is string {
@@ -155,7 +145,7 @@ function escape_attribute(value: string): string {
 	return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-function build_json_ld(route_path: string): string {
+function build_json_ld(route_path: string, route: PageRoute): string {
 	const author_id = SITE_URL + '/#author';
 	const website_id = SITE_URL + '/#website';
 
@@ -208,20 +198,34 @@ function build_json_ld(route_path: string): string {
 		});
 	}
 
+	if (route.breadcrumbs !== undefined) {
+		graph.push({
+			'@type': 'BreadcrumbList',
+			'@id': SITE_URL + route_path + '#breadcrumbs',
+			itemListElement: route.breadcrumbs.map((crumb, index) => ({
+				'@type': 'ListItem',
+				position: index + 1,
+				name: crumb.name,
+				item: SITE_URL + crumb.path
+			}))
+		});
+	}
+
 	const json = JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replace(/</g, '\\u003c');
 
 	return '<script type="application/ld+json">' + json + '</script>';
 }
 
-async function render_page(route_path: string, route: PageRoute): Promise<string> {
+async function render_page(route_path: string, route: PageRoute, extra_subs: Record<string, any> = {}): Promise<string> {
 	const subs = {
 		...TEMPLATE_SUBS,
+		...extra_subs,
 		title: escape_attribute(route.title === undefined ? SITE_TITLE : route.title + ' - ' + SITE_TITLE),
 		description: escape_attribute(route.description ?? SITE_DESCRIPTION),
 		canonical: escape_attribute(SITE_URL + route_path),
 		site_url: SITE_URL,
 		share_image_alt: escape_attribute(SITE_SHARE_IMAGE_ALT),
-		json_ld: build_json_ld(route_path),
+		json_ld: build_json_ld(route_path, route),
 		noindex: route.noindex ? '1' : '',
 		head: route.head === undefined ? '' : await Bun.file(route.head).text(),
 		body_class: route.body_class ?? '',
@@ -233,11 +237,53 @@ async function render_page(route_path: string, route: PageRoute): Promise<string
 	return await parse_template(await Bun.file(BASE_TEMPLATE).text(), subs, false);
 }
 
-async function serve_page(req: Request, route_path: string, route: PageRoute): Promise<Response> {
-	const res = await cache.request(req, route_path, () => render_page(route_path, route));
+async function serve_page(req: Request, route_path: string, route: PageRoute, extra_subs: Record<string, any> = {}): Promise<Response> {
+	const res = await cache.request(req, route_path, () => render_page(route_path, route, extra_subs));
 	res.headers.set('Content-Type', 'text/html');
 
 	return res;
+}
+
+function build_mode_links(current_slug: string): object[] {
+	return GAME_MODES.map(mode => ({
+		href: LEADERBOARD_ROOT + '/' + mode.slug,
+		label: mode.label,
+		class: mode.slug === current_slug ? 'selected' : ''
+	}));
+}
+
+async function render_leaderboard(route_path: string, route: PageRoute, mode: GameMode): Promise<string> {
+	const rows = await db.get_all(
+		'SELECT u.`display_name`, l.`score`, l.`accuracy` FROM `leaderboard` AS l JOIN `users` AS u ON (u.`ID` = l.`user_id`) WHERE l.`game_mode` = ? ORDER BY l.`score` DESC, l.`accuracy` DESC LIMIT ' + LEADERBOARD_LIMIT,
+		[mode.id]
+	);
+
+	const entries = rows.map((row, index) => ({
+		rank: index + 1,
+		name: escape_attribute(row.display_name),
+		score: Number(row.score),
+		accuracy: Math.round(Number(row.accuracy))
+	}));
+
+	return await render_page(route_path, route, {
+		leaderboard_heading: mode.page_title,
+		leaderboard_intro: mode.page_intro,
+		mode_links: build_mode_links(mode.slug),
+		entries,
+		has_entries: entries.length > 0 ? '1' : '',
+		is_empty: entries.length > 0 ? '' : '1'
+	});
+}
+
+async function serve_leaderboard(req: Request, route_path: string, route: PageRoute, mode: GameMode): Promise<Response> {
+	const res = await leaderboard_cache.request(req, route_path, () => render_leaderboard(route_path, route, mode));
+	res.headers.set('Content-Type', 'text/html');
+
+	return res;
+}
+
+function invalidate_leaderboard_cache(mode: GameMode): void {
+	leaderboard_cache.entries.delete(LEADERBOARD_ROOT + '/' + mode.slug);
 }
 
 function build_sitemap(routes: Record<string, PageRoute>): string {
@@ -261,7 +307,43 @@ const page_routes = await Bun.file('./routes.json').json() as Record<string, Pag
 for (const [route_path, route] of Object.entries(page_routes))
 	server.route(route_path, async (req, _url) => serve_page(req, route_path, route));
 
-const sitemap_xml = build_sitemap(page_routes);
+const leaderboard_index_route: PageRoute = {
+	content: LEADERBOARD_INDEX_TEMPLATE,
+	title: 'Leaderboards',
+	description: 'Where in Warcraft leaderboards. See the top players for each game mode.',
+	body_class: 'page',
+	noindex: true,
+	breadcrumbs: [
+		{ name: 'Home', path: '/' },
+		{ name: 'Leaderboards', path: LEADERBOARD_ROOT }
+	]
+};
+
+server.route(LEADERBOARD_ROOT, async (req, _url) => serve_page(req, LEADERBOARD_ROOT, leaderboard_index_route, { mode_links: build_mode_links('') }));
+
+const leaderboard_routes: Record<string, PageRoute> = {};
+
+for (const mode of GAME_MODES) {
+	const route_path = LEADERBOARD_ROOT + '/' + mode.slug;
+
+	const route: PageRoute = {
+		content: LEADERBOARD_TEMPLATE,
+		title: mode.page_title,
+		description: mode.page_description,
+		body_class: 'page',
+		priority: LEADERBOARD_PAGE_PRIORITY,
+		breadcrumbs: [
+			{ name: 'Home', path: '/' },
+			{ name: 'Leaderboards', path: LEADERBOARD_ROOT },
+			{ name: mode.label, path: route_path }
+		]
+	};
+
+	leaderboard_routes[route_path] = route;
+	server.route(route_path, async (req, _url) => serve_leaderboard(req, route_path, route, mode));
+}
+
+const sitemap_xml = build_sitemap({ ...page_routes, ...leaderboard_routes });
 log(`generated sitemap with {${sitemap_xml.split('<url>').length - 1}} urls`);
 
 server.route('/sitemap.xml', () => {
@@ -439,59 +521,69 @@ server.json('/api/guess', async (_req, _url, json) => {
 	return response;
 }, 'POST');
 
-server.route('/api/leaderboard/classic', async (req, url) => {
-	return {
-		players: await db.get_all('SELECT `name`, `score`, `accuracy` FROM `scoreboard_classic` ORDER BY `score` DESC, `accuracy` DESC LIMIT 10')
-	}
-});
+type SubmitResult = {
+	ok: boolean;
+	improved: boolean;
+	code: number;
+	error?: string;
+};
 
-server.route('/api/leaderboard/retail', async (req, url) => {
-	return {
-		players: await db.get_all('SELECT `name`, `score`, `accuracy` FROM `scoreboard` ORDER BY `score` DESC, `accuracy` DESC LIMIT 10')
-	}
-});
-
-server.json('/api/submit', async (_req, _url, json) => {
-	if (!is_valid_token(json.token))
-		return status_response(400, 'Invalid token');
-	
-	if (typeof json.name !== 'string')
-		return status_response(400, 'Invalid name');
-
-	const name = sanitize_player_name(json.name);
-	if (name.length === 0)
-		return status_response(400, 'Invalid name');
-
-	const session = await db.get_single('SELECT `gameMode`, `lives`, `score`, `finished` FROM `sessions` WHERE `token` = ?', [json.token]);
+async function submit_score(user_id: number, token: string): Promise<SubmitResult> {
+	const session = await db.get_single('SELECT `gameMode`, `lives`, `score`, `finished` FROM `sessions` WHERE `token` = ?', [token]);
 	if (session === null)
-		return status_response(404, 'Game session not found');
+		return { ok: false, improved: false, code: 404, error: 'Game session not found' };
 
 	if (session.lives > 0 && !session.finished)
-		return status_response(400, 'Game session is still in progress');
+		return { ok: false, improved: false, code: 400, error: 'Game session is still in progress' };
 
-	if (session.score <= 0)
-		return status_response(400, 'Score must be greater than 0');
+	const score = Number(session.score);
+	if (score <= 0)
+		return { ok: false, improved: false, code: 400, error: 'Score must be greater than 0' };
 
-	const uid = Bun.randomUUIDv7();
-	const score = session.score;
-	
-	const guesses = await db.get_all('SELECT `distPct` FROM `guesses` WHERE `token` = ?', [json.token]);
-	const accuracy = guesses.length > 0 ? 
+	const mode = get_game_mode_by_id(Number(session.gameMode));
+	if (mode === undefined)
+		return { ok: false, improved: false, code: 400, error: 'Unknown game mode' };
+
+	const guesses = await db.get_all('SELECT `distPct` FROM `guesses` WHERE `token` = ?', [token]);
+	const accuracy = guesses.length > 0 ?
 		Math.ceil(guesses.reduce((sum, guess) => sum + guess.distPct, 0) / guesses.length) : 0;
-	
-	const table = session.gameMode === 2 ? 'scoreboard_classic' : 'scoreboard';
-	
-	await db.execute(
-		'INSERT INTO `' + table + '` (`name`, `score`, `accuracy`, `id`) VALUES(?, ?, ?, ?)',
-		[name, score, accuracy, uid]
-	);
 
-	await db.execute('DELETE FROM `sessions` WHERE `token` = ?', [json.token]);
-	await db.execute('DELETE FROM `guesses` WHERE `token` = ?', [json.token]);
+	const existing = await db.get_single('SELECT `score`, `accuracy` FROM `leaderboard` WHERE `user_id` = ? AND `game_mode` = ?', [user_id, mode.id]);
 
-	log(`score submitted for session {${json.token}}: {${name}} - score: {${score}}, accuracy: {${accuracy}}%`);
+	const existing_score = existing === null ? 0 : Number(existing.score);
+	const existing_accuracy = existing === null ? 0 : Number(existing.accuracy);
+	const improved = existing === null || score > existing_score || (score === existing_score && accuracy > existing_accuracy);
 
-	return { success: true };
+	if (improved) {
+		if (existing === null)
+			await db.insert_object('leaderboard', { user_id, game_mode: mode.id, score, accuracy });
+		else
+			await db.execute('UPDATE `leaderboard` SET `score` = ?, `accuracy` = ?, `submitted` = NOW() WHERE `user_id` = ? AND `game_mode` = ?', [score, accuracy, user_id, mode.id]);
+
+		invalidate_leaderboard_cache(mode);
+	}
+
+	await db.execute('DELETE FROM `sessions` WHERE `token` = ?', [token]);
+	await db.execute('DELETE FROM `guesses` WHERE `token` = ?', [token]);
+
+	log(`score submitted for session {${token}} by user {${user_id}}: score: {${score}}, accuracy: {${accuracy}}%, improved: {${improved}}`);
+
+	return { ok: true, improved, code: 200 };
+}
+
+server.json('/api/submit', async (req, _url, json) => {
+	if (!is_valid_token(json.token))
+		return status_response(400, 'Invalid token');
+
+	const user_session = await users.get_user_session(req);
+	if (user_session === null)
+		return status_response(401, 'Login required');
+
+	const result = await submit_score(user_session.user_id, json.token);
+	if (!result.ok)
+		return status_response(result.code, result.error as string);
+
+	return { success: true, improved: result.improved };
 }, 'POST');
 
 function redirect(location: string): Response {
@@ -501,16 +593,22 @@ function redirect(location: string): Response {
 	});
 }
 
-server.route('/auth/login', async (_req, _url) => {
+server.route('/auth/login', async (req, url) => {
 	if (!oauth.is_configured()) {
 		caution('battle.net oauth is not configured');
 		return redirect('/?auth_error=unavailable');
 	}
 
+	const pending_score = url.searchParams.get('submit');
+	if (is_valid_token(pending_score))
+		users.set_pending_score(req, pending_score);
+
 	return redirect(oauth.build_authorization_url());
 });
 
 server.route('/auth/callback', async (req, url) => {
+	const pending_score = users.take_pending_score(req);
+
 	if (url.searchParams.get('error') !== null)
 		return redirect('/?auth_error=denied');
 
@@ -537,6 +635,15 @@ server.route('/auth/callback', async (req, url) => {
 
 	await users.start_user_session(req, user_id, user_info.battletag);
 	log(`user {${user_info.battletag}} logged in`);
+
+	if (is_valid_token(pending_score)) {
+		const result = await submit_score(user_id, pending_score);
+
+		if (!result.ok)
+			return redirect('/?score=failed');
+
+		return redirect(result.improved ? '/?score=submitted' : '/?score=unchanged');
+	}
 
 	return redirect('/');
 });

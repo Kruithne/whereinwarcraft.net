@@ -6,6 +6,8 @@ const GUESS_THRESHOLD = 2.4;
 const BENEFIT_OF_DOUBT_RADIUS = 0.8;
 const PANORAMA_LOAD_TIMEOUT = 15000;
 const LEAFLET_ASSETS = window.wiw_leaflet_assets ?? { css: '/static/leaflet/leaflet.css', js: '/static/leaflet/leaflet.js' };
+const SCORE_SUBMITTED_MESSAGE = 'Your score was submitted to the leaderboard!';
+const SCORE_UNCHANGED_MESSAGE = 'Score submitted, but your existing record is better.';
 
 let leaflet_promise = null;
 
@@ -85,11 +87,6 @@ function create_game_app() {
 				panorama_anchor: 0,
 				panorama_is_dragging: false,
 
-				is_leaderboard_shown: false,
-				leaderboard_data: [],
-				leaderboard_loading: false,
-				leaderboard_last_fetch: 0,
-
 				map_marker: null,
 				map_circle: null,
 				map_path: null,
@@ -101,10 +98,9 @@ function create_game_app() {
 					visible: false
 				},
 
-				show_score_submission: false,
 				submitting_score: false,
 				score_submitted: false,
-				player_name: '',
+				score_improved: false,
 
 				guess_result_state: 'playing', // playing, next_round, game_over
 				token: null,
@@ -190,6 +186,10 @@ function create_game_app() {
 
 			mode_tag() {
 				return this.is_classic ? 'classic' : 'retail';
+			},
+
+			score_message() {
+				return this.score_improved ? SCORE_SUBMITTED_MESSAGE : SCORE_UNCHANGED_MESSAGE;
 			}
 		},
 
@@ -293,8 +293,9 @@ function create_game_app() {
 				this.player_guesses.length = 0;
 				this.viewing_map = false;
 
-				this.show_score_submission = false;
 				this.score_submitted = false;
+				this.score_improved = false;
+				this.submitting_score = false;
 
 				this.map_marker?.remove();
 				this.map_marker = null;
@@ -494,51 +495,34 @@ function create_game_app() {
 			// #endregion
 
 			// #region submit score
-			show_score_submission_form() {
-				if (this.player_score <= 0)
-					return;
-				
-				this.show_score_submission = true;
-				this.score_submitted = false;
-				this.player_name = '';
-			},
-			
-			hide_score_submission_form() {
-				this.show_score_submission = false;
-			},
-			
 			async submit_score() {
-				if (this.submitting_score || this.score_submitted)
+				if (this.submitting_score || this.score_submitted || this.player_score <= 0)
 					return;
-				
-				const name = this.player_name.trim();
-				if (name.length === 0 || this.player_score <= 0)
-					return;
-				
+
 				this.submitting_score = true;
-				
+
 				try {
-					const payload = {
-						token: this.token,
-						name: name.substring(0, 20)
-					};
-					
-					const response = await fetch_json_post('/api/submit', payload);
-					if (!response.ok) {
-						show_error_toast(await response_error(response, 'Failed to submit score'));
+					const response = await fetch_json_post('/api/submit', { token: this.token });
+
+					if (response.status === 401) {
+						window.location.href = '/auth/login?submit=' + encodeURIComponent(this.token);
 						return;
 					}
 
-					this.score_submitted = true;
+					if (!response.ok) {
+						show_error_toast(await response_error(response, 'Failed to submit score'));
+						this.submitting_score = false;
+						return;
+					}
 
-					setTimeout(() => {
-						this.hide_score_submission_form();
-					}, 2000);
-					
+					const data = await response.json();
+
+					this.score_improved = data.improved === true;
+					this.score_submitted = true;
+					this.submitting_score = false;
 				} catch (error) {
 					console.error('Error submitting score:', error);
 					show_error_toast('Failed to submit score');
-				} finally {
 					this.submitting_score = false;
 				}
 			},
@@ -667,35 +651,6 @@ function create_game_app() {
 
 				this.panorama_is_dragging = false;
 				e.preventDefault();
-			},
-			// #endregion
-
-			// #region leaderboard
-			async toggle_leaderboard() {
-				this.is_leaderboard_shown = !this.is_leaderboard_shown;
-				if (this.is_leaderboard_shown && (this.leaderboard_data.length === 0 || Date.now() - this.leaderboard_last_fetch > 60000))
-					this.fetch_leaderboard();
-			},
-			
-			async fetch_leaderboard() {
-				this.leaderboard_loading = true;
-				
-				try {
-					const endpoint = `/api/leaderboard/${this.mode_tag}`;
-						
-					const response = await fetch(endpoint);
-					if (!response.ok)
-						throw new Error(await response_error(response, 'Failed to fetch leaderboard'));
-
-					const data = await response.json();
-					
-					this.leaderboard_data = data.players || [];
-					this.leaderboard_last_fetch = Date.now();
-				} catch (error) {
-					console.error('Failed to fetch leaderboard data:', error);
-				} finally {
-					this.leaderboard_loading = false;
-				}
 			},
 			// #endregion
 

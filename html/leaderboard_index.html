@@ -1,0 +1,11 @@
+			<main id="page-content">
+				<h1>Leaderboards</h1>
+
+				<p>The global leaderboard is coming soon. Until then, see the top players for each game mode:</p>
+
+				<nav id="leaderboard-modes" aria-label="Game modes">
+					<t-for items="mode_links" as="link"><a class="leaderboard-mode {{link.class}}" href="{{link.href}}">{{link.label}}</a></t-for>
+				</nav>
+
+				<p><a href="/">Play Where in Warcraft</a> to get your name on the board.</p>
+			</main>
