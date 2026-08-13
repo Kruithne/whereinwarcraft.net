@@ -298,11 +298,21 @@ async function serve_page(req: Request, route_path: string, route: PageRoute, ex
 }
 
 function build_mode_links(current_slug: string): object[] {
-	return GAME_MODES.map(mode => ({
-		href: LEADERBOARD_ROOT + '/' + mode.slug,
-		label: mode.label,
-		class: mode.slug === current_slug ? 'selected' : ''
-	}));
+	const links = [{
+		href: LEADERBOARD_ROOT,
+		label: 'Overall',
+		class: current_slug === '' ? 'selected' : ''
+	}];
+
+	for (const mode of GAME_MODES) {
+		links.push({
+			href: LEADERBOARD_ROOT + '/' + mode.slug,
+			label: mode.label,
+			class: mode.slug === current_slug ? 'selected' : ''
+		});
+	}
+
+	return links;
 }
 
 async function render_leaderboard(route_path: string, route: PageRoute, mode: GameMode): Promise<string> {
