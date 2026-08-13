@@ -252,6 +252,10 @@ body.page #layout {
 	gap: 10px;
 }
 
+#header-leaderboards {
+	gap: 0;
+}
+
 #header-account {
 	position: relative;
 }
