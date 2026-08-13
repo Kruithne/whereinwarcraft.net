@@ -560,32 +560,11 @@ body.page #layout {
 }
 
 /* profile page */
-.diamond-box {
-	position: relative;
-	z-index: 0;
-	margin-bottom: 30px;
-	padding: 5px 15px 20px;
-	border: 18px solid transparent;
-	border-image: url('/{{cache_bust=static/images/diamond-border.png}}') 35 / 18px stretch;
-}
-
-.diamond-box::before {
-	content: '';
-	position: absolute;
-	inset: -8px;
-	z-index: -1;
-	background: #000000d9;
-}
-
-#page-content .diamond-box h2 {
-	margin-top: 10px;
-}
-
 #profile-cards {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-	gap: 20px;
-	margin-top: 20px;
+	gap: 10px;
+	margin-bottom: 20px;
 }
 
 .profile-card {
@@ -594,7 +573,7 @@ body.page #layout {
 	align-items: center;
 	justify-content: center;
 	gap: 6px;
-	padding: 25px 15px;
+	padding: 18px 15px;
 	border: 1px solid var(--color-border);
 	border-radius: 6px;
 	background: var(--color-panel);
@@ -607,7 +586,7 @@ body.page #layout {
 }
 
 .profile-card-percent {
-	font-size: 3em;
+	font-size: 2.4em;
 	line-height: 1.2;
 }
 
@@ -616,13 +595,11 @@ body.page #layout {
 	color: var(--color-text-muted);
 }
 
-.profile-card-overall {
-	border-color: var(--color-link);
-}
-
 #recent-games-table {
 	width: 100%;
+	margin-bottom: 20px;
 	border-collapse: collapse;
+	background: var(--color-panel);
 }
 
 #recent-games-table th, #recent-games-table td {
@@ -633,10 +610,6 @@ body.page #layout {
 
 #recent-games-table th {
 	color: var(--color-link);
-}
-
-#recent-games-table tr:last-child td {
-	border-bottom: none;
 }
 
 .recent-games-actions {
