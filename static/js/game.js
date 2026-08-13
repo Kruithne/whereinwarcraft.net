@@ -1,4 +1,4 @@
-import { createApp } from 'vue';
+import { createApp, markRaw } from 'vue';
 import { show_error_toast } from 'toast';
 
 const GAME_MODE_NORMAL = 0;
@@ -347,8 +347,7 @@ function create_game_app() {
 				localStorage.removeItem('wiw-local-guesses');
 				
 				// Reset map state completely
-				this.initialized_map = false;
-				this.map = null;
+				this.destroy_map();
 				this.can_place_marker = true;
 				
 				if (await this.initialize_session()) {
@@ -494,15 +493,15 @@ function create_game_app() {
 					this.map_circle?.remove();
 					this.map_path?.remove();
 
-					this.map_circle = L.circle([data.lat, data.lng], circle_options).addTo(this.map);
+					this.map_circle = markRaw(L.circle([data.lat, data.lng], circle_options).addTo(this.map));
 
 					if (this.map_marker) {
 						const marker_latlng = this.map_marker.getLatLng();
 
-						this.map_path = L.polyline([
+						this.map_path = markRaw(L.polyline([
 							[data.lat, data.lng],
 							[marker_latlng.lat, marker_latlng.lng]
-						], { color: circle_options.color }).addTo(this.map);
+						], { color: circle_options.color }).addTo(this.map));
 					}
 
 					this.map.panTo([data.lat, data.lng]);
@@ -659,10 +658,10 @@ function create_game_app() {
 						});
 						
 						this.reset_map_view();
-						L.tileLayer('static/images/' + this.tiles_dir + '/{z}/{x}/{y}.png', { 
+						this.tile_layer = L.tileLayer('static/images/' + this.tiles_dir + '/{z}/{x}/{y}.png', {
 							maxZoom: this.map_max_zoom
 						}).addTo(this.map);
-						
+
 						this.map.on('click', this.map_click);
 						
 						window.dispatchEvent(new Event('resize'));
@@ -680,7 +679,7 @@ function create_game_app() {
 					return;
 
 				this.map_marker?.remove();
-				this.map_marker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(this.map);
+				this.map_marker = markRaw(L.marker([e.latlng.lat, e.latlng.lng]).addTo(this.map));
 			},
 
 			reset_map_view() {
@@ -698,6 +697,18 @@ function create_game_app() {
 				this.map_circle = null;
 			},
 
+			destroy_map() {
+				this.clear_map();
+
+				this.tile_layer?.remove();
+				this.tile_layer = null;
+
+				this.map?.remove();
+				this.map = null;
+
+				this.initialized_map = false;
+			},
+
 			set_selected_map(map_id) {
 				if (this.selected_map === map_id)
 					return;
@@ -713,13 +724,9 @@ function create_game_app() {
 				
 				if (this.map) {
 					this.clear_map();
-					
-					this.map.eachLayer(layer => {
-						if (layer instanceof L.TileLayer)
-							this.map.removeLayer(layer);
-					});
-					
-					L.tileLayer('static/images/' + this.tiles_dir + '/{z}/{x}/{y}.png', {
+
+					this.tile_layer?.remove();
+					this.tile_layer = L.tileLayer('static/images/' + this.tiles_dir + '/{z}/{x}/{y}.png', {
 						maxZoom: this.map_max_zoom
 					}).addTo(this.map);
 				} else {
