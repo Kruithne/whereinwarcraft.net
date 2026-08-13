@@ -28,6 +28,7 @@
 		<link rel="apple-touch-icon" sizes="180x180" href="/{{cache_bust=static/apple-touch-icon.png}}">
 		<meta name="apple-mobile-web-app-title" content="W-in-W">
 		<link rel="manifest" href="/{{cache_bust=static/site.webmanifest}}">
+		{{json_ld}}
 		<link href="/{{cache_bust=static/css/style.css}}" type="text/css" rel="stylesheet"/>
 		<t-for items="stylesheets" as="stylesheet"><link href="/{{stylesheet}}" type="text/css" rel="stylesheet"/></t-for>
 		{{head}}

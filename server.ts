@@ -19,6 +19,10 @@ const SITE_TITLE = 'Where in Warcraft - The Original WoW Geo Guesser';
 const SITE_URL = 'https://whereinwarcraft.net';
 const SITE_DESCRIPTION = 'The original World of Warcraft geo guesser game. Study a screenshot of Azeroth, then pin the location on the map. Retail and Classic modes.';
 const SITE_SHARE_IMAGE_ALT = 'Where in Warcraft? The Original World of Warcraft Geo Guesser Game.';
+const SITE_NAME = 'Where in Warcraft';
+const SITE_AUTHOR_NAME = 'Kruithne';
+const SITE_AUTHOR_URL = 'http://kruithne.net/';
+const SITE_LD_IMAGES = ['static/images/social_embed.png', 'static/icon_full.png'];
 const BASE_TEMPLATE = './html/base_template.html';
 const SITEMAP_ROOT_PRIORITY = 1.0;
 const SITEMAP_PAGE_PRIORITY = 0.5;
@@ -151,6 +155,64 @@ function escape_attribute(value: string): string {
 	return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
+function build_json_ld(route_path: string): string {
+	const author_id = SITE_URL + '/#author';
+	const website_id = SITE_URL + '/#website';
+
+	const graph: object[] = [
+		{
+			'@type': 'WebSite',
+			'@id': website_id,
+			name: SITE_NAME,
+			alternateName: SITE_TITLE,
+			url: SITE_URL + '/',
+			description: SITE_DESCRIPTION,
+			inLanguage: 'en',
+			publisher: { '@id': author_id }
+		},
+		{
+			'@type': 'Person',
+			'@id': author_id,
+			name: SITE_AUTHOR_NAME,
+			url: SITE_AUTHOR_URL
+		}
+	];
+
+	if (route_path === '/') {
+		graph.unshift({
+			'@type': ['VideoGame', 'WebApplication'],
+			'@id': SITE_URL + '/#game',
+			name: SITE_NAME,
+			alternateName: SITE_TITLE,
+			url: SITE_URL + '/',
+			description: SITE_DESCRIPTION,
+			image: (cache_bust(SITE_LD_IMAGES) as string[]).map(image_path => SITE_URL + '/' + image_path),
+			applicationCategory: 'GameApplication',
+			operatingSystem: 'Any',
+			browserRequirements: 'Requires a modern web browser with JavaScript.',
+			gamePlatform: 'Web browser',
+			playMode: 'SinglePlayer',
+			genre: ['Geography', 'Puzzle'],
+			inLanguage: 'en',
+			isAccessibleForFree: true,
+			offers: {
+				'@type': 'Offer',
+				price: '0',
+				priceCurrency: 'USD',
+				availability: 'https://schema.org/InStock'
+			},
+			author: { '@id': author_id },
+			creator: { '@id': author_id },
+			publisher: { '@id': author_id },
+			isPartOf: { '@id': website_id }
+		});
+	}
+
+	const json = JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replace(/</g, '\\u003c');
+
+	return '<script type="application/ld+json">' + json + '</script>';
+}
+
 async function render_page(route_path: string, route: PageRoute): Promise<string> {
 	const subs = {
 		...TEMPLATE_SUBS,
@@ -159,6 +221,7 @@ async function render_page(route_path: string, route: PageRoute): Promise<string
 		canonical: escape_attribute(SITE_URL + route_path),
 		site_url: SITE_URL,
 		share_image_alt: escape_attribute(SITE_SHARE_IMAGE_ALT),
+		json_ld: build_json_ld(route_path),
 		noindex: route.noindex ? '1' : '',
 		head: route.head === undefined ? '' : await Bun.file(route.head).text(),
 		body_class: route.body_class ?? '',
