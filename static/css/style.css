@@ -146,6 +146,34 @@ body {
 	color: #f5bf2b;
 }
 
+.mode-icon-tbc {
+	color: #4e9a45;
+}
+
+.mode-icon-wrath {
+	color: #74c8e8;
+}
+
+.mode-icon-cataclysm {
+	color: #e2521f;
+}
+
+.mode-icon-mists {
+	color: #29a36a;
+}
+
+.mode-icon-warlords {
+	color: #c05a2a;
+}
+
+.mode-icon-legion {
+	color: #8fd44a;
+}
+
+.mode-icon-bfa {
+	color: #2e8fa8;
+}
+
 .mode-tag {
 	display: inline-flex;
 	align-items: center;
@@ -382,10 +410,18 @@ body.page #layout {
 }
 
 #main-menu-button-tray {
-	margin-bottom: 5px;
+	margin-bottom: 10px;
 	display: flex;
+	flex-wrap: wrap;
 	justify-content: center;
-	gap: 10px;
+	gap: 8px;
+	max-width: 600px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.btn-mode {
+	flex: 0 1 auto;
 }
 
 #main-menu-last-session {
@@ -623,9 +659,31 @@ body.page #layout {
 }
 
 /* profile page */
+#profile-overall {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: 8px 25px;
+	padding: 15px;
+	margin-bottom: 10px;
+	border: 1px solid var(--color-border);
+	border-radius: 6px;
+	background: var(--color-panel);
+	text-align: center;
+}
+
+#profile-overall .profile-card-title {
+	font-size: 1.2em;
+}
+
+#profile-overall .profile-card-percent {
+	font-size: 2.2em;
+}
+
 #profile-cards {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 	gap: 10px;
 	margin-bottom: 20px;
 }
@@ -635,8 +693,8 @@ body.page #layout {
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	gap: 6px;
-	padding: 18px 15px;
+	gap: 4px;
+	padding: 14px 10px;
 	border: 1px solid var(--color-border);
 	border-radius: 6px;
 	background: var(--color-panel);
@@ -644,12 +702,12 @@ body.page #layout {
 }
 
 .profile-card-title {
-	font-size: 1.1em;
+	font-size: 1em;
 	color: var(--color-link);
 }
 
 .profile-card-percent {
-	font-size: 2.4em;
+	font-size: 1.8em;
 	line-height: 1.2;
 }
 
@@ -718,19 +776,19 @@ body.page #layout {
 	position: relative;
 }
 
-#map-selector-cata {
+.map-selector-cata {
 	background-image: url(/{{cache_bust=static/images/achievement_boss_madnessofdeathwing.png}});
 }
 
-#map-selector-tbc {
+.map-selector-tbc {
 	background-image: url(/{{cache_bust=static/images/achievement_boss_illidan.png}});
 }
 
-#map-selector-wod {
+.map-selector-wod {
 	background-image: url(/{{cache_bust=static/images/achievement_thenighthold_guldan.png}});
 }
 
-#map-selector-bfa {
+.map-selector-bfa {
 	background-image: url(/{{cache_bust=static/images/achievement_boss_zuldazar_jaina.png}});
 }
 
@@ -1015,11 +1073,6 @@ body.page #layout {
 }
 
 @media (max-width: 560px) {
-	#main-menu-button-tray {
-		flex-direction: column;
-		align-items: stretch;
-	}
-
 	#game-stats {
 		gap: 14px;
 	}

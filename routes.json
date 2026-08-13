@@ -2,7 +2,7 @@
 	"/": {
 		"content": "./html/index.html",
 		"head": "./html/index_head.html",
-		"description": "The original World of Warcraft geo guesser game. Study a screenshot of Azeroth, then pin the location on the map. Retail and Classic modes.",
+		"description": "The original World of Warcraft geo guesser game. Study a screenshot of Azeroth, then pin the location on the map. Retail, Classic and expansion modes.",
 		"scripts": ["static/js/menu.js"]
 	},
 

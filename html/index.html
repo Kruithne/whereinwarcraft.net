@@ -1,4 +1,5 @@
 			<div id="container">
+				<script type="application/json" id="wiw-modes">{{modes_json}}</script>
 				<div id="error-toast" hidden></div>
 				<div id="main-menu">
 					<div>
@@ -6,8 +7,7 @@
 							<h1>How well do you know the world of Azeroth?</h1>
 							<h2>Can you accurately place all the locations on the map?</h2>
 							<div id="main-menu-button-tray">
-								<button class="btn" type="button" id="main-menu-play-retail"><svg class="mode-icon mode-icon-retail" aria-hidden="true"><use href="#icon-wow"></use></svg><span>Play Retail</span></button>
-								<button class="btn" type="button" id="main-menu-play-classic"><svg class="mode-icon mode-icon-classic" aria-hidden="true"><use href="#icon-wow"></use></svg><span>Play Classic</span></button>
+								<t-for items="mode_buttons" as="mode"><button class="btn btn-mode" type="button" data-mode="{{mode.slug}}"><svg class="mode-icon {{mode.icon}}" aria-hidden="true"><use href="#icon-wow"></use></svg><span>{{mode.label}}</span></button></t-for>
 							</div>
 							<a id="main-menu-last-session" hidden>Continue last session</a>
 						</div>
@@ -60,17 +60,8 @@
 											<div id="game-map-info" v-if="!is_loading && map_info.visible">
 												<span>{{ map_info.zone_name }} - {{ map_info.location_name }}</span>
 											</div>
-											<div id="map-selector" role="group" aria-label="Select map" v-if="!is_loading && !is_classic && viewing_map">
-												<div id="map-selector-cata" title="Azeroth" aria-label="Azeroth" role="button" tabindex="0" class="map-selector-icon" :class="{ selected: selected_map === 'cata' }" :aria-pressed="selected_map === 'cata'" @click="set_selected_map('cata')" @keydown.enter="set_selected_map('cata')" @keydown.space.prevent="set_selected_map('cata')">
-													<div class="map-selector-icon-border"></div>
-												</div>
-												<div id="map-selector-tbc" title="Outland" aria-label="Outland" role="button" tabindex="0" class="map-selector-icon" :class="{ selected: selected_map === 'tbc' }" :aria-pressed="selected_map === 'tbc'" @click="set_selected_map('tbc')" @keydown.enter="set_selected_map('tbc')" @keydown.space.prevent="set_selected_map('tbc')">
-													<div class="map-selector-icon-border"></div>
-												</div>
-												<div id="map-selector-wod" title="Draenor" aria-label="Draenor" role="button" tabindex="0" class="map-selector-icon" :class="{ selected: selected_map === 'wod' }" :aria-pressed="selected_map === 'wod'" @click="set_selected_map('wod')" @keydown.enter="set_selected_map('wod')" @keydown.space.prevent="set_selected_map('wod')">
-													<div class="map-selector-icon-border"></div>
-												</div>
-												<div id="map-selector-bfa" title="Battle for Azeroth" aria-label="Battle for Azeroth" role="button" tabindex="0" class="map-selector-icon" :class="{ selected: selected_map === 'bfa' }" :aria-pressed="selected_map === 'bfa'" @click="set_selected_map('bfa')" @keydown.enter="set_selected_map('bfa')" @keydown.space.prevent="set_selected_map('bfa')">
+											<div id="map-selector" role="group" aria-label="Select map" v-if="!is_loading && show_map_selector && viewing_map">
+												<div v-for="map in available_maps" :key="map.key" :title="map.label" :aria-label="map.label" role="button" tabindex="0" class="map-selector-icon" :class="['map-selector-' + map.key, { selected: selected_map === map.key }]" :aria-pressed="selected_map === map.key" @click="set_selected_map(map.key)" @keydown.enter="set_selected_map(map.key)" @keydown.space.prevent="set_selected_map(map.key)">
 													<div class="map-selector-icon-border"></div>
 												</div>
 											</div>

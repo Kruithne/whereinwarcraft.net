@@ -8,6 +8,48 @@ const PANORAMA_LOAD_TIMEOUT = 15000;
 const LEAFLET_ASSETS = window.wiw_leaflet_assets ?? { css: '/static/leaflet/leaflet.css', js: '/static/leaflet/leaflet.js' };
 const SCORE_SUBMITTED_MESSAGE = 'Your score was submitted to the leaderboard!';
 const SCORE_UNCHANGED_MESSAGE = 'Score submitted, but your existing record is better.';
+const MAPS = {
+	'cata': {
+		label: 'Azeroth',
+		dir: 'tiles',
+		maxZoom: 7,
+		background: 'rgb(0, 29, 40)',
+		mapID: 0
+	},
+
+	'tbc': {
+		label: 'Outland',
+		dir: 'tiles_tbc',
+		maxZoom: 6,
+		background: 'rgb(0, 0, 0)',
+		mapID: 1
+	},
+
+	'wod': {
+		label: 'Draenor',
+		dir: 'tiles_wod',
+		maxZoom: 7,
+		background: 'rgb(8, 27, 63)',
+		mapID: 2
+	},
+
+	'bfa': {
+		label: 'Kul Tiras and Zandalar',
+		dir: 'tiles_bfa',
+		maxZoom: 7,
+		background: 'rgb(0, 29, 40)',
+		mapID: 3
+	},
+
+	'classic': {
+		label: 'Azeroth',
+		dir: 'tiles_classic',
+		maxZoom: 6,
+		background: 'rgb(0, 29, 40)',
+		mapID: null
+	}
+};
+const MODES = JSON.parse(document.getElementById('wiw-modes').textContent);
 
 let leaflet_promise = null;
 
@@ -72,7 +114,7 @@ function create_game_app() {
 		data() {
 			return {
 				is_loading: true,
-				is_classic: false,
+				mode: MODES[0],
 
 				initialized_map: false,
 
@@ -105,33 +147,7 @@ function create_game_app() {
 				guess_result_state: 'playing', // playing, next_round, game_over
 				token: null,
 
-				selected_map: 'cata',
-				maps: {
-					'cata': {
-						dir: 'tiles',
-						maxZoom: 7,
-						background: 'rgb(0, 29, 40)',
-						mapID: 0
-					},
-					'tbc': {
-						dir: 'tiles_tbc',
-						maxZoom: 6,
-						background: 'rgb(0, 0, 0)',
-						mapID: 1
-					},
-					'wod': {
-						dir: 'tiles_wod',
-						maxZoom: 7,
-						background: 'rgb(8, 27, 63)',
-						mapID: 2
-					},
-					'bfa': {
-						dir: 'tiles_bfa',
-						maxZoom: 7,
-						background: 'rgb(0, 29, 40)',
-						mapID: 3
-					}
-				}
+				selected_map: MODES[0].maps[0]
 			}
 		},
 
@@ -156,40 +172,43 @@ function create_game_app() {
 			},
 
 			location_dir() {
-				return this.is_classic ? 'locations_classic' : 'locations';
+				return this.mode.location_dir;
+			},
+
+			available_maps() {
+				return this.mode.maps.map(key => ({ key, ...MAPS[key] }));
+			},
+
+			show_map_selector() {
+				return this.available_maps.length > 1;
+			},
+
+			active_map() {
+				return MAPS[this.selected_map] ?? MAPS[this.mode.maps[0]];
 			},
 
 			tiles_dir() {
-				if (this.is_classic)
-					return 'tiles_classic';
-				
-				return this.maps[this.selected_map].dir;
+				return this.active_map.dir;
 			},
-			
+
 			map_max_zoom() {
-				if (this.is_classic)
-					return 6;
-				
-				return this.maps[this.selected_map].maxZoom;
+				return this.active_map.maxZoom;
 			},
-			
+
 			map_background() {
-				if (this.is_classic)
-					return 'rgb(0, 29, 40)';
-				
-				return this.maps[this.selected_map].background;
+				return this.active_map.background;
 			},
-			
+
 			panorama_background_position() {
 				return `${this.panorama_offset}px 0`;
 			},
 
 			mode_tag() {
-				return this.is_classic ? 'classic' : 'retail';
+				return this.mode.slug;
 			},
 
 			mode_label() {
-				return this.is_classic ? 'Classic' : 'Retail';
+				return this.mode.label;
 			},
 
 			score_message() {
@@ -247,8 +266,8 @@ function create_game_app() {
 			},
 
 			// #region game logic
-			async play(is_classic = false) {
-				this.is_classic = is_classic;
+			async play(mode) {
+				this.mode = mode ?? MODES[0];
 				this.is_loading = true;
 
 				load_leaflet().catch(() => {});
@@ -264,8 +283,8 @@ function create_game_app() {
 				};
 				
 				this.guess_result_state = 'playing';
-				this.selected_map = this.is_classic ? 'classic' : 'cata';
-				
+				this.selected_map = this.mode.maps[0];
+
 				// Clear any existing session data
 				localStorage.removeItem('wiw-token');
 				localStorage.removeItem('wiw-local-guesses');
@@ -328,10 +347,11 @@ function create_game_app() {
 						lng: latlng.lng
 					};
 					
-					// Add mapID for non-classic mode
-					if (!this.is_classic)
-						payload.mapID = this.maps[this.selected_map].mapID;
-					
+					const active_map_id = this.active_map.mapID;
+					if (active_map_id !== null)
+						payload.mapID = active_map_id;
+
+
 					const response = await fetch_json_post('/api/guess', payload);
 					if (response.status === 404) {
 						this.handle_session_expired();
@@ -350,10 +370,11 @@ function create_game_app() {
 					localStorage.setItem('wiw-local-guesses', JSON.stringify(this.player_guesses));
 					
 					if (data.mapID !== undefined) {
-						const new_map = Object.keys(this.maps).find(
-							key => this.maps[key].mapID === data.mapID
+						const new_map = this.mode.maps.find(
+							key => MAPS[key].mapID === data.mapID
 						);
-						
+
+
 						if (new_map && new_map !== this.selected_map) {
 							this.set_selected_map(new_map);
 							await this.$nextTick();
@@ -714,7 +735,7 @@ function create_game_app() {
 					return;
 				}
 
-				this.is_classic = data.mode === 2;
+				this.mode = MODES.find(entry => entry.id === data.mode) ?? MODES[0];
 				this.remaining_lives = data.lives;
 				this.player_score = data.score;
 				this.current_location = data.location;
@@ -736,7 +757,7 @@ function create_game_app() {
 
 				this.setup_panorama_events();
 				this.guess_result_state = 'playing';
-				this.selected_map = this.is_classic ? 'classic' : 'cata';
+				this.selected_map = this.mode.maps[0];
 				this.is_loading = false;
 			}
 		}
@@ -757,5 +778,5 @@ export async function start(options) {
 	if (options.resume)
 		await app_state.continue_session();
 	else
-		await app_state.play(options.is_classic);
+		await app_state.play(options.mode);
 }

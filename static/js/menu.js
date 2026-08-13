@@ -8,9 +8,9 @@ const SCORE_MESSAGES = {
 };
 
 const menu = document.getElementById('main-menu');
-const play_retail = document.getElementById('main-menu-play-retail');
-const play_classic = document.getElementById('main-menu-play-classic');
+const mode_buttons = Array.from(document.querySelectorAll('#main-menu-button-tray button[data-mode]'));
 const continue_link = document.getElementById('main-menu-last-session');
+const modes = JSON.parse(document.getElementById('wiw-modes').textContent);
 
 let game_promise = null;
 let launching = false;
@@ -37,8 +37,9 @@ function sync_continue_link() {
 }
 
 function set_buttons_disabled(disabled) {
-	play_retail.disabled = disabled;
-	play_classic.disabled = disabled;
+	for (const button of mode_buttons)
+		button.disabled = disabled;
+
 	continue_link.classList.toggle('disabled', disabled);
 }
 
@@ -79,13 +80,20 @@ async function launch(options) {
 	}
 }
 
-for (const element of [play_retail, play_classic, continue_link]) {
+for (const element of [...mode_buttons, continue_link]) {
 	element.addEventListener('pointerenter', load_game, { once: true });
 	element.addEventListener('focus', load_game, { once: true });
 }
 
-play_retail.addEventListener('click', () => launch({ is_classic: false }));
-play_classic.addEventListener('click', () => launch({ is_classic: true }));
+for (const button of mode_buttons) {
+	const mode = modes.find(entry => entry.slug === button.dataset.mode);
+
+	if (mode === undefined)
+		continue;
+
+	button.addEventListener('click', () => launch({ mode }));
+}
+
 continue_link.addEventListener('click', () => launch({ resume: true }));
 
 function auto_resume() {

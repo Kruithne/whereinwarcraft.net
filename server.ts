@@ -4,7 +4,7 @@ import { format } from 'node:util';
 import db from './db';
 import * as oauth from './oauth';
 import * as users from './users';
-import { GAME_MODES, get_game_mode_by_id, type GameMode } from './game_modes';
+import { GAME_MODES, get_game_mode_by_id, get_location_sources, mode_location_filter, build_mode_client_config, type GameMode } from './game_modes';
 
 const GUESS_THRESHOLD = 2.4;
 const BOD_RADIUS = 0.8;
@@ -17,7 +17,7 @@ const SECURITY_HEADERS = {
 const TEMPLATE_SUBS = { cache_bust };
 const SITE_TITLE = 'Where in Warcraft - The Original WoW Geo Guesser';
 const SITE_URL = 'https://whereinwarcraft.net';
-const SITE_DESCRIPTION = 'The original World of Warcraft geo guesser game. Study a screenshot of Azeroth, then pin the location on the map. Retail and Classic modes.';
+const SITE_DESCRIPTION = 'The original World of Warcraft geo guesser game. Study a screenshot of Azeroth, then pin the location on the map. Retail, Classic and expansion modes.';
 const SITE_SHARE_IMAGE_ALT = 'Where in Warcraft? The Original World of Warcraft Geo Guesser Game.';
 const SITE_NAME = 'Where in Warcraft';
 const SITE_AUTHOR_NAME = 'Kruithne';
@@ -35,6 +35,7 @@ const LEADERBOARD_INDEX_TEMPLATE = './html/leaderboard_index.html';
 const PROFILE_TEMPLATE = './html/profile.html';
 const HISTORY_LIMIT = 30;
 const PROGRESS_TOTALS_TTL = 5 * 60 * 1000;
+const LOCATION_SOURCES = get_location_sources();
 
 type PageRoute = {
 	content: string;
@@ -91,12 +92,8 @@ function point_distance(x1: number, y1: number, x2: number, y2: number): number 
 	return Math.sqrt(delta_x * delta_x + delta_y * delta_y);
 }
 
-async function get_random_location_retail() {
-	return await db.get_single('SELECT `ID` FROM `locations` WHERE `enabled` = 1 ORDER BY RAND() LIMIT 1');
-}
-
-async function get_random_start_location_classic() {
-	return await db.get_single('SELECT `ID` FROM `locations_classic` WHERE `enabled` = 1 ORDER BY RAND() LIMIT 1');
+async function get_random_location(mode: GameMode) {
+	return await db.get_single('SELECT `l`.`ID` FROM `' + mode.location_table + '` AS `l` WHERE `l`.`enabled` = 1' + mode_location_filter(mode, 'l') + ' ORDER BY RAND() LIMIT 1');
 }
 
 async function clear_token(clear_token: any) {
@@ -149,13 +146,16 @@ async function get_progress_totals(): Promise<ProgressTotals> {
 		return progress_totals;
 
 	const totals = new Map<number, number>();
-	let total_all = 0;
 
 	for (const mode of GAME_MODES) {
-		const count = await db.count('SELECT COUNT(*) AS `count` FROM `' + mode.location_table + '` WHERE `enabled` = 1');
+		const count = await db.count('SELECT COUNT(*) AS `count` FROM `' + mode.location_table + '` AS `l` WHERE `l`.`enabled` = 1' + mode_location_filter(mode, 'l'));
 		totals.set(mode.id, count);
-		total_all += count;
 	}
+
+	let total_all = 0;
+
+	for (const source of LOCATION_SOURCES)
+		total_all += await db.count('SELECT COUNT(*) AS `count` FROM `' + source.table + '` WHERE `enabled` = 1');
 
 	progress_totals = { totals, total_all, expires: Date.now() + PROGRESS_TOTALS_TTL };
 
@@ -167,7 +167,16 @@ function progress_percent(correct: number, total: number): number {
 }
 
 async function get_user_mode_progress(user_id: number, mode: GameMode): Promise<number> {
-	return await db.count('SELECT COUNT(*) AS `count` FROM `user_location_progress` AS p JOIN `' + mode.location_table + '` AS l ON (l.`ID` = p.`location_id`) WHERE p.`user_id` = ? AND p.`game_mode` = ? AND l.`enabled` = 1', [user_id, mode.id]);
+	return await db.count('SELECT COUNT(*) AS `count` FROM `user_location_progress` AS p JOIN `' + mode.location_table + '` AS l ON (l.`ID` = p.`location_id`) WHERE p.`user_id` = ? AND p.`game_mode` = ? AND l.`enabled` = 1' + mode_location_filter(mode, 'l'), [user_id, mode.id]);
+}
+
+async function get_user_overall_progress(user_id: number): Promise<number> {
+	let total = 0;
+
+	for (const source of LOCATION_SOURCES)
+		total += await db.count('SELECT COUNT(DISTINCT p.`location_id`) AS `count` FROM `user_location_progress` AS p JOIN `' + source.table + '` AS l ON (l.`ID` = p.`location_id`) WHERE p.`user_id` = ? AND p.`game_mode` IN (' + source.mode_ids.join(', ') + ') AND l.`enabled` = 1', [user_id]);
+
+	return total;
 }
 
 async function record_location_progress(user_id: number, game_mode: number, location_id: string): Promise<void> {
@@ -371,10 +380,19 @@ function build_sitemap(routes: Record<string, PageRoute>): string {
 	return parts.join('\n') + '\n';
 }
 
+const menu_subs = {
+	mode_buttons: GAME_MODES.map(mode => ({
+		slug: mode.slug,
+		label: mode.label,
+		icon: mode_icon_class(mode.slug)
+	})),
+	modes_json: JSON.stringify(build_mode_client_config()).replace(/</g, '\\u003c')
+};
+
 const page_routes = await Bun.file('./routes.json').json() as Record<string, PageRoute>;
 
 for (const [route_path, route] of Object.entries(page_routes))
-	server.route(route_path, async (req, _url) => serve_page(req, route_path, route));
+	server.route(route_path, async (req, _url) => serve_page(req, route_path, route, route_path === '/' ? menu_subs : {}));
 
 const leaderboard_index_route: PageRoute = {
 	content: LEADERBOARD_INDEX_TEMPLATE,
@@ -391,7 +409,7 @@ const leaderboard_index_route: PageRoute = {
 async function render_leaderboard_index(): Promise<string> {
 	const { total_all } = await get_progress_totals();
 
-	const union = GAME_MODES.map(mode => 'SELECT p.`user_id` FROM `user_location_progress` AS p JOIN `' + mode.location_table + '` AS l ON (l.`ID` = p.`location_id`) WHERE p.`game_mode` = ' + mode.id + ' AND l.`enabled` = 1').join(' UNION ALL ');
+	const union = LOCATION_SOURCES.map(source => '(SELECT DISTINCT p.`user_id`, p.`location_id` FROM `user_location_progress` AS p JOIN `' + source.table + '` AS l ON (l.`ID` = p.`location_id`) WHERE p.`game_mode` IN (' + source.mode_ids.join(', ') + ') AND l.`enabled` = 1)').join(' UNION ALL ');
 	const rows = await db.get_all('SELECT u.`display_name`, t.`correct` FROM (SELECT `user_id`, COUNT(*) AS `correct` FROM (' + union + ') AS c GROUP BY `user_id` ORDER BY `correct` DESC LIMIT ' + LEADERBOARD_LIMIT + ') AS t JOIN `users` AS u ON (u.`ID` = t.`user_id`) ORDER BY t.`correct` DESC');
 
 	const entries = rows.map((row, index) => ({
@@ -475,55 +493,32 @@ server.json('/api/resume', async (req, url, json) => {
 	}
 }, 'POST');
 
-server.json('/api/init/retail', async (req, _url, json) => {
-	const token = Bun.randomUUIDv7();
-	const location = await get_random_location_retail();
+for (const mode of GAME_MODES) {
+	server.json('/api/init/' + mode.slug, async (req, _url, json) => {
+		const token = Bun.randomUUIDv7();
+		const location = await get_random_location(mode);
 
-	if (location === null) {
-		caution('get_random_location_retail(): failed to get start location');
-		return status_response(500, 'Failed to get start location');
-	}
+		if (location === null) {
+			caution('get_random_location(): failed to get start location', { mode: mode.slug });
+			return status_response(500, 'Failed to get start location');
+		}
 
-	const user_session = await users.get_user_session(req);
+		const user_session = await users.get_user_session(req);
 
-	await db.execute('INSERT INTO `sessions` (`token`, `currentID`, `gameMode`, `user_id`) VALUES(?, ?, ?, ?)', [token, location.ID, 1, user_session?.user_id ?? null]);
-	log(`started new {retail} game session {${token}} with location {${location.ID}}`);
+		await db.execute('INSERT INTO `sessions` (`token`, `currentID`, `gameMode`, `user_id`) VALUES(?, ?, ?, ?)', [token, location.ID, mode.id, user_session?.user_id ?? null]);
+		log(`started new {${mode.slug}} game session {${token}} with location {${location.ID}}`);
 
-	if (user_session !== null)
-		await prune_user_history(user_session.user_id);
+		if (user_session !== null)
+			await prune_user_history(user_session.user_id);
 
-	await clear_token(json.clear_token);
+		await clear_token(json.clear_token);
 
-	return {
-		token: token,
-		location: location.ID
-	};
-}, 'POST');
-
-server.json('/api/init/classic', async (req, _url, json) => {
-	const token = Bun.randomUUIDv7();
-	const location = await get_random_start_location_classic();
-
-	if (location === null) {
-		caution('get_random_start_location_classic(): failed to get start location');
-		return status_response(500, 'Failed to get start location');
-	}
-
-	const user_session = await users.get_user_session(req);
-
-	await db.execute('INSERT INTO `sessions` (`token`, `currentID`, `gameMode`, `user_id`) VALUES(?, ?, ?, ?)', [token, location.ID, 2, user_session?.user_id ?? null]);
-	log(`started new {classic} game session {${token}} with location {${location.ID}}`);
-
-	if (user_session !== null)
-		await prune_user_history(user_session.user_id);
-
-	await clear_token(json.clear_token);
-
-	return {
-		token: token,
-		location: location.ID
-	};
-}, 'POST');
+		return {
+			token: token,
+			location: location.ID
+		};
+	}, 'POST');
+}
 
 server.json('/api/guess', async (_req, _url, json) => {
 	if (!is_valid_token(json.token))
@@ -542,14 +537,13 @@ server.json('/api/guess', async (_req, _url, json) => {
 	if (session.lives <= 0 || session.finished)
 		return status_response(400, 'You get nothing! You lose! Good day, sir!');
 	
-	let location;
-	if (session.gameMode === 1)
-		location = await db.get_single('SELECT l.`name`, l.`lat`, l.`lng`, l.`map`, z.`name` as `zoneName` FROM `locations` AS l JOIN `zones` AS z ON (z.`ID` = l.`zone`) WHERE l.`ID` = ?', [session.currentID]);
-	else if (session.gameMode === 2)
-		location = await db.get_single('SELECT l.`name`, l.`lat`, l.`lng`, z.`name` as `zoneName` FROM `locations_classic` AS l JOIN `zones_classic` AS z ON (z.`ID` = l.`zone`) WHERE l.`ID` = ?', [session.currentID]);
-	else
+	const mode = get_game_mode_by_id(Number(session.gameMode));
+	if (mode === undefined)
 		return status_response(400, 'Unknown game mode');
-	
+
+	const map_column = mode.has_map ? 'l.`map`, ' : '';
+	const location = await db.get_single('SELECT l.`name`, l.`lat`, l.`lng`, ' + map_column + 'z.`name` as `zoneName` FROM `' + mode.location_table + '` AS l JOIN `' + mode.zone_table + '` AS z ON (z.`ID` = l.`zone`) WHERE l.`ID` = ?', [session.currentID]);
+
 	if (location === null)
 		return status_response(500, 'Invalid location in session');
 	
@@ -599,12 +593,8 @@ server.json('/api/guess', async (_req, _url, json) => {
 		response.mapID = map_id;
 	
 	let new_location = null;
-	if (player_lives > 0) {
-		if (session.gameMode === 1)
-			new_location = await db.get_single('SELECT l.`ID` FROM `locations` AS l WHERE `enabled` = 1 AND l.`ID` != ? AND NOT EXISTS (SELECT * FROM `guesses` AS g WHERE g.`token` = ? AND g.`locationID` = l.`ID`) ORDER BY RAND() LIMIT 1', [session.currentID, json.token]);
-		else
-			new_location = await db.get_single('SELECT l.`ID` FROM `locations_classic` AS l WHERE `enabled` = 1 AND l.`ID` != ? AND NOT EXISTS (SELECT * FROM `guesses` AS g WHERE g.`token` = ? AND g.`locationID` = l.`ID`) ORDER BY RAND() LIMIT 1', [session.currentID, json.token]);
-	}
+	if (player_lives > 0)
+		new_location = await db.get_single('SELECT l.`ID` FROM `' + mode.location_table + '` AS l WHERE l.`enabled` = 1 AND l.`ID` != ?' + mode_location_filter(mode, 'l') + ' AND NOT EXISTS (SELECT * FROM `guesses` AS g WHERE g.`token` = ? AND g.`locationID` = l.`ID`) ORDER BY RAND() LIMIT 1', [session.currentID, json.token]);
 
 	const finished = player_lives <= 0 || new_location === null;
 
@@ -806,14 +796,13 @@ server.route('/profile', async (req, _url) => {
 
 	const { totals, total_all } = await get_progress_totals();
 
-	let total_correct = 0;
+	const total_correct = await get_user_overall_progress(user_session.user_id);
 	const mode_cards = [];
 
 	for (const mode of GAME_MODES) {
 		const correct = await get_user_mode_progress(user_session.user_id, mode);
 		const total = totals.get(mode.id) ?? 0;
 
-		total_correct += correct;
 		mode_cards.push({
 			label: mode.label,
 			icon: mode_icon_class(mode.slug),
