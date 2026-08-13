@@ -1,7 +1,7 @@
 {
 	"name": "Where in Warcraft - WoW GeoGuessr",
 	"short_name": "Where in WoW",
-	"description": "The original World of Warcraft geo guesser game. Study a screenshot of Azeroth, then pin the location on the map. Retail and Classic modes.",
+	"description": "The original World of Warcraft geo guesser game. Study a screenshot of Azeroth, then pin the location on the map. Retail and Classic Era modes.",
 	"start_url": "/",
 	"scope": "/",
 	"icons": [

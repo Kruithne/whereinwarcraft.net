@@ -67,15 +67,15 @@ export const GAME_MODES: GameMode[] = [
 	{
 		id: 2,
 		slug: 'classic',
-		label: 'Classic',
+		label: 'Classic Era',
 		location_table: 'locations_classic',
 		zone_table: 'zones_classic',
 		location_dir: 'locations_classic',
 		has_map: false,
 		maps: ['classic'],
-		page_title: 'Classic Leaderboard',
-		page_description: 'The top 100 Where in Warcraft players in Classic mode. Compare the best scores and accuracy for classic World of Warcraft locations.',
-		page_intro: 'The best 100 players in Classic mode, ranked by score, then by accuracy.'
+		page_title: 'Classic Era Leaderboard',
+		page_description: 'The top 100 Where in Warcraft players in Classic Era mode. Compare the best scores and accuracy for classic World of Warcraft locations.',
+		page_intro: 'The best 100 players in Classic Era mode, ranked by score, then by accuracy.'
 	},
 
 	build_expansion_mode({
