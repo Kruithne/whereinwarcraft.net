@@ -222,6 +222,11 @@ body.page #layout {
 	margin-left: auto;
 	display: flex;
 	align-items: center;
+	gap: 10px;
+}
+
+#header-account {
+	position: relative;
 }
 
 .header-bnet-icon {
@@ -845,6 +850,10 @@ body.page #layout {
 	}
 
 	#header-login span {
+		display: none;
+	}
+
+	#header-leaderboards-prefix {
 		display: none;
 	}
 
