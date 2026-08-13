@@ -15,6 +15,9 @@ const EXPANSION_BFA = 7;
 
 export const GAME_MODE_NORMAL = 0;
 export const GAME_MODE_HARDCORE = 1;
+export const GAME_MODE_TIME_ATTACK = 2;
+
+const TIME_ATTACK_SECONDS = 20;
 
 export type Era = {
 	id: number;
@@ -35,6 +38,8 @@ export type GameMode = {
 	label: string;
 	lives: number;
 	description: string;
+	rules: string;
+	time_limit?: number;
 };
 
 type ExpansionEra = {
@@ -66,14 +71,25 @@ export const GAME_MODES: GameMode[] = [
 		slug: 'normal',
 		label: 'Normal',
 		lives: 3,
-		description: 'You get three lives. Wrong guesses cost a life.'
+		description: 'You get three lives. Wrong guesses cost a life.',
+		rules: ''
 	},
 	{
 		id: GAME_MODE_HARDCORE,
 		slug: 'hardcore',
 		label: 'Hardcore',
 		lives: 1,
-		description: 'You get one life. One wrong guess ends the game.'
+		description: 'You get one life. One wrong guess ends the game.',
+		rules: ' Hardcore gives you one life.'
+	},
+	{
+		id: GAME_MODE_TIME_ATTACK,
+		slug: 'timeattack',
+		label: 'Time Attack',
+		lives: 3,
+		description: 'You get three lives and ' + TIME_ATTACK_SECONDS + ' seconds for each location.',
+		rules: ' Time Attack gives you ' + TIME_ATTACK_SECONDS + ' seconds for each location.',
+		time_limit: TIME_ATTACK_SECONDS
 	}
 ];
 
@@ -163,8 +179,8 @@ export function get_game_mode_by_id(id: number): GameMode|undefined {
 	return GAME_MODES_BY_ID.get(id);
 }
 
-export function is_hardcore(mode: GameMode): boolean {
-	return mode.id === GAME_MODE_HARDCORE;
+export function is_default_mode(mode: GameMode): boolean {
+	return mode.id === GAME_MODE_NORMAL;
 }
 
 export type LeaderboardPage = {
@@ -174,10 +190,8 @@ export type LeaderboardPage = {
 };
 
 export function build_leaderboard_page(era: Era, mode: GameMode): LeaderboardPage {
-	const hardcore = is_hardcore(mode);
-	const name = hardcore ? era.label + ' Hardcore' : era.label;
-
-	const rules = hardcore ? ' Hardcore gives you one life.' : '';
+	const name = is_default_mode(mode) ? era.label : era.label + ' ' + mode.label;
+	const rules = mode.rules;
 
 	return {
 		title: name + ' Leaderboard',
@@ -229,6 +243,7 @@ export function build_game_mode_client_config(): object[] {
 		slug: mode.slug,
 		label: mode.label,
 		lives: mode.lives,
-		description: mode.description
+		description: mode.description,
+		time_limit: mode.time_limit ?? 0
 	}));
 }

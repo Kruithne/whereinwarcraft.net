@@ -105,6 +105,10 @@
 											</div>
 										</div>
 									</div>
+									<div id="game-timer" v-if="show_timer" role="timer">
+										<div id="game-timer-bar" :class="{ low: timer_is_low }" :style="{ width: timer_percent + '%' }"></div>
+										<span id="game-timer-value">{{ timer_seconds }}s</span>
+									</div>
 									<div id="game-stats">
 										<span class="game-stat" id="game-stat-lives">
 											<span class="game-stat-label">Lives</span>

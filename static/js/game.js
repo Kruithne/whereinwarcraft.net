@@ -2,6 +2,8 @@ import { createApp } from 'vue';
 import { show_error_toast } from 'toast';
 
 const GAME_MODE_NORMAL = 0;
+const GAME_MODE_HARDCORE = 1;
+const TIMER_LOW_THRESHOLD = 5000;
 const GUESS_THRESHOLD = 2.4;
 const BENEFIT_OF_DOUBT_RADIUS = 0.8;
 const PANORAMA_LOAD_TIMEOUT = 15000;
@@ -10,6 +12,7 @@ const SCORE_SUBMITTED_MESSAGE = 'Your score was submitted to the leaderboard!';
 const SCORE_UNCHANGED_MESSAGE = 'Score submitted, but your existing record is better.';
 const GAME_OVER_NORMAL_MESSAGE = 'You ran out of lives!';
 const GAME_OVER_HARDCORE_MESSAGE = 'You made a mistake. Your run is over!';
+const TIMEOUT_MESSAGE = 'You ran out of time!';
 const MAPS = {
 	'cata': {
 		label: 'Azeroth',
@@ -151,6 +154,11 @@ function create_game_app() {
 				guess_result_state: 'playing', // playing, next_round, game_over
 				token: null,
 
+				timer_remaining: 0,
+				timer_limit: 0,
+				timer_frame: null,
+				timer_generation: 0,
+
 				selected_map: ERAS[0].maps[0]
 			}
 		},
@@ -224,11 +232,34 @@ function create_game_app() {
 			},
 
 			is_hardcore() {
-				return this.game_mode.id !== GAME_MODE_NORMAL;
+				return this.game_mode.id === GAME_MODE_HARDCORE;
+			},
+
+			is_time_attack() {
+				return this.game_mode.time_limit > 0;
+			},
+
+			show_timer() {
+				return this.is_time_attack && !this.is_loading && this.guess_result_state === 'playing';
+			},
+
+			timer_percent() {
+				if (this.timer_limit <= 0)
+					return 0;
+
+				return Math.max(0, Math.min(100, (this.timer_remaining / this.timer_limit) * 100));
+			},
+
+			timer_seconds() {
+				return Math.ceil(this.timer_remaining / 1000);
+			},
+
+			timer_is_low() {
+				return this.timer_remaining <= TIMER_LOW_THRESHOLD;
 			},
 
 			leaderboard_href() {
-				return '/leaderboard' + (this.is_hardcore ? '/' + this.game_mode.slug : '') + '/' + this.era.slug;
+				return '/leaderboard' + (this.game_mode.id === GAME_MODE_NORMAL ? '' : '/' + this.game_mode.slug) + '/' + this.era.slug;
 			},
 
 			game_over_message() {
@@ -258,6 +289,7 @@ function create_game_app() {
 
 		methods: {
 			exit_to_menu() {
+				this.stop_round_timer();
 				game_root.hidden = true;
 				exit_handler?.();
 			},
@@ -327,6 +359,7 @@ function create_game_app() {
 					}
 					
 					this.is_loading = false;
+					this.start_round_timer();
 				} else {
 					show_error_toast('Sorry, there\'s a murloc in the engine right now. Please try again later!');
 					this.exit_to_menu();
@@ -334,6 +367,8 @@ function create_game_app() {
 			},
 
 			reset_game_state() {
+				this.stop_round_timer();
+
 				this.player_score = 0;
 				this.remaining_lives = this.game_mode.lives;
 				
@@ -360,10 +395,10 @@ function create_game_app() {
 			async confirm_guess() {
 				if (!this.map_marker || !this.can_place_marker)
 					return;
-				
-				// Disable marker placement during processing
+
 				this.can_place_marker = false;
-				
+				this.stop_round_timer();
+
 				try {
 					const latlng = this.map_marker.getLatLng();
 					const payload = {
@@ -371,11 +406,10 @@ function create_game_app() {
 						lat: latlng.lat,
 						lng: latlng.lng
 					};
-					
+
 					const active_map_id = this.active_map.mapID;
 					if (active_map_id !== null)
 						payload.mapID = active_map_id;
-
 
 					const response = await fetch_json_post('/api/guess', payload);
 					if (response.status === 404) {
@@ -385,88 +419,110 @@ function create_game_app() {
 
 					if (!response.ok)
 						throw new Error(await response_error(response, 'Failed to submit guess'));
-					
-					const data = await response.json();
-					
-					// Update game state
-					this.remaining_lives = data.lives;
-					this.player_score = data.score;
-					this.player_guesses.push(data.distPct);
-					localStorage.setItem('wiw-local-guesses', JSON.stringify(this.player_guesses));
-					
-					if (data.mapID !== undefined) {
-						const new_map = this.era.maps.find(
-							key => MAPS[key].mapID === data.mapID
-						);
 
-
-						if (new_map && new_map !== this.selected_map) {
-							this.set_selected_map(new_map);
-							await this.$nextTick();
-						}
-					}
-					
-					// Create circle at correct location
-					const circle_options = {
-						color: 'red',
-						fillColor: 'red',
-						fillOpacity: 0.5,
-						radius: GUESS_THRESHOLD
-					};
-					
-					// Set result color and radius based on result code
-					if (data.result === 1) {
-						circle_options.color = 'yellow';
-						circle_options.fillColor = 'yellow';
-					} else if (data.result === 2) {
-						circle_options.color = 'green';
-						circle_options.fillColor = 'green';
-						circle_options.radius = BENEFIT_OF_DOUBT_RADIUS;
-					}
-					
-					// Remove existing circle and path
-					if (this.map_circle)
-						this.map_circle.remove();
-						
-					if (this.map_path)
-						this.map_path.remove();
-					
-					// Add new circle
-					this.map_circle = L.circle([data.lat, data.lng], circle_options).addTo(this.map);
-					
-					if (this.map_marker) {
-						const markerLatLng = this.map_marker.getLatLng();
-						
-						this.map_path = L.polyline([
-							[data.lat, data.lng],
-							[markerLatLng.lat, markerLatLng.lng]
-						], { color: circle_options.color }).addTo(this.map);
-					}
-					
-					// Pan to the correct location
-					this.map.panTo([data.lat, data.lng]);
-					
-					// Set map info
-					this.map_info = {
-						zone_name: data.zoneName,
-						location_name: data.locName,
-						visible: true
-					};
-					
-					// Update current location for next round (if provided)
-					if (data.location)
-						this.current_location = data.location;
-					else
-						this.current_location = null;
-					
-					// Show next round UI state
-					this.guess_result_state = this.remaining_lives <= 0 ? 'game_over' : 'next_round';
-					
+					await this.apply_guess_result(await response.json());
 				} catch (error) {
 					console.error('Error submitting guess:', error);
 					show_error_toast(error.message || 'Failed to submit guess');
 					this.can_place_marker = true;
 				}
+			},
+
+			async handle_timeout() {
+				if (this.guess_result_state !== 'playing' || !this.can_place_marker)
+					return;
+
+				this.can_place_marker = false;
+				this.stop_round_timer();
+
+				try {
+					const response = await fetch_json_post('/api/guess', { token: this.token, timeout: true });
+					if (response.status === 404) {
+						this.handle_session_expired();
+						return;
+					}
+
+					if (!response.ok)
+						throw new Error(await response_error(response, 'Failed to end round'));
+
+					this.map_marker?.remove();
+					this.map_marker = null;
+
+					await this.initialize_map();
+					this.viewing_map = true;
+
+					await this.apply_guess_result(await response.json());
+				} catch (error) {
+					console.error('Error ending round:', error);
+					show_error_toast(error.message || 'Failed to end round');
+					this.can_place_marker = true;
+				}
+			},
+
+			async apply_guess_result(data) {
+				this.remaining_lives = data.lives;
+				this.player_score = data.score;
+				this.player_guesses.push(data.distPct);
+				localStorage.setItem('wiw-local-guesses', JSON.stringify(this.player_guesses));
+
+				if (data.mapID !== undefined) {
+					const new_map = this.era.maps.find(key => MAPS[key].mapID === data.mapID);
+
+					if (new_map && new_map !== this.selected_map) {
+						this.set_selected_map(new_map);
+						await this.$nextTick();
+					}
+				}
+
+				const circle_options = {
+					color: 'red',
+					fillColor: 'red',
+					fillOpacity: 0.5,
+					radius: GUESS_THRESHOLD
+				};
+
+				if (data.result === 1) {
+					circle_options.color = 'yellow';
+					circle_options.fillColor = 'yellow';
+				} else if (data.result === 2) {
+					circle_options.color = 'green';
+					circle_options.fillColor = 'green';
+					circle_options.radius = BENEFIT_OF_DOUBT_RADIUS;
+				}
+
+				if (this.map) {
+					this.map_circle?.remove();
+					this.map_path?.remove();
+
+					this.map_circle = L.circle([data.lat, data.lng], circle_options).addTo(this.map);
+
+					if (this.map_marker) {
+						const marker_latlng = this.map_marker.getLatLng();
+
+						this.map_path = L.polyline([
+							[data.lat, data.lng],
+							[marker_latlng.lat, marker_latlng.lng]
+						], { color: circle_options.color }).addTo(this.map);
+					}
+
+					this.map.panTo([data.lat, data.lng]);
+				}
+
+				this.map_info = {
+					zone_name: data.zoneName,
+					location_name: data.locName,
+					visible: true
+				};
+
+				if (data.location)
+					this.current_location = data.location;
+				else
+					this.current_location = null;
+
+				this.guess_result_state = this.remaining_lives <= 0 ? 'game_over' : 'next_round';
+
+				if (data.timedOut)
+					show_error_toast(TIMEOUT_MESSAGE);
 			},
 			
 			async next_round() {
@@ -504,12 +560,15 @@ function create_game_app() {
 				
 				// Re-enable marker placement
 				this.can_place_marker = true;
-				
+
 				// Hide loading state
 				this.is_loading = false;
+
+				this.start_round_timer();
 			},
 
 			handle_session_expired() {
+				this.stop_round_timer();
 				localStorage.removeItem('wiw-token');
 				localStorage.removeItem('wiw-local-guesses');
 				this.token = null;
@@ -532,6 +591,7 @@ function create_game_app() {
 			},
 
 			show_game_over() {
+				this.stop_round_timer();
 				this.guess_result_state = 'game_over';
 
 				localStorage.removeItem('wiw-token');
@@ -704,6 +764,72 @@ function create_game_app() {
 			},
 			// #endregion
 
+			// #region timer
+			async start_round_timer() {
+				this.stop_round_timer();
+
+				if (!this.is_time_attack || !this.token)
+					return;
+
+				const generation = this.timer_generation;
+
+				this.timer_limit = this.game_mode.time_limit * 1000;
+				this.timer_remaining = this.timer_limit;
+
+				let remaining = this.timer_limit;
+
+				try {
+					const response = await fetch_json_post('/api/ready', { token: this.token });
+					if (response.status === 404) {
+						this.handle_session_expired();
+						return;
+					}
+
+					if (!response.ok)
+						throw new Error(await response_error(response, 'Failed to start round timer'));
+
+					const data = await response.json();
+					remaining = Number(data.remaining) || 0;
+				} catch (error) {
+					console.error('Failed to start round timer:', error);
+				}
+
+				if (generation !== this.timer_generation || this.guess_result_state !== 'playing')
+					return;
+
+				this.timer_remaining = remaining;
+
+				const deadline = performance.now() + remaining;
+
+				const tick = () => {
+					if (generation !== this.timer_generation)
+						return;
+
+					this.timer_remaining = Math.max(0, deadline - performance.now());
+
+					if (this.timer_remaining <= 0) {
+						this.timer_frame = null;
+						this.handle_timeout();
+						return;
+					}
+
+					this.timer_frame = requestAnimationFrame(tick);
+				};
+
+				tick();
+			},
+
+			stop_round_timer() {
+				this.timer_generation++;
+
+				if (this.timer_frame === null)
+					return;
+
+				cancelAnimationFrame(this.timer_frame);
+				this.timer_frame = null;
+			},
+			// #endregion
+
 			// #region session
 			async initialize_session() {
 				try {
@@ -785,6 +911,8 @@ function create_game_app() {
 				this.guess_result_state = 'playing';
 				this.selected_map = this.era.maps[0];
 				this.is_loading = false;
+
+				this.start_round_timer();
 			}
 		}
 	});

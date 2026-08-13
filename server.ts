@@ -4,10 +4,12 @@ import { format } from 'node:util';
 import db from './db';
 import * as oauth from './oauth';
 import * as users from './users';
-import { ERAS, GAME_MODES, get_era_by_id, get_game_mode_by_id, is_hardcore, build_leaderboard_page, get_location_sources, era_location_filter, build_era_client_config, build_game_mode_client_config, type Era, type GameMode } from './game_modes';
+import { ERAS, GAME_MODES, get_era_by_id, get_game_mode_by_id, is_default_mode, build_leaderboard_page, get_location_sources, era_location_filter, build_era_client_config, build_game_mode_client_config, type Era, type GameMode } from './game_modes';
 
 const GUESS_THRESHOLD = 2.4;
 const BOD_RADIUS = 0.8;
+const ROUND_READY_LIMIT = 15;
+const ROUND_GRACE = 1.5;
 const TOKEN_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const SECURITY_HEADERS = {
 	'X-Content-Type-Options': 'nosniff',
@@ -90,6 +92,26 @@ function point_distance(x1: number, y1: number, x2: number, y2: number): number 
 	const delta_y = y1 - y2;
 	
 	return Math.sqrt(delta_x * delta_x + delta_y * delta_y);
+}
+
+const ROUND_TIME_COLUMNS = 'UNIX_TIMESTAMP(NOW(3)) AS `now_ts`, UNIX_TIMESTAMP(`round_issued`) AS `issued_ts`, UNIX_TIMESTAMP(`round_started`) AS `started_ts`';
+
+function round_start(session: any): number {
+	const now = Number(session.now_ts);
+
+	if (session.started_ts !== null)
+		return Number(session.started_ts);
+
+	const issued = session.issued_ts === null ? now : Number(session.issued_ts);
+
+	return Math.min(now, issued + ROUND_READY_LIMIT);
+}
+
+function round_deadline(mode: GameMode, session: any): number|null {
+	if (mode.time_limit === undefined)
+		return null;
+
+	return round_start(session) + mode.time_limit;
 }
 
 async function get_random_location(era: Era) {
@@ -311,7 +333,7 @@ function icon_class(slug: string): string {
 }
 
 function leaderboard_path(mode: GameMode, era_slug: string): string {
-	return LEADERBOARD_ROOT + (is_hardcore(mode) ? '/hardcore' : '') + '/' + era_slug;
+	return LEADERBOARD_ROOT + (is_default_mode(mode) ? '' : '/' + mode.slug) + '/' + era_slug;
 }
 
 function build_game_mode_links(mode: GameMode, era: Era): object[] {
@@ -479,7 +501,7 @@ for (const mode of GAME_MODES) {
 			breadcrumbs: [
 				{ name: 'Home', path: '/' },
 				{ name: 'Leaderboards', path: LEADERBOARD_ROOT },
-				{ name: is_hardcore(mode) ? era.label + ' ' + mode.label : era.label, path: route_path }
+				{ name: is_default_mode(mode) ? era.label : era.label + ' ' + mode.label, path: route_path }
 			]
 		};
 
@@ -508,6 +530,10 @@ server.json('/api/resume', async (req, url, json) => {
 				await db.execute('UPDATE `sessions` SET `user_id` = ? WHERE `token` = ? AND `user_id` IS NULL', [user_session.user_id, json.token]);
 		}
 
+		const mode = get_game_mode_by_id(Number(session.hardcore));
+		if (mode?.time_limit !== undefined)
+			await db.execute('UPDATE `sessions` SET `round_issued` = NOW(3) WHERE `token` = ? AND `round_started` IS NULL', [json.token]);
+
 		log(`resumed game session {${json.token}} with era {${session.era}} and mode {${session.hardcore}}`);
 
 		return {
@@ -525,6 +551,38 @@ server.json('/api/resume', async (req, url, json) => {
 	}
 }, 'POST');
 
+server.json('/api/ready', async (_req, _url, json) => {
+	if (!is_valid_token(json.token))
+		return status_response(400, 'Invalid token');
+
+	const session = await db.get_single('SELECT `hardcore`, `lives`, `finished`, ' + ROUND_TIME_COLUMNS + ' FROM `sessions` WHERE `token` = ?', [json.token]);
+	if (session === null)
+		return status_response(404, 'Game session has expired');
+
+	if (session.lives <= 0 || session.finished)
+		return status_response(400, 'Game session has ended');
+
+	const mode = get_game_mode_by_id(Number(session.hardcore));
+	if (mode === undefined)
+		return status_response(400, 'Unknown game mode');
+
+	if (mode.time_limit === undefined)
+		return { remaining: 0 };
+
+	const now = Number(session.now_ts);
+
+	if (session.started_ts === null) {
+		const started = round_start(session);
+
+		await db.execute('UPDATE `sessions` SET `round_started` = FROM_UNIXTIME(?) WHERE `token` = ? AND `round_started` IS NULL', [started, json.token]);
+		session.started_ts = started;
+	}
+
+	const deadline = round_deadline(mode, session) as number;
+
+	return { remaining: Math.max(0, Math.round((deadline - now) * 1000)) };
+}, 'POST');
+
 for (const mode of GAME_MODES) {
 	for (const era of ERAS) {
 		server.json('/api/init/' + mode.slug + '/' + era.slug, async (req, _url, json) => {
@@ -538,7 +596,7 @@ for (const mode of GAME_MODES) {
 
 			const user_session = await users.get_user_session(req);
 
-			await db.execute('INSERT INTO `sessions` (`token`, `currentID`, `era`, `hardcore`, `lives`, `user_id`) VALUES(?, ?, ?, ?, ?, ?)', [token, location.ID, era.id, mode.id, mode.lives, user_session?.user_id ?? null]);
+			await db.execute('INSERT INTO `sessions` (`token`, `currentID`, `era`, `hardcore`, `lives`, `user_id`, `round_issued`) VALUES(?, ?, ?, ?, ?, ?, NOW(3))', [token, location.ID, era.id, mode.id, mode.lives, user_session?.user_id ?? null]);
 			log(`started new {${mode.slug}} {${era.slug}} game session {${token}} with location {${location.ID}}`);
 
 			if (user_session !== null)
@@ -557,14 +615,18 @@ for (const mode of GAME_MODES) {
 server.json('/api/guess', async (_req, _url, json) => {
 	if (!is_valid_token(json.token))
 		return status_response(400, 'Invalid token');
-	
-	if (typeof json.lat !== 'number')
-		return status_response(400, 'Invalid pin latitude');
-	
-	if (typeof json.lng !== 'number')
-		return status_response(400, 'Invalid pin longitude');
-	
-	const session = await db.get_single('SELECT `currentID`, `lives`, `era`, `score`, `finished`, `user_id` FROM `sessions` WHERE `token` = ?', [json.token]);
+
+	const is_timeout_claim = json.timeout === true;
+
+	if (!is_timeout_claim) {
+		if (typeof json.lat !== 'number')
+			return status_response(400, 'Invalid pin latitude');
+
+		if (typeof json.lng !== 'number')
+			return status_response(400, 'Invalid pin longitude');
+	}
+
+	const session = await db.get_single('SELECT `currentID`, `lives`, `era`, `hardcore`, `score`, `finished`, `user_id`, ' + ROUND_TIME_COLUMNS + ' FROM `sessions` WHERE `token` = ?', [json.token]);
 	if (session === null)
 		return status_response(404, 'Game session has expired');
 
@@ -574,6 +636,30 @@ server.json('/api/guess', async (_req, _url, json) => {
 	const era = get_era_by_id(Number(session.era));
 	if (era === undefined)
 		return status_response(400, 'Unknown era');
+
+	const mode = get_game_mode_by_id(Number(session.hardcore));
+	if (mode === undefined)
+		return status_response(400, 'Unknown game mode');
+
+	const deadline = round_deadline(mode, session);
+
+	if (deadline === null && is_timeout_claim)
+		return status_response(400, 'Game mode has no time limit');
+
+	let timed_out = false;
+
+	if (deadline !== null) {
+		const now = Number(session.now_ts);
+
+		if (is_timeout_claim) {
+			if (now < deadline - ROUND_GRACE)
+				return status_response(400, 'Round has not expired');
+
+			timed_out = true;
+		} else {
+			timed_out = now > deadline + ROUND_GRACE;
+		}
+	}
 
 	const map_column = era.has_map ? 'l.`map`, ' : '';
 	const location = await db.get_single('SELECT l.`name`, l.`lat`, l.`lng`, ' + map_column + 'z.`name` as `zoneName` FROM `' + era.location_table + '` AS l JOIN `' + era.zone_table + '` AS z ON (z.`ID` = l.`zone`) WHERE l.`ID` = ?', [session.currentID]);
@@ -589,8 +675,10 @@ server.json('/api/guess', async (_req, _url, json) => {
 	let result = 0; // Red
 	let dist_factor = 0;
 	
-	if (map_id === null || map_id === json.mapID) {
-		const distance = point_distance(location.lat, location.lng, json.lat, json.lng);
+	if (timed_out) {
+		player_lives--;
+	} else if (map_id === null || map_id === json.mapID) {
+		const distance = point_distance(location.lat, location.lng, Number(json.lat), Number(json.lng));
 		
 		dist_factor = 1 - (distance / GUESS_THRESHOLD);
 		if (dist_factor > 0) {
@@ -620,9 +708,10 @@ server.json('/api/guess', async (_req, _url, json) => {
 		lng: location.lng,
 		locName: location.name,
 		zoneName: location.zoneName,
-		result: result
+		result: result,
+		timedOut: timed_out
 	};
-	
+
 	if (map_id !== null)
 		response.mapID = map_id;
 	
@@ -633,7 +722,7 @@ server.json('/api/guess', async (_req, _url, json) => {
 	const finished = player_lives <= 0 || new_location === null;
 
 	const claimed = await db.execute(
-		'UPDATE `sessions` SET `score` = ?, `lives` = ?, `currentID` = ?, `finished` = ? WHERE `token` = ? AND `currentID` = ?',
+		'UPDATE `sessions` SET `score` = ?, `lives` = ?, `currentID` = ?, `finished` = ?, `round_issued` = NOW(3), `round_started` = NULL WHERE `token` = ? AND `currentID` = ?',
 		[player_score, player_lives, new_location?.ID ?? session.currentID, finished ? 1 : 0, json.token, session.currentID]
 	);
 
@@ -850,6 +939,27 @@ server.route('/profile', async (req, _url) => {
 		});
 	}
 
+	const records = await db.get_all('SELECT `era`, `hardcore`, `score`, `accuracy` FROM `leaderboard` WHERE `user_id` = ?', [user_session.user_id]);
+	const best_cards = [];
+
+	for (const mode of GAME_MODES) {
+		for (const era of ERAS) {
+			const record = records.find(row => Number(row.era) === era.id && Number(row.hardcore) === mode.id);
+
+			if (record === undefined)
+				continue;
+
+			best_cards.push({
+				mode_label: mode.label,
+				mode_icon: icon_class(mode.slug),
+				era_label: era.label,
+				era_icon: icon_class(era.slug),
+				score: Number(record.score),
+				accuracy: Math.round(Number(record.accuracy))
+			});
+		}
+	}
+
 	const games = await db.get_all('SELECT `token`, `era`, `hardcore`, `lives`, `score`, `finished`, `submitted`, `created` FROM `sessions` WHERE `user_id` = ? ORDER BY `created` DESC LIMIT ' + HISTORY_LIMIT, [user_session.user_id]);
 
 	const recent_games = games.map(game => {
@@ -888,6 +998,9 @@ server.route('/profile', async (req, _url) => {
 		overall_correct: total_correct,
 		overall_total: total_all,
 		era_cards,
+		best_cards,
+		has_bests: best_cards.length > 0 ? '1' : '',
+		no_bests: best_cards.length > 0 ? '' : '1',
 		recent_games,
 		has_games: recent_games.length > 0 ? '1' : '',
 		no_games: recent_games.length > 0 ? '' : '1'

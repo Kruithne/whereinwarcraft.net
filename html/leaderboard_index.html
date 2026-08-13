@@ -5,7 +5,7 @@
 					<t-for items="era_links" as="link"><a class="leaderboard-mode {{link.class}}" href="{{link.href}}"><svg class="mode-icon {{link.icon}}" aria-hidden="true"><use href="#icon-wow"></use></svg><span>{{link.label}}</span></a></t-for>
 				</nav>
 
-				<p>The global leaderboard ranks players by overall progress. Progress is the number of locations a player has guessed correctly, across all eras. Normal and Hardcore games both add to your progress.</p>
+				<p>The global leaderboard ranks players by overall progress. Progress is the number of locations a player has guessed correctly, across all eras. All game modes add to your progress.</p>
 
 				<t-if test="has_entries">
 					<table id="leaderboard-table">

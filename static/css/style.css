@@ -146,6 +146,10 @@ body {
 	color: #d62425;
 }
 
+.mode-icon-timeattack {
+	color: #f5a623;
+}
+
 .mode-icon-retail {
 	color: #5b3f9e;
 }
@@ -556,6 +560,36 @@ body.page #layout {
 	background: var(--color-window);
 }
 
+#game-timer {
+	position: relative;
+	box-sizing: border-box;
+	width: 100%;
+	height: 26px;
+	background: black;
+	border: 1px solid var(--color-border-light);
+	border-bottom: 0;
+	overflow: hidden;
+}
+
+#game-timer-bar {
+	height: 100%;
+	background: #4e9a45;
+}
+
+#game-timer-bar.low {
+	background: #d62425;
+}
+
+#game-timer-value {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 0.9em;
+	text-shadow: 0 0 4px black;
+}
+
 #game-stats {
 	display: flex;
 	align-items: center;
@@ -753,11 +787,17 @@ body.page #layout {
 	font-size: 2.2em;
 }
 
-#profile-cards {
+#profile-cards,
+#profile-best-cards {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 	gap: 10px;
 	margin-bottom: 20px;
+}
+
+.profile-card-subtitle {
+	font-size: 0.9em;
+	color: var(--color-text-muted);
 }
 
 .profile-card {
