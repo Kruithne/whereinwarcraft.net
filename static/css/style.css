@@ -259,9 +259,10 @@ body.page #layout {
 	border-image: url('/{{cache_bust=static/images/dropdown-bg.webp}}') 28 34 40 fill / 14px 17px 20px stretch;
 }
 
-.dropdown button {
+.dropdown button, .dropdown a {
 	position: relative;
 	display: block;
+	box-sizing: border-box;
 	width: 100%;
 	padding: 7px 10px;
 	border: none;
@@ -269,11 +270,12 @@ body.page #layout {
 	color: var(--color-text);
 	font-size: 0.95rem;
 	text-align: left;
+	text-decoration: none;
 	white-space: nowrap;
 	cursor: pointer;
 }
 
-.dropdown button::before {
+.dropdown button::before, .dropdown a::before {
 	content: '';
 	position: absolute;
 	inset: 0;
@@ -284,7 +286,7 @@ body.page #layout {
 	transition: opacity 0.1s;
 }
 
-.dropdown button:hover::before {
+.dropdown button:hover::before, .dropdown a:hover::before {
 	opacity: 1;
 }
 
@@ -555,6 +557,91 @@ body.page #layout {
 #leaderboard-table td:first-child {
 	width: 4em;
 	color: var(--color-text-muted);
+}
+
+/* profile page */
+.diamond-box {
+	position: relative;
+	z-index: 0;
+	margin-bottom: 30px;
+	padding: 5px 15px 20px;
+	border: 18px solid transparent;
+	border-image: url('/{{cache_bust=static/images/diamond-border.png}}') 35 / 18px stretch;
+}
+
+.diamond-box::before {
+	content: '';
+	position: absolute;
+	inset: -8px;
+	z-index: -1;
+	background: #000000d9;
+}
+
+#page-content .diamond-box h2 {
+	margin-top: 10px;
+}
+
+#profile-cards {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+	gap: 20px;
+	margin-top: 20px;
+}
+
+.profile-card {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	padding: 25px 15px;
+	border: 1px solid var(--color-border);
+	border-radius: 6px;
+	background: var(--color-panel);
+	text-align: center;
+}
+
+.profile-card-title {
+	font-size: 1.1em;
+	color: var(--color-link);
+}
+
+.profile-card-percent {
+	font-size: 3em;
+	line-height: 1.2;
+}
+
+.profile-card-detail {
+	font-size: 0.9em;
+	color: var(--color-text-muted);
+}
+
+.profile-card-overall {
+	border-color: var(--color-link);
+}
+
+#recent-games-table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+#recent-games-table th, #recent-games-table td {
+	padding: 8px 12px;
+	text-align: left;
+	border-bottom: 1px solid var(--color-border);
+}
+
+#recent-games-table th {
+	color: var(--color-link);
+}
+
+#recent-games-table tr:last-child td {
+	border-bottom: none;
+}
+
+.recent-games-actions {
+	text-align: right;
+	white-space: nowrap;
 }
 
 /* error toast */

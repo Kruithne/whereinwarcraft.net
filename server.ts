@@ -32,6 +32,9 @@ const LEADERBOARD_CACHE_TTL = 60 * 1000;
 const LEADERBOARD_PAGE_PRIORITY = 0.8;
 const LEADERBOARD_TEMPLATE = './html/leaderboard.html';
 const LEADERBOARD_INDEX_TEMPLATE = './html/leaderboard_index.html';
+const PROFILE_TEMPLATE = './html/profile.html';
+const HISTORY_LIMIT = 30;
+const PROGRESS_TOTALS_TTL = 5 * 60 * 1000;
 
 type PageRoute = {
 	content: string;
@@ -98,9 +101,12 @@ async function get_random_start_location_classic() {
 
 async function clear_token(clear_token: any) {
 	if (is_valid_token(clear_token)) {
-		log(`cleared game session {${clear_token}}`);
-		await db.execute('DELETE FROM `sessions` WHERE `token` = ?', [clear_token]);
-		await db.execute('DELETE FROM `guesses` WHERE `token` = ?', [clear_token]);
+		const deleted = await db.execute('DELETE FROM `sessions` WHERE `token` = ? AND `user_id` IS NULL', [clear_token]);
+
+		if (deleted > 0) {
+			log(`cleared game session {${clear_token}}`);
+			await db.execute('DELETE FROM `guesses` WHERE `token` = ?', [clear_token]);
+		}
 	}
 }
 
@@ -113,7 +119,7 @@ function status_response(status_code: number, status_text: string): Response {
 
 async function cleanup_old_sessions() {
 	try {
-		const sessions = await db.get_all('SELECT `token` FROM `sessions` WHERE `updated` < DATE_SUB(NOW(), INTERVAL 5 DAY)');
+		const sessions = await db.get_all('SELECT `token` FROM `sessions` WHERE `updated` < DATE_SUB(NOW(), INTERVAL 5 DAY) AND `user_id` IS NULL');
 		
 		for (const session of sessions) {
 			await db.execute('DELETE FROM `guesses` WHERE `token` = ?', [session.token]);
@@ -128,6 +134,53 @@ async function cleanup_old_sessions() {
 	}
 	
 	setTimeout(cleanup_old_sessions, 24 * 60 * 60 * 1000); // 24 hours
+}
+
+type ProgressTotals = {
+	totals: Map<number, number>;
+	total_all: number;
+	expires: number;
+};
+
+let progress_totals: ProgressTotals|null = null;
+
+async function get_progress_totals(): Promise<ProgressTotals> {
+	if (progress_totals !== null && progress_totals.expires > Date.now())
+		return progress_totals;
+
+	const totals = new Map<number, number>();
+	let total_all = 0;
+
+	for (const mode of GAME_MODES) {
+		const count = await db.count('SELECT COUNT(*) AS `count` FROM `' + mode.location_table + '` WHERE `enabled` = 1');
+		totals.set(mode.id, count);
+		total_all += count;
+	}
+
+	progress_totals = { totals, total_all, expires: Date.now() + PROGRESS_TOTALS_TTL };
+
+	return progress_totals;
+}
+
+function progress_percent(correct: number, total: number): number {
+	return total > 0 ? Math.floor((correct / total) * 100) : 0;
+}
+
+async function get_user_mode_progress(user_id: number, mode: GameMode): Promise<number> {
+	return await db.count('SELECT COUNT(*) AS `count` FROM `user_location_progress` AS p JOIN `' + mode.location_table + '` AS l ON (l.`ID` = p.`location_id`) WHERE p.`user_id` = ? AND p.`game_mode` = ? AND l.`enabled` = 1', [user_id, mode.id]);
+}
+
+async function record_location_progress(user_id: number, game_mode: number, location_id: string): Promise<void> {
+	await db.execute('INSERT IGNORE INTO `user_location_progress` (`user_id`, `game_mode`, `location_id`) VALUES(?, ?, ?)', [user_id, game_mode, location_id]);
+}
+
+async function prune_user_history(user_id: number): Promise<void> {
+	const stale = await db.get_all('SELECT `token` FROM `sessions` WHERE `user_id` = ? ORDER BY `created` DESC LIMIT 1000 OFFSET ' + HISTORY_LIMIT, [user_id]);
+
+	for (const session of stale) {
+		await db.execute('DELETE FROM `guesses` WHERE `token` = ?', [session.token]);
+		await db.execute('DELETE FROM `sessions` WHERE `token` = ?', [session.token]);
+	}
 }
 
 async function render_template(file_path: string): Promise<string> {
@@ -310,7 +363,7 @@ for (const [route_path, route] of Object.entries(page_routes))
 const leaderboard_index_route: PageRoute = {
 	content: LEADERBOARD_INDEX_TEMPLATE,
 	title: 'Leaderboards',
-	description: 'Where in Warcraft leaderboards. See the top players for each game mode.',
+	description: 'Where in Warcraft leaderboards. See the global progress leaderboard and the top players for each game mode.',
 	body_class: 'page',
 	noindex: true,
 	breadcrumbs: [
@@ -319,7 +372,34 @@ const leaderboard_index_route: PageRoute = {
 	]
 };
 
-server.route(LEADERBOARD_ROOT, async (req, _url) => serve_page(req, LEADERBOARD_ROOT, leaderboard_index_route, { mode_links: build_mode_links('') }));
+async function render_leaderboard_index(): Promise<string> {
+	const { total_all } = await get_progress_totals();
+
+	const union = GAME_MODES.map(mode => 'SELECT p.`user_id` FROM `user_location_progress` AS p JOIN `' + mode.location_table + '` AS l ON (l.`ID` = p.`location_id`) WHERE p.`game_mode` = ' + mode.id + ' AND l.`enabled` = 1').join(' UNION ALL ');
+	const rows = await db.get_all('SELECT u.`display_name`, t.`correct` FROM (SELECT `user_id`, COUNT(*) AS `correct` FROM (' + union + ') AS c GROUP BY `user_id` ORDER BY `correct` DESC LIMIT ' + LEADERBOARD_LIMIT + ') AS t JOIN `users` AS u ON (u.`ID` = t.`user_id`) ORDER BY t.`correct` DESC');
+
+	const entries = rows.map((row, index) => ({
+		rank: index + 1,
+		name: escape_attribute(row.display_name),
+		progress: progress_percent(Number(row.correct), total_all),
+		correct: Number(row.correct),
+		total: total_all
+	}));
+
+	return await render_page(LEADERBOARD_ROOT, leaderboard_index_route, {
+		mode_links: build_mode_links(''),
+		entries,
+		has_entries: entries.length > 0 ? '1' : '',
+		is_empty: entries.length > 0 ? '' : '1'
+	});
+}
+
+server.route(LEADERBOARD_ROOT, async (req, _url) => {
+	const res = await leaderboard_cache.request(req, LEADERBOARD_ROOT, render_leaderboard_index);
+	res.headers.set('Content-Type', 'text/html');
+
+	return res;
+});
 
 const leaderboard_routes: Record<string, PageRoute> = {};
 
@@ -354,9 +434,15 @@ server.json('/api/resume', async (req, url, json) => {
 	if (!is_valid_token(json.token))
 		return status_response(400, 'Invalid token');
 
-	const session = await db.get_single('SELECT `gameMode`, `lives`, `score`, `currentID`, `finished` FROM `sessions` WHERE `token` = ?', [json.token]);
+	const session = await db.get_single('SELECT `gameMode`, `lives`, `score`, `currentID`, `finished`, `user_id` FROM `sessions` WHERE `token` = ?', [json.token]);
 
 	if (session !== null && session.lives > 0 && !session.finished) {
+		if (session.user_id === null) {
+			const user_session = await users.get_user_session(req);
+			if (user_session !== null)
+				await db.execute('UPDATE `sessions` SET `user_id` = ? WHERE `token` = ? AND `user_id` IS NULL', [user_session.user_id, json.token]);
+		}
+
 		log(`resumed game session {${json.token}} with mode {${session.gameMode}}`);
 
 		return {
@@ -373,7 +459,7 @@ server.json('/api/resume', async (req, url, json) => {
 	}
 }, 'POST');
 
-server.json('/api/init/retail', async (_req, _url, json) => {
+server.json('/api/init/retail', async (req, _url, json) => {
 	const token = Bun.randomUUIDv7();
 	const location = await get_random_location_retail();
 
@@ -382,8 +468,13 @@ server.json('/api/init/retail', async (_req, _url, json) => {
 		return status_response(500, 'Failed to get start location');
 	}
 
-	await db.execute('INSERT INTO `sessions` (`token`, `currentID`, `gameMode`) VALUES(?, ?, ?)', [token, location.ID, 1]);
+	const user_session = await users.get_user_session(req);
+
+	await db.execute('INSERT INTO `sessions` (`token`, `currentID`, `gameMode`, `user_id`) VALUES(?, ?, ?, ?)', [token, location.ID, 1, user_session?.user_id ?? null]);
 	log(`started new {retail} game session {${token}} with location {${location.ID}}`);
+
+	if (user_session !== null)
+		await prune_user_history(user_session.user_id);
 
 	await clear_token(json.clear_token);
 
@@ -393,7 +484,7 @@ server.json('/api/init/retail', async (_req, _url, json) => {
 	};
 }, 'POST');
 
-server.json('/api/init/classic', async (_req, _url, json) => {
+server.json('/api/init/classic', async (req, _url, json) => {
 	const token = Bun.randomUUIDv7();
 	const location = await get_random_start_location_classic();
 
@@ -402,8 +493,13 @@ server.json('/api/init/classic', async (_req, _url, json) => {
 		return status_response(500, 'Failed to get start location');
 	}
 
-	await db.execute('INSERT INTO `sessions` (`token`, `currentID`, `gameMode`) VALUES(?, ?, ?)', [token, location.ID, 2]);
+	const user_session = await users.get_user_session(req);
+
+	await db.execute('INSERT INTO `sessions` (`token`, `currentID`, `gameMode`, `user_id`) VALUES(?, ?, ?, ?)', [token, location.ID, 2, user_session?.user_id ?? null]);
 	log(`started new {classic} game session {${token}} with location {${location.ID}}`);
+
+	if (user_session !== null)
+		await prune_user_history(user_session.user_id);
 
 	await clear_token(json.clear_token);
 
@@ -423,7 +519,7 @@ server.json('/api/guess', async (_req, _url, json) => {
 	if (typeof json.lng !== 'number')
 		return status_response(400, 'Invalid pin longitude');
 	
-	const session = await db.get_single('SELECT `currentID`, `lives`, `gameMode`, `score`, `finished` FROM `sessions` WHERE `token` = ?', [json.token]);
+	const session = await db.get_single('SELECT `currentID`, `lives`, `gameMode`, `score`, `finished`, `user_id` FROM `sessions` WHERE `token` = ?', [json.token]);
 	if (session === null)
 		return status_response(404, 'Game session has expired');
 
@@ -509,6 +605,9 @@ server.json('/api/guess', async (_req, _url, json) => {
 		[json.token, session.currentID, dist_pct]
 	);
 
+	if (session.user_id !== null && result > 0)
+		await record_location_progress(Number(session.user_id), Number(session.gameMode), session.currentID);
+
 	if (player_lives <= 0) {
 		log(`game session {${json.token}} ended, final score: {${player_score}}`);
 	} else if (new_location !== null) {
@@ -529,12 +628,15 @@ type SubmitResult = {
 };
 
 async function submit_score(user_id: number, token: string): Promise<SubmitResult> {
-	const session = await db.get_single('SELECT `gameMode`, `lives`, `score`, `finished` FROM `sessions` WHERE `token` = ?', [token]);
+	const session = await db.get_single('SELECT `gameMode`, `lives`, `score`, `finished`, `submitted` FROM `sessions` WHERE `token` = ?', [token]);
 	if (session === null)
 		return { ok: false, improved: false, code: 404, error: 'Game session not found' };
 
 	if (session.lives > 0 && !session.finished)
 		return { ok: false, improved: false, code: 400, error: 'Game session is still in progress' };
+
+	if (session.submitted)
+		return { ok: false, improved: false, code: 400, error: 'Score already submitted' };
 
 	const score = Number(session.score);
 	if (score <= 0)
@@ -563,8 +665,10 @@ async function submit_score(user_id: number, token: string): Promise<SubmitResul
 		invalidate_leaderboard_cache(mode);
 	}
 
-	await db.execute('DELETE FROM `sessions` WHERE `token` = ?', [token]);
+	await db.execute('INSERT IGNORE INTO `user_location_progress` (`user_id`, `game_mode`, `location_id`) SELECT ?, ?, `locationID` FROM `guesses` WHERE `token` = ? AND `distPct` > 0', [user_id, mode.id, token]);
+	await db.execute('UPDATE `sessions` SET `user_id` = ?, `submitted` = 1 WHERE `token` = ?', [user_id, token]);
 	await db.execute('DELETE FROM `guesses` WHERE `token` = ?', [token]);
+	await prune_user_history(user_id);
 
 	log(`score submitted for session {${token}} by user {${user_id}}: score: {${score}}, accuracy: {${accuracy}}%, improved: {${improved}}`);
 
@@ -659,6 +763,95 @@ server.route('/api/user', async (req, _url) => {
 	const payload = session === null ? { logged_in: false } : { logged_in: true, battletag: session.battletag };
 
 	return Response.json(payload, { headers: { 'Cache-Control': 'no-store' } });
+});
+
+const profile_route: PageRoute = {
+	content: PROFILE_TEMPLATE,
+	title: 'Profile',
+	description: 'Your Where in Warcraft profile. See your progress for each game mode and your recent games.',
+	body_class: 'page',
+	noindex: true,
+	scripts: ['static/js/profile.js']
+};
+
+function format_game_date(value: any): string {
+	const date = new Date(value);
+
+	if (Number.isNaN(date.getTime()))
+		return '';
+
+	return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+server.route('/profile', async (req, _url) => {
+	const user_session = await users.get_user_session(req);
+	if (user_session === null)
+		return redirect('/auth/login');
+
+	const { totals, total_all } = await get_progress_totals();
+
+	let total_correct = 0;
+	const mode_cards = [];
+
+	for (const mode of GAME_MODES) {
+		const correct = await get_user_mode_progress(user_session.user_id, mode);
+		const total = totals.get(mode.id) ?? 0;
+
+		total_correct += correct;
+		mode_cards.push({
+			label: mode.label,
+			percent: progress_percent(correct, total),
+			correct,
+			total
+		});
+	}
+
+	const games = await db.get_all('SELECT `token`, `gameMode`, `lives`, `score`, `finished`, `submitted`, `created` FROM `sessions` WHERE `user_id` = ? ORDER BY `created` DESC LIMIT ' + HISTORY_LIMIT, [user_session.user_id]);
+
+	const recent_games = games.map(game => {
+		const mode = get_game_mode_by_id(Number(game.gameMode));
+		const active = Number(game.lives) > 0 && !game.finished;
+		const submitted = Boolean(game.submitted);
+		const can_submit = !active && !submitted && Number(game.score) > 0;
+
+		let status = 'Finished';
+		if (submitted)
+			status = 'Submitted';
+		else if (active)
+			status = 'In progress';
+
+		let actions = '';
+		if (active)
+			actions = `<button class="btn btn-compact" type="button" data-resume="${game.token}">Resume Game</button>`;
+		else if (can_submit)
+			actions = `<button class="btn btn-compact" type="button" data-submit="${game.token}">Submit Score</button>`;
+
+		return {
+			mode_label: mode?.label ?? 'Unknown',
+			played: format_game_date(game.created),
+			score: Number(game.score),
+			status,
+			actions
+		};
+	});
+
+	const html = await render_page('/profile', profile_route, {
+		overall_percent: progress_percent(total_correct, total_all),
+		overall_correct: total_correct,
+		overall_total: total_all,
+		mode_cards,
+		recent_games,
+		has_games: recent_games.length > 0 ? '1' : '',
+		no_games: recent_games.length > 0 ? '' : '1'
+	});
+
+	return new Response(html, {
+		headers: {
+			...SECURITY_HEADERS,
+			'Content-Type': 'text/html',
+			'Cache-Control': 'no-store'
+		}
+	});
 });
 
 server.route('/robots.txt', () => {

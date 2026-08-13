@@ -88,5 +88,20 @@ play_retail.addEventListener('click', () => launch({ is_classic: false }));
 play_classic.addEventListener('click', () => launch({ is_classic: true }));
 continue_link.addEventListener('click', () => launch({ resume: true }));
 
+function auto_resume() {
+	const params = new URLSearchParams(window.location.search);
+
+	if (params.get('resume') === null)
+		return;
+
+	const url = new URL(window.location.href);
+	url.searchParams.delete('resume');
+	window.history.replaceState({}, '', url);
+
+	if (localStorage.getItem('wiw-token') !== null)
+		launch({ resume: true });
+}
+
 sync_continue_link();
 show_score_result();
+auto_resume();
