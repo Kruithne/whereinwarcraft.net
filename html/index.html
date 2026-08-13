@@ -106,7 +106,7 @@
 									<p v-else>{{ game_over_message }}</p>
 									<p>Your final score: {{ player_score }}</p>
 									<p>Your accuracy: {{ player_accuracy }}%</p>
-									<input class="btn" type="button" value="Play Again" @click="play(false)">
+									<input class="btn" type="button" value="Play Again" @click="play(era, game_mode)">
 									<input class="btn" type="button"
 										:value="submitting_score ? 'Submitting...' : 'Submit Score'"
 										:class="{ disabled: player_score <= 0 || submitting_score }"
