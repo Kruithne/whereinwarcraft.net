@@ -367,15 +367,23 @@ function build_era_links(mode: GameMode, current_slug: string): object[] {
 	return links;
 }
 
-async function render_leaderboard(route_path: string, route: PageRoute, era: Era, mode: GameMode): Promise<string> {
-	const rows = await db.get_all(
-		'SELECT u.`display_name`, l.`score`, l.`accuracy` FROM `leaderboard` AS l JOIN `users` AS u ON (u.`ID` = l.`user_id`) WHERE l.`era` = ? AND l.`hardcore` = ? ORDER BY l.`score` DESC, l.`accuracy` DESC LIMIT ' + LEADERBOARD_LIMIT,
-		[era.id, mode.id]
+function fetch_leaderboard(era: Era, mode: GameMode, limit: number) {
+	return db.get_all(
+		'SELECT `name`, `score`, `accuracy` FROM (' +
+			'SELECT u.`display_name` AS `name`, l.`score`, l.`accuracy` FROM `leaderboard` AS l JOIN `users` AS u ON (u.`ID` = l.`user_id`) WHERE l.`era` = ? AND l.`hardcore` = ?' +
+			' UNION ALL ' +
+			'SELECT `name`, `score`, `accuracy` FROM `leaderboard_legacy` WHERE `era` = ? AND `hardcore` = ?' +
+		') AS `combined` ORDER BY `score` DESC, `accuracy` DESC LIMIT ' + limit,
+		[era.id, mode.id, era.id, mode.id]
 	);
+}
+
+async function render_leaderboard(route_path: string, route: PageRoute, era: Era, mode: GameMode): Promise<string> {
+	const rows = await fetch_leaderboard(era, mode, LEADERBOARD_LIMIT);
 
 	const entries = rows.map((row, index) => ({
 		rank: index + 1,
-		name: escape_attribute(row.display_name),
+		name: escape_attribute(row.name),
 		score: Number(row.score),
 		accuracy: Math.round(Number(row.accuracy))
 	}));
@@ -406,14 +414,11 @@ function mini_leaderboard_key(era: Era, mode: GameMode): string {
 }
 
 async function render_mini_leaderboard(era: Era, mode: GameMode): Promise<string> {
-	const rows = await db.get_all(
-		'SELECT u.`display_name`, l.`score`, l.`accuracy` FROM `leaderboard` AS l JOIN `users` AS u ON (u.`ID` = l.`user_id`) WHERE l.`era` = ? AND l.`hardcore` = ? ORDER BY l.`score` DESC, l.`accuracy` DESC LIMIT ' + LEADERBOARD_MINI_LIMIT,
-		[era.id, mode.id]
-	);
+	const rows = await fetch_leaderboard(era, mode, LEADERBOARD_MINI_LIMIT);
 
 	const entries = rows.map((row, index) => ({
 		rank: index + 1,
-		name: row.display_name,
+		name: row.name,
 		score: Number(row.score),
 		accuracy: Math.round(Number(row.accuracy))
 	}));
