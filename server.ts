@@ -15,9 +15,10 @@ const SECURITY_HEADERS = {
 	'X-Frame-Options': 'SAMEORIGIN'
 };
 const TEMPLATE_SUBS = { cache_bust };
-const SITE_TITLE = 'Where in Warcraft - WoW GeoGuessr';
+const SITE_TITLE = 'Where in Warcraft - The Original WoW Geo Guesser';
 const SITE_URL = 'https://whereinwarcraft.net';
-const SITE_DESCRIPTION = 'Test your knowledge of Azeroth. Guess the location of screenshots from World of Warcraft on the map, in Retail and Classic modes.';
+const SITE_DESCRIPTION = 'The original World of Warcraft geo guesser game. Study a screenshot of Azeroth, then pin the location on the map. Retail and Classic modes.';
+const SITE_SHARE_IMAGE_ALT = 'Where in Warcraft? The Original World of Warcraft Geo Guesser Game.';
 const BASE_TEMPLATE = './html/base_template.html';
 const SITEMAP_ROOT_PRIORITY = 1.0;
 const SITEMAP_PAGE_PRIORITY = 0.5;
@@ -153,9 +154,11 @@ function escape_attribute(value: string): string {
 async function render_page(route_path: string, route: PageRoute): Promise<string> {
 	const subs = {
 		...TEMPLATE_SUBS,
-		title: route.title === undefined ? SITE_TITLE : route.title + ' - ' + SITE_TITLE,
+		title: escape_attribute(route.title === undefined ? SITE_TITLE : route.title + ' - ' + SITE_TITLE),
 		description: escape_attribute(route.description ?? SITE_DESCRIPTION),
-		canonical: SITE_URL + route_path,
+		canonical: escape_attribute(SITE_URL + route_path),
+		site_url: SITE_URL,
+		share_image_alt: escape_attribute(SITE_SHARE_IMAGE_ALT),
 		noindex: route.noindex ? '1' : '',
 		head: route.head === undefined ? '' : await Bun.file(route.head).text(),
 		body_class: route.body_class ?? '',

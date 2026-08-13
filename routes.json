@@ -2,14 +2,14 @@
 	"/": {
 		"content": "./html/index.html",
 		"head": "./html/index_head.html",
-		"description": "Test your knowledge of Azeroth. Guess the location of screenshots from World of Warcraft on the map, in Retail and Classic modes.",
+		"description": "The original World of Warcraft geo guesser game. Study a screenshot of Azeroth, then pin the location on the map. Retail and Classic modes.",
 		"scripts": ["static/js/menu.js"]
 	},
 
 	"/privacy": {
 		"content": "./html/privacy.html",
 		"title": "Privacy Policy",
-		"description": "Privacy policy for Where in Warcraft, covering the data we collect, how we use it, and your rights.",
+		"description": "Privacy policy for Where in Warcraft, the original World of Warcraft geo guesser game. Read what data we collect, how we use it, and your rights.",
 		"body_class": "page"
 	}
 }

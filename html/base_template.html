@@ -7,6 +7,21 @@
 		<meta name="description" content="{{description}}">
 		<link rel="canonical" href="{{canonical}}">
 		<t-if test="noindex"><meta name="robots" content="noindex, follow"></t-if>
+		<meta property="og:type" content="website">
+		<meta property="og:site_name" content="Where in Warcraft">
+		<meta property="og:title" content="{{title}}">
+		<meta property="og:description" content="{{description}}">
+		<meta property="og:url" content="{{canonical}}">
+		<meta property="og:image" content="{{site_url}}/{{cache_bust=static/images/social_embed.png}}">
+		<meta property="og:image:type" content="image/png">
+		<meta property="og:image:width" content="1200">
+		<meta property="og:image:height" content="630">
+		<meta property="og:image:alt" content="{{share_image_alt}}">
+		<meta name="twitter:card" content="summary_large_image">
+		<meta name="twitter:title" content="{{title}}">
+		<meta name="twitter:description" content="{{description}}">
+		<meta name="twitter:image" content="{{site_url}}/{{cache_bust=static/images/social_embed.png}}">
+		<meta name="twitter:image:alt" content="{{share_image_alt}}">
 		<link rel="icon" type="image/png" href="/{{cache_bust=static/favicon-96x96.png}}" sizes="96x96">
 		<link rel="icon" type="image/svg+xml" href="/{{cache_bust=static/favicon.svg}}">
 		<link rel="shortcut icon" href="/{{cache_bust=static/favicon.ico}}">
