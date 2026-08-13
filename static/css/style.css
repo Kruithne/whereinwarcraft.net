@@ -505,6 +505,240 @@ body.page #layout {
 	transform: rotate(4deg) translate(33px, -168px);
 }
 
+/* home page */
+html {
+	scroll-behavior: smooth;
+}
+
+body.home {
+	overflow: auto;
+	user-select: text;
+}
+
+body.home #layout {
+	height: auto;
+	min-height: 100dvh;
+}
+
+body.home #backdrop {
+	display: none;
+}
+
+body.home #game-root {
+	user-select: none;
+}
+
+body.home.playing {
+	overflow: hidden;
+	user-select: none;
+}
+
+body.home.playing #layout {
+	height: 100dvh;
+}
+
+body.home.playing #backdrop {
+	display: block;
+}
+
+body.home #main-menu {
+	position: relative;
+	inset: auto;
+}
+
+.home-section {
+	position: relative;
+	overflow: hidden;
+}
+
+.home-section-bg {
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: cover;
+}
+
+.home-section-inner {
+	position: relative;
+	box-sizing: border-box;
+	width: 100%;
+	max-width: 1080px;
+	margin: 0 auto;
+	padding: 80px 30px;
+	text-align: center;
+}
+
+.home-section-title {
+	margin-bottom: 10px;
+	font-size: 2.2em;
+}
+
+.home-section-lead {
+	max-width: 640px;
+	margin: 0 auto 30px;
+	color: var(--color-text-muted);
+	line-height: 1.6;
+}
+
+#home-hero {
+	display: flex;
+	align-items: stretch;
+	box-sizing: border-box;
+	min-height: calc(100dvh - var(--header-height, 63px));
+	padding: 30px 0 60px;
+	overflow: visible;
+}
+
+#home-hero-bg {
+	background-image: url(/{{cache_bust=static/images/background.jpg}});
+	filter: blur(8px);
+}
+
+#home-scroll-cue {
+	position: absolute;
+	bottom: 16px;
+	left: 50%;
+	color: var(--color-text-muted);
+	font-size: 1.8rem;
+	line-height: 1;
+	text-decoration: none;
+	animation: home-cue-bob 2s ease-in-out infinite;
+}
+
+#home-scroll-cue:hover {
+	color: var(--color-link);
+}
+
+@keyframes home-cue-bob {
+	0%, 100% {
+		transform: translate(-50%, 0);
+	}
+
+	50% {
+		transform: translate(-50%, 8px);
+	}
+}
+
+#home-showcase-bg {
+	background-image: url(/{{cache_bust=static/images/front-graphic-A.webp}});
+	filter: blur(30px) brightness(0.45);
+	transform: scale(1.15);
+}
+
+#home-showcase-frame {
+	max-width: 886px;
+	margin: 0 auto 30px;
+	border: 1px solid var(--color-border-light);
+	border-radius: var(--radius-panel);
+	background: black;
+	box-shadow: var(--shadow-panel);
+	line-height: 0;
+	overflow: hidden;
+}
+
+#home-showcase-video {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+#home-leaderboards-bg {
+	background-image: url(/{{cache_bust=static/images/front-graphic-B.webp}});
+	filter: blur(30px) brightness(0.4);
+	transform: scale(1.15);
+}
+
+#home-leaderboards .leaderboard-switch {
+	justify-content: center;
+}
+
+#home-leaderboards .leaderboard-mode {
+	font-size: 1rem;
+	cursor: pointer;
+}
+
+#home-board-panel {
+	margin-bottom: 25px;
+}
+
+#home-board-table {
+	width: 100%;
+	border-collapse: collapse;
+	background: var(--color-panel);
+	text-align: left;
+}
+
+#home-board-table th, #home-board-table td {
+	padding: 8px 12px;
+	border-bottom: 1px solid var(--color-border);
+}
+
+#home-board-table th {
+	color: var(--color-link);
+}
+
+#home-board-table td:first-child {
+	width: 4em;
+	color: var(--color-text-muted);
+}
+
+#home-board-status {
+	padding: 25px;
+	color: var(--color-text-muted);
+}
+
+#home-modes-bg {
+	background-image: url(/{{cache_bust=static/images/front-graphic-C.webp}});
+	filter: blur(30px) brightness(0.4);
+	transform: scale(1.15);
+}
+
+#home-mode-columns {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 20px;
+}
+
+.home-mode-column {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 12px;
+	padding: 30px 20px;
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-panel);
+	background: var(--color-panel);
+}
+
+.home-mode-icon {
+	width: 84px;
+	height: 84px;
+	filter: drop-shadow(black 0 0 12px);
+}
+
+.home-mode-name {
+	font-size: 1.4em;
+	color: var(--color-link);
+}
+
+.home-mode-detail {
+	color: var(--color-text-muted);
+	line-height: 1.6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
+
+	#home-scroll-cue {
+		animation: none;
+		transform: translateX(-50%);
+	}
+}
+
 /* game */
 #game {
 	position: absolute;
@@ -1138,8 +1372,24 @@ body.page #layout {
 		overflow-y: auto;
 	}
 
+	body.home #main-menu {
+		overflow-y: visible;
+	}
+
 	#main-menu-right {
 		display: none;
+	}
+
+	.home-section-inner {
+		padding: 50px 20px;
+	}
+
+	.home-section-title {
+		font-size: 1.7em;
+	}
+
+	#home-mode-columns {
+		grid-template-columns: 1fr;
 	}
 
 	#main-menu-content h1 {

@@ -30,6 +30,8 @@ const SITEMAP_ROOT_PRIORITY = 1.0;
 const SITEMAP_PAGE_PRIORITY = 0.5;
 const LEADERBOARD_ROOT = '/leaderboard';
 const LEADERBOARD_LIMIT = 100;
+const LEADERBOARD_MINI_LIMIT = 10;
+const LEADERBOARD_API_ROOT = '/api/leaderboard';
 const LEADERBOARD_CACHE_TTL = 60 * 1000;
 const LEADERBOARD_PAGE_PRIORITY = 0.8;
 const LEADERBOARD_TEMPLATE = './html/leaderboard.html';
@@ -399,8 +401,42 @@ async function serve_leaderboard(req: Request, route_path: string, route: PageRo
 	return res;
 }
 
+function mini_leaderboard_key(era: Era, mode: GameMode): string {
+	return LEADERBOARD_API_ROOT + '/' + mode.slug + '/' + era.slug;
+}
+
+async function render_mini_leaderboard(era: Era, mode: GameMode): Promise<string> {
+	const rows = await db.get_all(
+		'SELECT u.`display_name`, l.`score`, l.`accuracy` FROM `leaderboard` AS l JOIN `users` AS u ON (u.`ID` = l.`user_id`) WHERE l.`era` = ? AND l.`hardcore` = ? ORDER BY l.`score` DESC, l.`accuracy` DESC LIMIT ' + LEADERBOARD_MINI_LIMIT,
+		[era.id, mode.id]
+	);
+
+	const entries = rows.map((row, index) => ({
+		rank: index + 1,
+		name: row.display_name,
+		score: Number(row.score),
+		accuracy: Math.round(Number(row.accuracy))
+	}));
+
+	return JSON.stringify({ href: leaderboard_path(mode, era.slug), entries });
+}
+
+server.route(LEADERBOARD_API_ROOT, async (req, url) => {
+	const mode = GAME_MODES.find(entry => entry.slug === url.searchParams.get('mode'));
+	const era = ERAS.find(entry => entry.slug === url.searchParams.get('era'));
+
+	if (mode === undefined || era === undefined)
+		return status_response(400, 'Unknown leaderboard');
+
+	const res = await leaderboard_cache.request(req, mini_leaderboard_key(era, mode), () => render_mini_leaderboard(era, mode));
+	res.headers.set('Content-Type', 'application/json');
+
+	return res;
+});
+
 function invalidate_leaderboard_cache(era: Era, mode: GameMode): void {
 	leaderboard_cache.entries.delete(leaderboard_path(mode, era.slug));
+	leaderboard_cache.entries.delete(mini_leaderboard_key(era, mode));
 }
 
 function build_sitemap(routes: Record<string, PageRoute>): string {
@@ -429,6 +465,11 @@ const menu_subs = {
 		slug: mode.slug,
 		label: mode.label,
 		icon: icon_class(mode.slug)
+	})),
+	mode_columns: GAME_MODES.map(mode => ({
+		label: mode.label,
+		icon: icon_class(mode.slug),
+		detail: mode.detail
 	})),
 	default_era_label: ERAS[0].label,
 	default_era_icon: icon_class(ERAS[0].slug),

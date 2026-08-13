@@ -3,7 +3,8 @@
 		"content": "./html/index.html",
 		"head": "./html/index_head.html",
 		"description": "The original World of Warcraft geo guesser game. Study a screenshot of Azeroth, then pin the location on the map. Retail, Classic Era and expansion modes.",
-		"scripts": ["static/js/menu.js"]
+		"body_class": "home",
+		"scripts": ["static/js/menu.js", "static/js/home.js"]
 	},
 
 	"/privacy": {

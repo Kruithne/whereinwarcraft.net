@@ -10,7 +10,7 @@ const SCORE_MESSAGES = {
 	failed: 'Your score could not be submitted.'
 };
 
-const menu = document.getElementById('main-menu');
+const home = document.getElementById('home');
 const play_button = document.getElementById('main-menu-play');
 const mode_description = document.getElementById('main-menu-mode-description');
 const continue_link = document.getElementById('main-menu-last-session');
@@ -125,8 +125,16 @@ function set_controls_disabled(disabled) {
 	continue_link.classList.toggle('disabled', disabled);
 }
 
+function set_playing(playing) {
+	home.hidden = playing;
+	document.body.classList.toggle('playing', playing);
+
+	if (playing)
+		window.scrollTo(0, 0);
+}
+
 function return_to_menu() {
-	menu.hidden = false;
+	set_playing(false);
 	sync_continue_link();
 }
 
@@ -147,13 +155,13 @@ async function launch(options) {
 	try {
 		const game = await load_game();
 
-		menu.hidden = true;
+		set_playing(true);
 		await game.start({ ...options, on_exit: return_to_menu });
 	} catch (error) {
 		console.error('Failed to start game:', error);
 
 		game_promise = null;
-		menu.hidden = false;
+		set_playing(false);
 
 		show_error_toast(GAME_ERROR);
 	} finally {

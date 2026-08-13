@@ -2,40 +2,98 @@
 				<script type="application/json" id="wiw-eras">{{eras_json}}</script>
 				<script type="application/json" id="wiw-game-modes">{{game_modes_json}}</script>
 				<div id="error-toast" hidden></div>
-				<div id="main-menu">
-					<div>
-						<div id="main-menu-content">
-							<h1>How well do you know the world of Azeroth?</h1>
-							<h2>Can you accurately place all the locations on the map?</h2>
-							<div id="main-menu-selectors">
-								<div class="menu-select" id="main-menu-mode-select">
-									<span class="menu-select-label" id="main-menu-mode-select-label">Game Mode</span>
-									<button class="btn menu-select-button" type="button" aria-haspopup="true" aria-expanded="false" aria-labelledby="main-menu-mode-select-label main-menu-mode-select-value"><svg class="mode-icon {{default_mode_icon}}" aria-hidden="true"><use href="#icon-wow"></use></svg><span class="menu-select-value" id="main-menu-mode-select-value">{{default_mode_label}}</span><span class="menu-select-caret" aria-hidden="true">▾</span></button>
-									<div class="dropdown menu-select-menu" hidden>
-										<t-for items="game_mode_options" as="option"><button type="button" data-value="{{option.slug}}"><svg class="mode-icon {{option.icon}}" aria-hidden="true"><use href="#icon-wow"></use></svg><span>{{option.label}}</span></button></t-for>
+				<div id="home">
+					<section id="home-hero" class="home-section">
+						<div class="home-section-bg" id="home-hero-bg"></div>
+					<div id="main-menu">
+						<div>
+							<div id="main-menu-content">
+								<h1>How well do you know the world of Azeroth?</h1>
+								<h2>Can you accurately place all the locations on the map?</h2>
+								<div id="main-menu-selectors">
+									<div class="menu-select" id="main-menu-mode-select">
+										<span class="menu-select-label" id="main-menu-mode-select-label">Game Mode</span>
+										<button class="btn menu-select-button" type="button" aria-haspopup="true" aria-expanded="false" aria-labelledby="main-menu-mode-select-label main-menu-mode-select-value"><svg class="mode-icon {{default_mode_icon}}" aria-hidden="true"><use href="#icon-wow"></use></svg><span class="menu-select-value" id="main-menu-mode-select-value">{{default_mode_label}}</span><span class="menu-select-caret" aria-hidden="true">▾</span></button>
+										<div class="dropdown menu-select-menu" hidden>
+											<t-for items="game_mode_options" as="option"><button type="button" data-value="{{option.slug}}"><svg class="mode-icon {{option.icon}}" aria-hidden="true"><use href="#icon-wow"></use></svg><span>{{option.label}}</span></button></t-for>
+										</div>
+									</div>
+									<div class="menu-select" id="main-menu-era-select">
+										<span class="menu-select-label" id="main-menu-era-select-label">Era</span>
+										<button class="btn menu-select-button" type="button" aria-haspopup="true" aria-expanded="false" aria-labelledby="main-menu-era-select-label main-menu-era-select-value"><svg class="mode-icon {{default_era_icon}}" aria-hidden="true"><use href="#icon-wow"></use></svg><span class="menu-select-value" id="main-menu-era-select-value">{{default_era_label}}</span><span class="menu-select-caret" aria-hidden="true">▾</span></button>
+										<div class="dropdown menu-select-menu" hidden>
+											<t-for items="era_options" as="option"><button type="button" data-value="{{option.slug}}"><svg class="mode-icon {{option.icon}}" aria-hidden="true"><use href="#icon-wow"></use></svg><span>{{option.label}}</span></button></t-for>
+										</div>
 									</div>
 								</div>
-								<div class="menu-select" id="main-menu-era-select">
-									<span class="menu-select-label" id="main-menu-era-select-label">Era</span>
-									<button class="btn menu-select-button" type="button" aria-haspopup="true" aria-expanded="false" aria-labelledby="main-menu-era-select-label main-menu-era-select-value"><svg class="mode-icon {{default_era_icon}}" aria-hidden="true"><use href="#icon-wow"></use></svg><span class="menu-select-value" id="main-menu-era-select-value">{{default_era_label}}</span><span class="menu-select-caret" aria-hidden="true">▾</span></button>
-									<div class="dropdown menu-select-menu" hidden>
-										<t-for items="era_options" as="option"><button type="button" data-value="{{option.slug}}"><svg class="mode-icon {{option.icon}}" aria-hidden="true"><use href="#icon-wow"></use></svg><span>{{option.label}}</span></button></t-for>
-									</div>
-								</div>
+								<p id="main-menu-mode-description">{{default_mode_description}}</p>
+								<button class="btn" id="main-menu-play" type="button">Play</button>
+								<a id="main-menu-last-session" hidden>Continue last session</a>
 							</div>
-							<p id="main-menu-mode-description">{{default_mode_description}}</p>
-							<button class="btn" id="main-menu-play" type="button">Play</button>
-							<a id="main-menu-last-session" hidden>Continue last session</a>
+						</div>
+						<div id="main-menu-right">
+							<div id="main-menu-images">
+								<img src="/{{cache_bust=static/images/front-graphic-A.webp}}" class="image" id="main-menu-image-a" width="362" height="199" alt="">
+								<img src="/{{cache_bust=static/images/front-graphic-B.webp}}" class="image" id="main-menu-image-b" width="362" height="199" alt="">
+								<img src="/{{cache_bust=static/images/front-graphic-C.webp}}" class="image" id="main-menu-image-c" width="362" height="199" alt="">
+								<img id="main-menu-ruffles" src="/{{cache_bust=static/images/ruffles.webp}}" width="223" height="223" loading="lazy" alt="">
+							</div>
 						</div>
 					</div>
-					<div id="main-menu-right">
-						<div id="main-menu-images">
-							<img src="/{{cache_bust=static/images/front-graphic-A.webp}}" class="image" id="main-menu-image-a" width="362" height="199" alt="">
-							<img src="/{{cache_bust=static/images/front-graphic-B.webp}}" class="image" id="main-menu-image-b" width="362" height="199" alt="">
-							<img src="/{{cache_bust=static/images/front-graphic-C.webp}}" class="image" id="main-menu-image-c" width="362" height="199" alt="">
-							<img id="main-menu-ruffles" src="/{{cache_bust=static/images/ruffles.webp}}" width="223" height="223" loading="lazy" alt="">
+						<a id="home-scroll-cue" href="#home-showcase" aria-label="Scroll to the next section"><span aria-hidden="true">▾</span></a>
+					</section>
+
+					<section id="home-showcase" class="home-section">
+						<div class="home-section-bg" id="home-showcase-bg"></div>
+						<div class="home-section-inner">
+							<h2 class="home-section-title">As Seen On</h2>
+							<p class="home-section-lead">Creators play Where in Warcraft on their channels. Watch how they do, then try to beat them.</p>
+							<div id="home-showcase-frame">
+								<video id="home-showcase-video" width="886" height="560" poster="/{{cache_bust=static/images/showcase-wiw-poster.webp}}" data-src="/{{cache_bust=static/images/showcase-wiw.webm}}" muted loop playsinline preload="none" disablepictureinpicture></video>
+							</div>
+							<a class="btn" href="https://www.youtube.com/results?search_query=Where+in+Warcraft" target="_blank" rel="noopener">Watch on YouTube</a>
 						</div>
-					</div>
+					</section>
+
+					<section id="home-leaderboards" class="home-section">
+						<div class="home-section-bg" id="home-leaderboards-bg"></div>
+						<div class="home-section-inner">
+							<h2 class="home-section-title">Leaderboards</h2>
+							<p class="home-section-lead">The best ten players for each game mode and era. Submit your score to take a place.</p>
+							<nav class="leaderboard-switch" id="home-board-modes" aria-label="Game mode">
+								<t-for items="game_mode_options" as="option"><button class="leaderboard-mode" type="button" data-value="{{option.slug}}"><svg class="mode-icon {{option.icon}}" aria-hidden="true"><use href="#icon-wow"></use></svg><span>{{option.label}}</span></button></t-for>
+							</nav>
+							<nav class="leaderboard-switch" id="home-board-eras" aria-label="Era">
+								<t-for items="era_options" as="option"><button class="leaderboard-mode" type="button" data-value="{{option.slug}}"><svg class="mode-icon {{option.icon}}" aria-hidden="true"><use href="#icon-wow"></use></svg><span>{{option.label}}</span></button></t-for>
+							</nav>
+							<div id="home-board-panel" aria-live="polite" aria-busy="true">
+								<table id="home-board-table" hidden>
+									<thead>
+										<tr>
+											<th scope="col">Rank</th>
+											<th scope="col">Player</th>
+											<th scope="col">Score</th>
+											<th scope="col">Accuracy</th>
+										</tr>
+									</thead>
+									<tbody id="home-board-body"></tbody>
+								</table>
+								<p id="home-board-status">Loading the leaderboard...</p>
+							</div>
+							<a class="btn" id="home-board-link" href="/leaderboard">View Full Leaderboards</a>
+						</div>
+					</section>
+
+					<section id="home-modes" class="home-section">
+						<div class="home-section-bg" id="home-modes-bg"></div>
+						<div class="home-section-inner">
+							<h2 class="home-section-title">Game Modes</h2>
+							<p class="home-section-lead">Three ways to play. Every mode adds to your overall progress.</p>
+							<div id="home-mode-columns">
+								<t-for items="mode_columns" as="mode"><div class="home-mode-column"><svg class="home-mode-icon {{mode.icon}}" aria-hidden="true"><use href="#icon-wow"></use></svg><h3 class="home-mode-name">{{mode.label}}</h3><p class="home-mode-detail">{{mode.detail}}</p></div></t-for>
+							</div>
+						</div>
+					</section>
 				</div>
 				<div id="game-root" hidden>
 					<div id="game">

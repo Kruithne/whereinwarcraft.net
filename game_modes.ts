@@ -38,6 +38,7 @@ export type GameMode = {
 	label: string;
 	lives: number;
 	description: string;
+	detail: string;
 	rules: string;
 	time_limit?: number;
 };
@@ -72,6 +73,7 @@ export const GAME_MODES: GameMode[] = [
 		label: 'Normal',
 		lives: 3,
 		description: 'You get three lives. Wrong guesses cost a life.',
+		detail: 'Study the screenshot, then pin the location on the map. A pin near the location scores a point. A wrong guess costs a life. The game ends when you lose all three lives.',
 		rules: ''
 	},
 	{
@@ -80,6 +82,7 @@ export const GAME_MODES: GameMode[] = [
 		label: 'Hardcore',
 		lives: 1,
 		description: 'You get one life. One wrong guess ends the game.',
+		detail: 'The rules of Normal, with one life. A single wrong guess ends the game. Only the most accurate players reach the top of the leaderboard.',
 		rules: ' Hardcore gives you one life.'
 	},
 	{
@@ -88,6 +91,7 @@ export const GAME_MODES: GameMode[] = [
 		label: 'Time Attack',
 		lives: 3,
 		description: 'You get three lives and ' + TIME_ATTACK_SECONDS + ' seconds for each location.',
+		detail: 'You get three lives and ' + TIME_ATTACK_SECONDS + ' seconds for each location. Make your guess before the timer runs out. A timeout costs a life.',
 		rules: ' Time Attack gives you ' + TIME_ATTACK_SECONDS + ' seconds for each location.',
 		time_limit: TIME_ATTACK_SECONDS
 	}
