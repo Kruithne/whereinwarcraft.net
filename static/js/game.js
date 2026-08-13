@@ -188,6 +188,10 @@ function create_game_app() {
 				return this.is_classic ? 'classic' : 'retail';
 			},
 
+			mode_label() {
+				return this.is_classic ? 'Classic' : 'Retail';
+			},
+
 			score_message() {
 				return this.score_improved ? SCORE_SUBMITTED_MESSAGE : SCORE_UNCHANGED_MESSAGE;
 			}

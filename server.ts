@@ -297,10 +297,15 @@ async function serve_page(req: Request, route_path: string, route: PageRoute, ex
 	return res;
 }
 
+function mode_icon_class(slug: string): string {
+	return 'mode-icon-' + slug;
+}
+
 function build_mode_links(current_slug: string): object[] {
 	const links = [{
 		href: LEADERBOARD_ROOT,
 		label: 'Overall',
+		icon: mode_icon_class('overall'),
 		class: current_slug === '' ? 'selected' : ''
 	}];
 
@@ -308,6 +313,7 @@ function build_mode_links(current_slug: string): object[] {
 		links.push({
 			href: LEADERBOARD_ROOT + '/' + mode.slug,
 			label: mode.label,
+			icon: mode_icon_class(mode.slug),
 			class: mode.slug === current_slug ? 'selected' : ''
 		});
 	}
@@ -810,6 +816,7 @@ server.route('/profile', async (req, _url) => {
 		total_correct += correct;
 		mode_cards.push({
 			label: mode.label,
+			icon: mode_icon_class(mode.slug),
 			percent: progress_percent(correct, total),
 			correct,
 			total
@@ -838,6 +845,7 @@ server.route('/profile', async (req, _url) => {
 
 		return {
 			mode_label: mode?.label ?? 'Unknown',
+			mode_icon: mode_icon_class(mode?.slug ?? 'unknown'),
 			played: format_game_date(game.created),
 			score: Number(game.score),
 			status,

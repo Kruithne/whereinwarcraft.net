@@ -2,7 +2,7 @@
 				<h1>Leaderboards</h1>
 
 				<nav id="leaderboard-modes" aria-label="Game modes">
-					<t-for items="mode_links" as="link"><a class="leaderboard-mode {{link.class}}" href="{{link.href}}">{{link.label}}</a></t-for>
+					<t-for items="mode_links" as="link"><a class="leaderboard-mode {{link.class}}" href="{{link.href}}"><svg class="mode-icon {{link.icon}}" aria-hidden="true"><use href="#icon-wow"></use></svg><span>{{link.label}}</span></a></t-for>
 				</nav>
 
 				<p>The global leaderboard ranks players by overall progress. Progress is the number of locations a player has guessed correctly, across all game modes.</p>

@@ -6,8 +6,8 @@
 							<h1>How well do you know the world of Azeroth?</h1>
 							<h2>Can you accurately place all the locations on the map?</h2>
 							<div id="main-menu-button-tray">
-								<input class="btn" type="button" value="Play Retail" id="main-menu-play-retail">
-								<input class="btn" type="button" value="Play Classic" id="main-menu-play-classic">
+								<button class="btn" type="button" id="main-menu-play-retail"><svg class="mode-icon mode-icon-retail" aria-hidden="true"><use href="#icon-wow"></use></svg><span>Play Retail</span></button>
+								<button class="btn" type="button" id="main-menu-play-classic"><svg class="mode-icon mode-icon-classic" aria-hidden="true"><use href="#icon-wow"></use></svg><span>Play Classic</span></button>
 							</div>
 							<a id="main-menu-last-session" hidden>Continue last session</a>
 						</div>
@@ -44,66 +44,72 @@
 									</div>
 								</div>
 							</div>
-							<div id="game-frame" v-else>
-								<div id="game-window">
-									<div class="loading" v-if="is_loading" role="status" aria-live="polite">
-										<img src="/{{cache_bust=static/images/zeppy.webp}}" width="149" height="140" alt="">
-										<span>Loading, hold tight!</span>
-									</div>
-									<div>
-										<div id="game-map" ref="game_map" :style="{ display: !is_loading && viewing_map ? 'block' : 'none', background: map_background }"></div>
-										<div id="game-map-info" v-if="!is_loading && map_info.visible">
-											<span>{{ map_info.zone_name }} - {{ map_info.location_name }}</span>
-										</div>
-										<div id="map-selector" role="group" aria-label="Select map" v-if="!is_loading && !is_classic && viewing_map">
-											<div id="map-selector-cata" title="Azeroth" aria-label="Azeroth" role="button" tabindex="0" class="map-selector-icon" :class="{ selected: selected_map === 'cata' }" :aria-pressed="selected_map === 'cata'" @click="set_selected_map('cata')" @keydown.enter="set_selected_map('cata')" @keydown.space.prevent="set_selected_map('cata')">
-												<div class="map-selector-icon-border"></div>
-											</div>
-											<div id="map-selector-tbc" title="Outland" aria-label="Outland" role="button" tabindex="0" class="map-selector-icon" :class="{ selected: selected_map === 'tbc' }" :aria-pressed="selected_map === 'tbc'" @click="set_selected_map('tbc')" @keydown.enter="set_selected_map('tbc')" @keydown.space.prevent="set_selected_map('tbc')">
-												<div class="map-selector-icon-border"></div>
-											</div>
-											<div id="map-selector-wod" title="Draenor" aria-label="Draenor" role="button" tabindex="0" class="map-selector-icon" :class="{ selected: selected_map === 'wod' }" :aria-pressed="selected_map === 'wod'" @click="set_selected_map('wod')" @keydown.enter="set_selected_map('wod')" @keydown.space.prevent="set_selected_map('wod')">
-												<div class="map-selector-icon-border"></div>
-											</div>
-											<div id="map-selector-bfa" title="Battle for Azeroth" aria-label="Battle for Azeroth" role="button" tabindex="0" class="map-selector-icon" :class="{ selected: selected_map === 'bfa' }" :aria-pressed="selected_map === 'bfa'" @click="set_selected_map('bfa')" @keydown.enter="set_selected_map('bfa')" @keydown.space.prevent="set_selected_map('bfa')">
-												<div class="map-selector-icon-border"></div>
-											</div>
-										</div>
-										<div id="game-map-buttons" v-show="!is_loading && viewing_map && guess_result_state === 'playing'">
-											<input class="btn" type="button" value="Re-view Location" @click="viewing_map = false">
-											<input class="btn" type="button" value="Confirm Guess" :class="{ disabled: !map_marker }" @click="confirm_guess">
-										</div>
-										<div id="next-round-button" v-show="!is_loading && guess_result_state === 'next_round'">
-											<input class="btn" type="button" value="Next Round" @click="next_round">
-										</div>
-										<div id="game-view-panorama" v-show="!is_loading" :style="{ display: !viewing_map ? 'block' : 'none' }">
-											<div id="game-panorama"
-												:style="{
-													backgroundImage: 'url(' + current_location_background + ')',
-													backgroundPosition: panorama_background_position
-												}"
-												@mousedown="panorama_mouse_down"
-												@touchstart="panorama_mouse_down">
-											</div>
-											<div id="game-panorama-buttons" v-show="!viewing_map && guess_result_state === 'playing'">
-												<input class="btn" type="button" value="Make Guess" @click="viewing_map = true">
-											</div>
-										</div>
-									</div>
+							<div id="game-play" v-else>
+								<div id="game-mode-banner">
+									<span id="game-mode-label">Mode:</span>
+									<span class="mode-tag"><svg class="mode-icon" :class="'mode-icon-' + mode_tag" aria-hidden="true"><use href="#icon-wow"></use></svg><span>{{ mode_label }}</span></span>
 								</div>
-								<div id="game-stats">
-									<span class="game-stat" id="game-stat-lives">
-										<span class="game-stat-label">Lives</span>
-										<span class="game-stat-value">{{ remaining_lives }}</span>
-									</span>
-									<span class="game-stat" id="game-stat-score">
-										<span class="game-stat-label">Score</span>
-										<span class="game-stat-value">{{ player_score }}</span>
-									</span>
-									<span class="game-stat" id="game-stat-accuracy">
-										<span class="game-stat-label">Accuracy</span>
-										<span class="game-stat-value">{{ player_accuracy }}%</span>
-									</span>
+								<div id="game-frame">
+									<div id="game-window">
+										<div class="loading" v-if="is_loading" role="status" aria-live="polite">
+											<img src="/{{cache_bust=static/images/zeppy.webp}}" width="149" height="140" alt="">
+											<span>Loading, hold tight!</span>
+										</div>
+										<div>
+											<div id="game-map" ref="game_map" :style="{ display: !is_loading && viewing_map ? 'block' : 'none', background: map_background }"></div>
+											<div id="game-map-info" v-if="!is_loading && map_info.visible">
+												<span>{{ map_info.zone_name }} - {{ map_info.location_name }}</span>
+											</div>
+											<div id="map-selector" role="group" aria-label="Select map" v-if="!is_loading && !is_classic && viewing_map">
+												<div id="map-selector-cata" title="Azeroth" aria-label="Azeroth" role="button" tabindex="0" class="map-selector-icon" :class="{ selected: selected_map === 'cata' }" :aria-pressed="selected_map === 'cata'" @click="set_selected_map('cata')" @keydown.enter="set_selected_map('cata')" @keydown.space.prevent="set_selected_map('cata')">
+													<div class="map-selector-icon-border"></div>
+												</div>
+												<div id="map-selector-tbc" title="Outland" aria-label="Outland" role="button" tabindex="0" class="map-selector-icon" :class="{ selected: selected_map === 'tbc' }" :aria-pressed="selected_map === 'tbc'" @click="set_selected_map('tbc')" @keydown.enter="set_selected_map('tbc')" @keydown.space.prevent="set_selected_map('tbc')">
+													<div class="map-selector-icon-border"></div>
+												</div>
+												<div id="map-selector-wod" title="Draenor" aria-label="Draenor" role="button" tabindex="0" class="map-selector-icon" :class="{ selected: selected_map === 'wod' }" :aria-pressed="selected_map === 'wod'" @click="set_selected_map('wod')" @keydown.enter="set_selected_map('wod')" @keydown.space.prevent="set_selected_map('wod')">
+													<div class="map-selector-icon-border"></div>
+												</div>
+												<div id="map-selector-bfa" title="Battle for Azeroth" aria-label="Battle for Azeroth" role="button" tabindex="0" class="map-selector-icon" :class="{ selected: selected_map === 'bfa' }" :aria-pressed="selected_map === 'bfa'" @click="set_selected_map('bfa')" @keydown.enter="set_selected_map('bfa')" @keydown.space.prevent="set_selected_map('bfa')">
+													<div class="map-selector-icon-border"></div>
+												</div>
+											</div>
+											<div id="game-map-buttons" v-show="!is_loading && viewing_map && guess_result_state === 'playing'">
+												<input class="btn" type="button" value="Re-view Location" @click="viewing_map = false">
+												<input class="btn" type="button" value="Confirm Guess" :class="{ disabled: !map_marker }" @click="confirm_guess">
+											</div>
+											<div id="next-round-button" v-show="!is_loading && guess_result_state === 'next_round'">
+												<input class="btn" type="button" value="Next Round" @click="next_round">
+											</div>
+											<div id="game-view-panorama" v-show="!is_loading" :style="{ display: !viewing_map ? 'block' : 'none' }">
+												<div id="game-panorama"
+													:style="{
+														backgroundImage: 'url(' + current_location_background + ')',
+														backgroundPosition: panorama_background_position
+													}"
+													@mousedown="panorama_mouse_down"
+													@touchstart="panorama_mouse_down">
+												</div>
+												<div id="game-panorama-buttons" v-show="!viewing_map && guess_result_state === 'playing'">
+													<input class="btn" type="button" value="Make Guess" @click="viewing_map = true">
+												</div>
+											</div>
+										</div>
+									</div>
+									<div id="game-stats">
+										<span class="game-stat" id="game-stat-lives">
+											<span class="game-stat-label">Lives</span>
+											<span class="game-stat-value">{{ remaining_lives }}</span>
+										</span>
+										<span class="game-stat" id="game-stat-score">
+											<span class="game-stat-label">Score</span>
+											<span class="game-stat-value">{{ player_score }}</span>
+										</span>
+										<span class="game-stat" id="game-stat-accuracy">
+											<span class="game-stat-label">Accuracy</span>
+											<span class="game-stat-value">{{ player_accuracy }}%</span>
+										</span>
+									</div>
 								</div>
 							</div>
 						</div>
