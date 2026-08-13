@@ -125,27 +125,23 @@ body {
 
 /* game mode icons */
 .mode-icon {
-	--mode-glyph: var(--color-text);
-	--mode-ring: var(--color-border);
 	flex: none;
 	width: 1.2em;
 	height: 1.2em;
 	vertical-align: -0.2em;
+	color: var(--color-text);
 }
 
 .mode-icon-overall {
-	--mode-glyph: #b47ce8;
-	--mode-ring: #6b3fa0;
+	color: #d9d2c4;
 }
 
 .mode-icon-retail {
-	--mode-glyph: #4db8ff;
-	--mode-ring: #1a6ba8;
+	color: #5b3f9e;
 }
 
 .mode-icon-classic {
-	--mode-glyph: #e8c87a;
-	--mode-ring: #a07b2c;
+	color: #f5bf2b;
 }
 
 .mode-tag {
