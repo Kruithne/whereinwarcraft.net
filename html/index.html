@@ -62,10 +62,10 @@
 							</div>
 							<div id="game-play" v-else>
 								<div id="game-mode-banner">
-									<span class="game-banner-label">Mode:</span>
-									<span class="mode-tag"><svg class="mode-icon" :class="'mode-icon-' + game_mode_tag" aria-hidden="true"><use href="#icon-wow"></use></svg><span>{{ game_mode_label }}</span></span>
-									<span class="game-banner-label">Era:</span>
-									<span class="mode-tag"><svg class="mode-icon" :class="'mode-icon-' + era_tag" aria-hidden="true"><use href="#icon-wow"></use></svg><span>{{ era_label }}</span></span>
+									<div id="game-mode-tags">
+										<span class="mode-tag"><svg class="mode-icon" :class="'mode-icon-' + game_mode_tag" aria-hidden="true"><use href="#icon-wow"></use></svg><span>{{ game_mode_label }}</span></span>
+										<span class="mode-tag"><svg class="mode-icon" :class="'mode-icon-' + era_tag" aria-hidden="true"><use href="#icon-wow"></use></svg><span>{{ era_label }}</span></span>
+									</div>
 								</div>
 								<div id="game-frame">
 									<div id="game-window">
